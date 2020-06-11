@@ -5,14 +5,14 @@
 
 pkgbase=sip
 pkgname=('sip' 'python-sip' 'python2-sip-pyqt5')
-pkgver=4.19.22
+pkgver=4.19.23
 pkgrel=1
 arch=('x86_64')
 url='https://www.riverbankcomputing.com/software/sip/intro'
 license=('custom:"sip"')
 makedepends=('python' 'python2')
 source=("https://www.riverbankcomputing.com/static/Downloads/sip/$pkgver/sip-$pkgver.tar.gz")
-sha256sums=('e1b768824ec1a2ee38dd536b6b6b3d06de27b00a2f5f55470d1b512306e3be45')
+sha256sums=('22ca9bcec5388114e40d4aafd7ccd0c4fe072297b628d0c5cdfa2f010c0bc7e7')
 
 prepare() {
   mkdir -p build{,-pyqt5-py2}

@@ -3,7 +3,7 @@
 # Contributor: Vinay S Shastry <vinayshastry@gmail.com>
 
 pkgname=wxmaxima
-pkgver=20.04.0
+pkgver=20.06.6
 pkgrel=1
 pkgdesc="A wxWidgets GUI for the computer algebra system Maxima"
 arch=('x86_64')
@@ -12,7 +12,7 @@ license=('GPL2')
 depends=('maxima' 'wxgtk3' 'ttf-linux-libertine')
 makedepends=('cmake')
 source=($pkgname-$pkgver.tar.gz::"https://github.com/wxMaxima-developers/wxmaxima/archive/Version-${pkgver}.tar.gz")
-sha256sums=('ce65b461bd0dde1dbc8d61d3d4104f95c1122e3a77620239d469ff317ba1e5a7')
+sha256sums=('a6c5e105fe406bd8716bbd2d37c14d3dd0f5411e6a96a22a291937fa1387928a')
 
 prepare() {
   mkdir -p build
