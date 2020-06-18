@@ -2,7 +2,7 @@
 # Contributor: Yaron de Leeuw <me@jarondl.net>
 
 pkgname=python2-isort
-pkgver=4.3.14
+pkgver=4.3.16
 pkgrel=1
 pkgdesc="A Python utility / library to sort Python imports."
 arch=('any')
@@ -10,7 +10,7 @@ url="https://github.com/timothycrosley/isort"
 license=('MIT')
 depends=('python2-futures' 'python2-setuptools')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/timothycrosley/isort/archive/$pkgver.tar.gz")
-sha512sums=('b55c65e8a31b79903b6f50e53b67523aa84b44aeaf01e863902184dad2b9f587d8d7fef1cbc70efed6117a277d2f436a8c4aa8129ec65f49b18106e17eca1b28')
+sha512sums=('74729c4e4305d57e210b9e1c9c97053e7d8971018df3555e111e74bf65b03219309382fbecf5add082b47ec4bbc7b91fc29bef398908efa7bfb1383e3b3cef1e')
 
 build() {
   cd isort-$pkgver
