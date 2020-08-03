@@ -2,7 +2,7 @@
 # Contributor: Yaron de Leeuw <me@jarondl.net>
 
 pkgname=python-isort
-pkgver=5.0.7
+pkgver=5.1.4
 pkgrel=1
 pkgdesc="A Python utility / library to sort Python imports."
 arch=('any')
@@ -13,7 +13,7 @@ makedepends=('python-dephell')
 checkdepends=('pylama' 'python-hypothesis-auto' 'python-pip' 'python-pip-api' 'python-pipreqs'
               'python-pytest' 'python-requirementslib')
 source=("https://github.com/timothycrosley/isort/archive/$pkgver/$pkgname-$pkgver.tar.gz")
-sha512sums=('ce2b73704cb158caf687d2f65e4eb268c0bce35dd3bd8873bc03e6aad5d1b9edf87b9413a769d4bae773b172a7df6c8a293105f31a893b7f87dd723da6e01f31')
+sha512sums=('49c78d3731caac0c70e49d07336cc87110042dcfd3e0ba191cd0bbe65a59fe14488d6361506a2a0308402d4b09a8d1e00f7dd3c79ca889e13bbc175b4f2c3417')
 
 prepare() {
   cd isort-$pkgver
