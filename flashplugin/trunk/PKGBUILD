@@ -3,18 +3,19 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=(flashplugin pepper-flash)
-pkgver=32.0.0.403
+pkgver=32.0.0.433
 pkgrel=1
 pkgdesc="Adobe Flash Player"
 arch=('x86_64')
 url="https://get.adobe.com/flashplayer/"
 license=('custom' 'LGPL')
 options=('!strip')
+install=flashplugin.install
 source=(flash_player_npapi_linux_$pkgver.x86_64.tar.gz::https://fpdownload.adobe.com/get/flashplayer/pdc/$pkgver/flash_player_npapi_linux.x86_64.tar.gz
         flash_player_ppapi_linux_$pkgver.x86_64.tar.gz::https://fpdownload.adobe.com/get/flashplayer/pdc/$pkgver/flash_player_ppapi_linux.x86_64.tar.gz)
 noextract=(${source[@]%::*})
-sha256sums=('f48ae94a723d36ecbc9019cb65ded295de93352047993d262b5c4776874f5fdd'
-            'b347c7208cfb601caf1dc793a73a8f4ad87aacd4b609ab289bfc9bad2f697f48')
+sha256sums=('ee022c4b1a96eecbfc0e022396cdcb713dddc2fb82abe00dc9c6ddf9518a004d'
+            'ccb865f3a2d39012ec36d13df236e67a0043c43368f4b4b60465d5664870f570')
 
 prepare() {
   local _dir

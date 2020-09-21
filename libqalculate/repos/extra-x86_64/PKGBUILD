@@ -2,7 +2,7 @@
 # Maintainer: Antonio Rojas <arojas@archlinux.org>
 
 pkgname=libqalculate
-pkgver=3.12.0
+pkgver=3.13.0
 pkgrel=1
 pkgdesc="Multi-purpose desktop calculator"
 arch=(x86_64)
@@ -12,7 +12,7 @@ depends=(libxml2 curl mpfr)
 makedepends=(intltool doxygen)
 optdepends=('gnuplot: for plotting support')
 source=(https://github.com/Qalculate/libqalculate/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz)
-sha256sums=('ff6b56c2afbed4c37b37869fde3b45610722fa4bb4b802c84f7cb387968fbc68')
+sha256sums=('329700f6ee9f634e5383598197efe94861cd49ce1d9b40b61558fa578d58de1c')
 
 build() {
   cd $pkgname-$pkgver

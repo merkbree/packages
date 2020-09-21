@@ -2,24 +2,35 @@
 # Contributor: Yaron de Leeuw <me@jarondl.net>
 
 pkgname=python-isort
-pkgver=5.1.4
+pkgver=5.5.3
 pkgrel=1
 pkgdesc="A Python utility / library to sort Python imports."
 arch=('any')
 url="https://github.com/timothycrosley/isort"
 license=('MIT')
-depends=('python')
+depends=('python-toml')
 makedepends=('python-dephell')
-checkdepends=('pylama' 'python-hypothesis-auto' 'python-pip' 'python-pip-api' 'python-pipreqs'
-              'python-pytest' 'python-requirementslib')
+checkdepends=('git' 'pylama' 'python-black' 'python-hypothesis-auto' 'python-hypothesmith'
+              'python-libcst' 'python-pip' 'python-pip-api' 'python-pipreqs' 'python-pytest'
+              'python-pytest-mock' 'python-requirementslib')
 source=("https://github.com/timothycrosley/isort/archive/$pkgver/$pkgname-$pkgver.tar.gz")
-sha512sums=('49c78d3731caac0c70e49d07336cc87110042dcfd3e0ba191cd0bbe65a59fe14488d6361506a2a0308402d4b09a8d1e00f7dd3c79ca889e13bbc175b4f2c3417')
+sha512sums=('ac34f8b93998f5a452b51117ec2b838553c4bd7e50dd8e1c37f9ef64d78d5eead6d9b1f5e22d4640e1ec237771be6477f43b186c0696591841c7c0c2f5daa89f')
 
 prepare() {
   cd isort-$pkgver
+
+  # Devendor toml
+  rm -r isort/_vendored
+  sed -i 's/from ._vendored //' isort/settings.py
+
   # poetry-generated setup.py are fatally broken, see:
   # https://github.com/sdispater/poetry/issues/866
   dephell deps convert --from pyproject.toml --to setup.py
+  for _plugin in example_isort_formatting_plugin example_shared_isort_profile; do
+    pushd $_plugin
+    dephell deps convert --from pyproject.toml --to setup.py
+    popd
+  done
 }
 
 build() {
@@ -30,7 +41,14 @@ build() {
 check() {
   cd isort-$pkgver
   python setup.py install --root="$PWD/tmp_install" --optimize=1
-  PYTHONPATH="$PWD/tmp_install/usr/lib/python3.8/site-packages" PATH="$PWD/tmp_install/usr/bin:$PATH" pytest --deselect tests/test_importable.py::test_importable
+  for _plugin in example_isort_formatting_plugin example_shared_isort_profile; do
+    pushd $_plugin
+    python setup.py install --root="$srcdir/isort-$pkgver/tmp_install" --optimize=1
+    popd
+  done
+  # This is just weird
+  PYTHONPATH="$PWD/example_isort_formatting_plugin:$PWD/example_shared_isort_profile:$PWD/tmp_install/usr/lib/python3.8/site-packages" PATH="$PWD/tmp_install/usr/bin:$PATH" \
+    pytest --deselect tests/test_importable.py::test_importable
 }
 
 package() {
