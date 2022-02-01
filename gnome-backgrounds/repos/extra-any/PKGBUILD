@@ -1,8 +1,8 @@
-# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
-# Maintainer: Jan de Groot <jgc@archlinux.org>
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gnome-backgrounds
-pkgver=3.36.0
+pkgver=41.0
 pkgrel=1
 pkgdesc="Background images and data for GNOME"
 url="https://gitlab.gnome.org/GNOME/gnome-backgrounds"
@@ -10,12 +10,13 @@ arch=(any)
 makedepends=(glib2 meson)
 license=(GPL)
 groups=(gnome)
-source=(https://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('b8cb81e4cf9d085fbb23540635b492d5c124a1f8611c2aa9ac6384111d77bb0b')
+_tarver=${pkgver/rc/.rc}
+source=(https://download.gnome.org/sources/$pkgname/${_tarver%%.*}/$pkgname-$_tarver.tar.xz)
+sha256sums=('1da1ac0d261bedf0fcd2c85b480bc65505e23cf51f1143126c0d37717e693145')
 
 build() {
-  arch-meson $pkgname-$pkgver build
-  ninja -C build
+  arch-meson $pkgname-$_tarver build
+  meson compile -C build
 }
 
 check() {

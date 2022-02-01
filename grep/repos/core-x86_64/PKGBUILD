@@ -3,7 +3,7 @@
 # Contributor: judd <jvinet@zeroflux.org>
 
 pkgname=grep
-pkgver=3.4
+pkgver=3.7
 pkgrel=1
 pkgdesc='A string search utility'
 arch=('x86_64')
@@ -14,7 +14,7 @@ depends=('glibc' 'pcre')
 makedepends=('texinfo')
 validpgpkeys=('155D3FC500C834486D1EEA677FD9FCCB000BEEEE') # Jim Meyering
 source=("https://ftp.gnu.org/gnu/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('58e6751c41a7c25bfc6e9363a41786cff3ba5709cf11d5ad903cf7cce31cc3fb'
+sha256sums=('5c10da312460aec721984d5d83246d24520ec438dd48d7ab5a05dbc0d6d6823c'
             'SKIP')
 
 prepare() {
@@ -32,7 +32,9 @@ prepare() {
 
 build() {
   cd $pkgname-$pkgver
-  ./configure --prefix=/usr --without-included-regex
+  # configure option --without-included-regex removed in 3.7
+  # see: https://lists.gnu.org/archive/html/bug-grep/2021-08/msg00028.html
+  ./configure --prefix=/usr
   make
 }
 

@@ -1,8 +1,8 @@
-# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
-# Maintainer: Jan de Groot <jgc@archlinux.org>
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gnome-getting-started-docs
-pkgver=3.36.2
+pkgver=3.38.1
 pkgrel=1
 pkgdesc="Help a new user get started in GNOME"
 url="https://gitlab.gnome.org/GNOME/gnome-getting-started-docs"
@@ -12,7 +12,7 @@ arch=(any)
 depends=(yelp gst-plugins-base gst-plugins-good)
 makedepends=(yelp-tools git)
 groups=(gnome)
-_commit=f109901ad89bd0e7f3ef47a0d2ec3a3efb32194e  # tags/3.36.2^0
+_commit=b13e80f4abcf2addf48b8c426be3ed7b8e06fb85  # master
 source=("git+https://gitlab.gnome.org/GNOME/gnome-getting-started-docs.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -23,6 +23,7 @@ pkgver() {
 
 prepare() {
   cd $pkgname
+  git tag -f 3.38.1 b13e80f4abcf2addf48b8c426be3ed7b8e06fb85 # Fixup missing tag
   NOCONFIGURE=1 ./autogen.sh
 }
 

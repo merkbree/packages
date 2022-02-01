@@ -4,16 +4,16 @@
 # Contributor: Firmicus <francois.archlinux.org>
 
 pkgname=perl-html-parser
-pkgver=3.74
-pkgrel=1
+pkgver=3.76
+pkgrel=2
 pkgdesc="Perl HTML parser class"
 arch=('x86_64')
 license=('PerlArtistic')
 url="https://search.cpan.org/dist/HTML-Parser/"
-depends=('perl-html-tagset' 'perl-http-message' 'perl-libwww' 'perl-uri')
+depends=('perl-html-tagset' 'perl-http-message' 'perl-uri')
 options=('!emptydirs')
-source=(https://www.cpan.org/authors/id/C/CA/CAPOEIRAB/HTML-Parser-$pkgver.tar.gz)
-sha512sums=('bf2eb1ad61f4179bedcee589ed7d57826c38fe385dca03230a37b1c2d2cb526ff03c462c07ee064ab53c1e614de1576f616e6c4bcf34bb41855081f15bd3bd33')
+source=(https://www.cpan.org/authors/id/O/OA/OALDERS/HTML-Parser-$pkgver.tar.gz)
+sha512sums=('50f9dc01997afdef33b58b48bfabd596b09cc11086773dcb4707086b7d7f54d2234d508e11a0b17e5d62849bf6acbc16aa8cd53080329ad3dacdbbe877c2c88b')
 
 build() {
   cd HTML-Parser-$pkgver

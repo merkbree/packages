@@ -15,10 +15,12 @@ pkgname=(kde-applications-meta
          kde-sdk-meta
          kde-system-meta
          kde-utilities-meta
-         telepathy-kde-meta)
-pkgver=20.08
-pkgrel=1
+         telepathy-kde-meta
+         kdevelop-meta)
+pkgver=21.12
+pkgrel=2
 arch=(any)
+license=(None)
 url='https://www.archlinux.org/'
 
 package_kde-applications-meta() {
@@ -32,7 +34,8 @@ package_kde-applications-meta() {
            kde-pim-meta
            kde-sdk-meta
            kde-system-meta
-           kde-utilities-meta)
+           kde-utilities-meta
+           kdevelop-meta)
 }
 
 package_kde-accessibility-meta() {
@@ -40,7 +43,8 @@ package_kde-accessibility-meta() {
   replaces=(kdeaccessibility-meta)
   depends=(kmag
            kmousetool
-           kmouth)
+           kmouth
+           kontrast)
 }
 
 package_kde-education-meta() {
@@ -70,7 +74,7 @@ package_kde-education-meta() {
 }
 
 package_kde-games-meta() {
-  pkgdesc='Meta package for kDE games'
+  pkgdesc='Meta package for KDE games'
   replaces=(kdegames-meta)
   depends=(bomber
            bovo
@@ -99,7 +103,7 @@ package_kde-games-meta() {
            kolf
            kollision
            konquest
-           kpatience
+           kpat
            kreversi
            kshisen
            ksirk
@@ -126,6 +130,7 @@ package_kde-graphics-meta() {
            kruler
            kdegraphics-mobipocket
            okular
+           skanlite
            spectacle
            svgpart
            kdegraphics-thumbnailers)
@@ -155,9 +160,11 @@ package_kde-network-meta() {
            kio-extras
            kio-gdrive
            konqueror
+           konversation
            kopete
            krdc
            krfb
+           ktorrent
            zeroconf-ioslave
            telepathy-kde-meta)
 }
@@ -168,6 +175,8 @@ package_kde-pim-meta() {
   depends=(akonadiconsole
            akregator
            akonadi-calendar-tools
+           grantlee-editor
+           itinerary
            kaddressbook
            kalarm
            kleopatra
@@ -176,7 +185,7 @@ package_kde-pim-meta() {
            kontact
            korganizer
            kdepim-addons
-           grantlee-editor)
+           zanshin)
 }
 
 package_kde-sdk-meta() {
@@ -203,7 +212,8 @@ package_kde-system-meta() {
   depends=(dolphin
            kcron
            khelpcenter
-           ksystemlog)
+           ksystemlog
+           partitionmanager)
 }
 
 package_kde-utilities-meta() {
@@ -227,6 +237,7 @@ package_kde-utilities-meta() {
            ktimer
            kwalletmanager
            kwrite
+           markdownpart
            print-manager
            sweeper
            yakuake)
@@ -245,4 +256,10 @@ package_telepathy-kde-meta() {
            telepathy-kde-integration-module
            telepathy-kde-send-file
            telepathy-kde-text-ui)
+}
+
+package_kdevelop-meta() {
+  pkgdesc='Meta package for KDevelop'
+  depends=(kdevelop
+           kdevelop-php)
 }

@@ -1,10 +1,9 @@
 # vim: set ts=2 sw=2 et:
-# Maintainer: Dan McGee <dan@archlinux.org>
-# Maintainer: Dave Reisner <dreisner@archlinux.org>
+# Maintainer: 
 
 pkgname=pacman
-pkgver=5.2.2
-pkgrel=1
+pkgver=6.0.1
+pkgrel=3
 pkgdesc="A library-based package manager with dependency support"
 arch=('x86_64')
 url="https://www.archlinux.org/pacman/"
@@ -12,7 +11,7 @@ license=('GPL')
 groups=('base-devel')
 depends=('bash' 'glibc' 'libarchive' 'curl'
          'gpgme' 'pacman-mirrorlist' 'archlinux-keyring')
-makedepends=('asciidoc')
+makedepends=('meson' 'asciidoc' 'doxygen')
 checkdepends=('python' 'fakechroot')
 optdepends=('perl-locale-gettext: translation support in makepkg-template')
 provides=('libalpm.so')
@@ -21,33 +20,46 @@ backup=(etc/pacman.conf
 options=('strip' 'debug')
 validpgpkeys=('6645B0A8C7005E78DB1D7864F99FFE0FEAE999BD'  # Allan McRae <allan@archlinux.org>
               'B8151B117037781095514CA7BBDFFC92306B1121') # Andrew Gregory (pacman) <andrew@archlinux.org>
-source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz{,.sig}
+source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.xz{,.sig}
+        add-flto-to-LDFLAGS-for-clang.patch
         pacman.conf
         makepkg.conf)
-sha256sums=('bb201a9f2fb53c28d011f661d50028efce6eef2c1d2a36728bdd0130189349a0'
+sha256sums=('0db61456e56aa49e260e891c0b025be210319e62b15521f29d3e93b00d3bf731'
             'SKIP'
-            '3353f363088c73f1f86a890547c0f87c7473e5caf43bbbc768c2e9a7397f2aa2'
-            '9c769f13c09a6f24c393a9762474eded2f269d8966e7764d9160d62232a7919b')
+            '82ff91b85f4c6ceba19f9330437e2a22aabc966c2b9e2a20a53857f98a42c223'
+            '606e55f06c297d2b508bc4438890b229a1abaa68b0374a2d7f94c8e7be6792d7'
+            '8bf61d04aa67979e58bada8538f62b4b37a58bab1aabe97d6b148da0f4c920d9')
 
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  patch -Np1 -i ../add-flto-to-LDFLAGS-for-clang.patch
+}
 
 build() {
   cd "$pkgname-$pkgver"
 
-  ./configure --prefix=/usr --sysconfdir=/etc \
-    --localstatedir=/var --enable-doc \
-    --with-scriptlet-shell=/usr/bin/bash \
-    --with-ldconfig=/usr/bin/ldconfig
-  make V=1
+  meson --prefix=/usr \
+        --buildtype=plain \
+        -Ddoc=enabled \
+        -Ddoxygen=enabled \
+        -Dscriptlet-shell=/usr/bin/bash \
+        -Dldconfig=/usr/bin/ldconfig \
+        build
+
+  meson compile -C build
 }
 
 check() {
-  make -C "$pkgname-$pkgver" check
+  cd "$pkgname-$pkgver"
+
+  meson test -C build
 }
 
 package() {
   cd "$pkgname-$pkgver"
 
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" meson install -C build
 
   # install Arch specific stuff
   install -dm755 "$pkgdir/etc"

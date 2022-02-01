@@ -2,42 +2,48 @@
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gjs
-pkgver=1.64.4
-pkgrel=1
+pkgver=1.70.0
+pkgrel=3
 epoch=2
 pkgdesc="Javascript Bindings for GNOME"
 url="https://wiki.gnome.org/Projects/Gjs"
 arch=(x86_64)
 license=(GPL)
-depends=(cairo gobject-introspection-runtime js68 dconf readline)
-makedepends=(gobject-introspection git sysprof meson)
-checkdepends=(valgrind xorg-server-xvfb)
+depends=(cairo gobject-introspection-runtime js78 dconf readline
+         libsysprof-capture)
+makedepends=(gobject-introspection git meson dbus)
+checkdepends=(valgrind xorg-server-xvfb gtk3 gtk4)
 provides=(libgjs.so)
-_commit=b35f834a27d31dec27cb71662da60637854020c4  # tags/1.64.4^0
+_commit=da5d5fe74469c799de80117758d79ad694d1116a  # tags/1.70.0^0
 source=("git+https://gitlab.gnome.org/GNOME/gjs.git#commit=$_commit")
 sha256sums=('SKIP')
 
 pkgver() {
-  cd $pkgname
+  cd gjs
   git describe --tags | sed 's/-/+/g'
 }
 
 prepare() {
-  cd $pkgname
+  cd gjs
 }
 
 build() {
-  arch-meson $pkgname build --buildtype release -D installed_tests=false
+  CFLAGS="${CFLAGS/-O2/-O3} -fno-semantic-interposition"
+  CXXFLAGS="${CXXFLAGS/-O2/-O3} -fno-semantic-interposition"
+  LDFLAGS+=" -Wl,-Bsymbolic-functions"
+
+  arch-meson gjs build -D installed_tests=false
   meson compile -C build
 }
 
 check() {
-  dbus-run-session xvfb-run \
-    -s '-screen 0 1920x1080x24 -nolisten local' \
+  xvfb-run -s '-nolisten local' \
     meson test -C build --print-errorlogs
 }
 
 package() {
   depends+=(libreadline.so)
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }
+
+# vim:set sw=2 et:

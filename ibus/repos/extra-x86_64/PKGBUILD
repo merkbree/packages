@@ -2,18 +2,18 @@
 
 pkgbase=ibus
 pkgname=(ibus libibus)
-pkgver=1.5.22+8+gf591381e
-pkgrel=1
+pkgver=1.5.25
+pkgrel=5
 pkgdesc="Next Generation Input Bus for Linux"
 arch=('x86_64')
 url="https://github.com/ibus/ibus/wiki"
 license=('LGPL')
-depends=('dconf' 'gtk2' 'gtk3' 'hicolor-icon-theme' 'libnotify' 'python-dbus' 'python-gobject'
-         'iso-codes' 'python2-gobject2' 'python2-dbus' 'python2-gobject' 'librsvg')
-makedepends=('gobject-introspection' 'vala' 'intltool' 'gnome-common' 'gtk-doc' 'qt5-base'
-             'cldr-emoji-annotation' 'unicode-character-database' 'unicode-emoji' 'git')
+depends=('dconf' 'gtk3' 'hicolor-icon-theme' 'libnotify' 'python-dbus' 'python-gobject'
+         'iso-codes' 'librsvg')
+makedepends=('gobject-introspection' 'vala' 'intltool' 'gnome-common' 'gtk-doc' 'gtk4' 'gtk2'
+             'qt5-base' 'unicode-cldr' 'unicode-character-database' 'unicode-emoji' 'git')
 options=('!emptydirs')
-_commit=f591381e3c892947ecaffe9131b9039ab9014498  # master
+_commit=cfb263f04f82a83dd94f6eedcd5017d40a4a1a05  # 1.5.25
 source=("git+https://github.com/ibus/ibus#commit=$_commit")
 sha512sums=('SKIP')
 
@@ -25,6 +25,7 @@ pkgver() {
 prepare() {
   cd ibus
   sed -i 's|$(libibus) $(libibus_emoji_dialog)|$(libibus_emoji_dialog) $(libibus)|' ui/gtk3/Makefile.am
+  git cherry-pick -n 936a0e76df79d92a8bdc03e9205330fb84a2083e
   NOCONFIGURE=1 ./autogen.sh
 }
 
@@ -37,9 +38,10 @@ build() {
     --enable-dconf \
     --enable-wayland \
     --enable-gtk-doc \
+    --enable-gtk4 \
     --disable-memconf \
     --enable-ui \
-    --enable-python-library \
+    --disable-python2 \
     --with-python=python3 \
     --with-ucd-dir=/usr/share/unicode/
   sed -i 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
@@ -48,13 +50,11 @@ build() {
 
 package_ibus() {
   depends+=("libibus=$pkgver")
-  install=ibus.install
 
   cd ibus
   make DESTDIR="$pkgdir" install
   make -C src DESTDIR="$pkgdir" uninstall
   make -C bindings DESTDIR="$pkgdir" uninstall
-  rm -r "$pkgdir"/usr/lib/python2.7/site-packages/gi # compiled pyc/pyo files were not cleaned
   make DESTDIR="$pkgdir" uninstall-pkgconfigDATA
 }
 

@@ -1,20 +1,20 @@
-# Maintainer: Sven-Hendrik Haase <svenstaro@gmail.com>
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 # Maintainer: Levente Polyak <anthraxx[at]archlinux[dot]org>
 
 pkgbase=nvidia-settings
 pkgname=('nvidia-settings' 'libxnvctrl')
-pkgver=455.23.04
+pkgver=510.47.03
 pkgrel=1
 pkgdesc='Tool for configuring the NVIDIA graphics driver'
 url='https://github.com/NVIDIA/nvidia-settings'
 arch=('x86_64')
 license=('GPL2')
-makedepends=('git' 'inetutils' 'gtk2' 'jansson' 'gtk3' 'libxv' 'libvdpau' 'nvidia-utils' 'libxext')
+makedepends=('inetutils' 'jansson' 'gtk2' 'gtk3' 'libxv' 'libvdpau' 'nvidia-utils' 'libxext')
 options=('staticlibs')
 source=(${pkgbase}-${pkgver}.tar.gz::https://github.com/NVIDIA/nvidia-settings/archive/${pkgver}.tar.gz
         libxnvctrl_so.patch)
-sha512sums=('0a2acd6f1462a34bf454677ca7ca1422716bd38c74fde4bda472e1e7929602fc54773a37136b17619b2a3e83f0adfcf79a5bd1e8a0f41202ed297858a02f1507'
+sha512sums=('cf2afcd9174b92288f31b33f4e86bb791a1293f865a76cfe5c1497529fad37445813448767354feed9b74a72d23f53ddaaa26f66a719a784bc16a966c8698691'
             '91ff94736063b911c83b8876fe3e3778db82e0ffe0102036d81a3a6e872ca44a585914646fcbbbe399cd63aa17685fc7f73263ec4f4084f48768ca4d704037fa')
 
 prepare() {
@@ -27,6 +27,7 @@ prepare() {
 
 build() {
   cd ${pkgbase}-${pkgver}
+  export CFLAGS+=" -ffat-lto-objects"
   make
   make -C src/libXNVCtrl
 }
@@ -39,7 +40,7 @@ package_nvidia-settings() {
 
   install -D -m644 doc/nvidia-settings.desktop "${pkgdir}/usr/share/applications/nvidia-settings.desktop"
   install -D -m644 doc/nvidia-settings.png "${pkgdir}/usr/share/pixmaps/nvidia-settings.png"
-  sed -e 's:__UTILS_PATH__:/usr/bin:' -e 's:__PIXMAP_PATH__:/usr/share/pixmaps:' -i "${pkgdir}/usr/share/applications/nvidia-settings.desktop"
+  sed -e 's:__UTILS_PATH__:/usr/bin:' -e 's:__PIXMAP_PATH__:/usr/share/pixmaps:' -e 's/__NVIDIA_SETTINGS_DESKTOP_CATEGORIES__/Settings;HardwareSettings;/' -i "${pkgdir}/usr/share/applications/nvidia-settings.desktop"
 
   rm "$pkgdir/usr/lib/libnvidia-gtk2.so.$pkgver"
 }

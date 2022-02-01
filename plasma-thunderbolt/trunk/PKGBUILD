@@ -1,19 +1,19 @@
 # Maintainer: Antonio Rojas <arojas@archlinux.org>
 
 pkgname=plasma-thunderbolt
-pkgver=5.19.5
+pkgver=5.23.5
 pkgrel=1
-pkgdesc="Plasma integration for controlling Thunderbolt devices"
+pkgdesc='Plasma integration for controlling Thunderbolt devices'
 arch=(x86_64)
-url="https://kde.org/plasma-desktop"
+url='https://kde.org/plasma-desktop/'
 license=(LGPL)
 groups=(plasma)
-depends=(bolt kcmutils)
+depends=(bolt systemsettings)
 makedepends=(extra-cmake-modules)
-source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('959b4eb43b58d46895c94c94c082b28277ca197cdcaa25880800502ace6d0295'
+source=(https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('790fae6c3b163a4d3e3c293ae6df250cef3660dfde51b903de94a643b84890c5'
             'SKIP')
-validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr@jriddell.org>
+validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
               '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
               'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
               '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>

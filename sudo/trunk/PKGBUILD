@@ -3,15 +3,15 @@
 # Contributor: Tom Newsom <Jeepster@gmx.co.uk>
 
 pkgname=sudo
-_sudover=1.9.3
-pkgver=${_sudover/p/.p}
+_sudover=1.9.9
 pkgrel=1
+pkgver=${_sudover/p/.p}
 pkgdesc="Give certain users the ability to run some commands as root"
 arch=('x86_64')
 url="https://www.sudo.ws/sudo/"
 license=('custom')
 groups=('base-devel')
-depends=('glibc' 'libgcrypt' 'pam' 'libldap')
+depends=('glibc' 'openssl' 'pam' 'libldap' 'zlib')
 backup=('etc/pam.d/sudo'
         'etc/sudo.conf'
         'etc/sudo_logsrvd.conf'
@@ -20,7 +20,7 @@ install=$pkgname.install
 source=(https://www.sudo.ws/sudo/dist/$pkgname-$_sudover.tar.gz{,.sig}
         sudo_logsrvd.service
         sudo.pam)
-sha256sums=('1d9889cc3b3b15ed8c2c7c3de3aa392a3a726838d020815067c080525c3f5837'
+sha256sums=('6d6ee863a3bc26c87661093a74ec63e10fd031ceba714642d21636dfe25e3e00'
             'SKIP'
             '8b91733b73171827c360a3e01f4692772b78e62ceca0cf0fd4b770aba35081a1'
             'd1738818070684a5d2c9b26224906aad69a4fea77aabd960fc2675aee2df1fa2')
@@ -40,7 +40,6 @@ build() {
     --with-rundir=/run/sudo \
     --with-vardir=/var/db/sudo \
     --with-logfac=auth \
-    --enable-gcrypt \
     --enable-tmpfiles.d \
     --with-pam \
     --with-sssd \
@@ -73,7 +72,7 @@ package() {
 
   install -Dm644 "$srcdir/sudo.pam" "$pkgdir/etc/pam.d/sudo"
 
-  install -Dm644 doc/LICENSE "$pkgdir/usr/share/licenses/sudo/LICENSE"
+  install -Dm644 LICENSE.md -t "$pkgdir/usr/share/licenses/sudo"
 }
 
 # vim:set ts=2 sw=2 et:

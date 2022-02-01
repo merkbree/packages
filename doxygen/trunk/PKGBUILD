@@ -3,7 +3,7 @@
 
 pkgbase=doxygen
 pkgname=('doxygen' 'doxygen-docs')
-pkgver=1.8.20
+pkgver=1.9.3
 pkgrel=1
 pkgdesc='Documentation system for C++, C, Java, IDL and PHP'
 url='http://www.doxygen.nl'
@@ -12,9 +12,9 @@ license=('GPL')
 makedepends=('cmake' 'gcc-libs' 'flex' 'qt5-base' 'texlive-core' 'ghostscript'
              'texlive-latexextra' 'graphviz' 'python' 'git')
 source=(${pkgbase}-${pkgver}.tar.gz::https://github.com/doxygen/doxygen/archive/Release_${pkgver//./_}.tar.gz)
-sha256sums=('3dbdf8814d6e68233d5149239cb1f0b40b4e7b32eef2fd53de8828fedd7aca15')
-sha512sums=('25509cec8904b10431cf3d29f6e6bbdad49fbf3a763606b30c92c111f294ac0311aa13d53007d71ff1f55fcae6903e2ce8f80d1a6b4832fa43f6a9166184e005')
-b2sums=('d318d6c1543cbd17062231eb5a29ed129f4b743f64e4533fac355f50f944b2efa53901298730805bbecb411edbadc3f4afed76e84093257108bf8edf69d1ea00')
+sha256sums=('c29426222c9361dc33b762cf1c6447c78cfb0b9c213e5dcdbe31a10540c918c5')
+sha512sums=('8fcec24d7f92c0d01444cb4b64a39adbe3467b7d75bf191ab667190d4feb1c99ac796fc5b1be6ae5f386321e3d85f28d4cbee05041f048f32ef68ea773d74ff9')
+b2sums=('81451704cdf1676db58ad7706c06bc5587f8fdcd8e10b17d0909c1a288c6d92d6080334544b7c7ae88e1fe459511e9f2da8781672e9856c03e4c553f5c1f1e49')
 
 prepare() {
   cd ${pkgbase}-Release_${pkgver//./_}
@@ -33,7 +33,7 @@ build() {
     -Dbuild_doc:BOOL=ON \
     -Dbuild_wizard:BOOL=ON
   make -C build
-  make -C build docs
+  make -C build docs -j1
 }
 
 check() {

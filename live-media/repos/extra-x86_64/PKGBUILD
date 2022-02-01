@@ -3,21 +3,21 @@
 # Contributor: Gilles CHAUVIN <gcnweb@gmail.com>
 
 pkgname=live-media
-pkgver=2019.11.06
-pkgrel=2
+pkgver=2021.08.24
+pkgrel=1
 pkgdesc='Set of C++ libraries for multimedia streaming'
 url='http://live555.com/liveMedia'
 arch=('x86_64')
 license=('LGPL')
-depends=('gcc-libs')
+depends=('gcc-libs' 'openssl')
 options=('staticlibs')
 source=(https://download.videolan.org/contrib/live555/live.${pkgver}.tar.gz)
-sha256sums=('a512071d1c6dd2caf16ecec0aa2c24f0b1cc4fe789e96adc927ee1fe29be493a')
-sha512sums=('dd8f40d198bb8059828caaf469af1ea38e000166acf1565d7c0dc9f82f9fcebe0b16599798a23685dd5ae30234b54234216463fd4db7ea32cf3da750063d7561')
+sha256sums=('ce95a1c79f6d18e959f9dc129b8529b711c60e76754acc285e60946303b923ec')
+sha512sums=('f776e43a9b0792fd41e43f3c06e48f5d766c405d6af4ed5ddac108723f222c844ec5dbe29701b62dff760fbed777935ffc9149080b45d7a7b4c655a7f1fe6dae')
 
 build() {
   cd live
-  sed -E 's|(\$\(INCLUDES\) -I. -O2 -DSOCKLEN_T=socklen_t)|\1 -fPIC -DRTSPCLIENT_SYNCHRONOUS_INTERFACE=1|g' -i config.linux
+  sed -E 's|(-DSOCKLEN_T=socklen_t)|\1 -fPIC -DRTSPCLIENT_SYNCHRONOUS_INTERFACE=1|g' -i config.linux
   ./genMakefiles linux
   make
 }

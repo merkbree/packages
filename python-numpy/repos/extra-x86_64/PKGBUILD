@@ -4,20 +4,19 @@
 # Contributor: Angel 'angvp' Velasquez <angvp[at]archlinux.com.ve> 
 
 pkgname=python-numpy
-pkgver=1.19.2
-pkgrel=1
+pkgver=1.21.5
+pkgrel=2
 pkgdesc="Scientific tools for Python"
 arch=('x86_64')
 license=('custom')
 url="https://www.numpy.org/"
 depends=('cblas' 'lapack' 'python')
-optdepends=('python-nose: testsuite'
-            'openblas: faster linear algebra')
-makedepends=('python-setuptools' 'gcc-fortran' 'python-nose' 'cython')
+optdepends=('openblas: faster linear algebra')
+makedepends=('python-setuptools' 'gcc-fortran' 'cython')
 checkdepends=('python-pytest' 'python-hypothesis')
 options=('staticlibs')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/numpy/numpy/archive/v$pkgver.tar.gz")
-sha512sums=('df6ba4e0b6fc4101cddf5f86ef28eba0bd03f173539dffddbd6c1cd9c77f6caf4a6301bc08869e46b8d4a69e1cb1462101d1b3aca1ad48c00da80d5c7e403c91')
+source=("https://github.com/numpy/numpy/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha512sums=('dd9007bcf9bc93ea62ec0bacdf31b6f33159701463c2a4c8d4ba009c1b404a76e2d6ccd9c424b15820915f6265da95062c122035c66e18656eb990c3ac7df198')
 
 build() {
   cd numpy-$pkgver
@@ -25,18 +24,15 @@ build() {
 }
 
 check() {
-  # TODO: Fix fortran tests here (it works fine after installation)
-
   cd numpy-$pkgver
   python setup.py install --root="$PWD/tmp_install" --optimize=1
   cd "$PWD/tmp_install"
-  PATH="$PWD/usr/bin:$PATH" PYTHONPATH="$PWD/usr/lib/python3.8/site-packages:$PYTHONPATH" python -c 'import numpy; numpy.test()'
+  PATH="$PWD/usr/bin:$PATH" PYTHONPATH="$PWD/usr/lib/python3.10/site-packages:$PYTHONPATH" python -c 'import numpy; numpy.test()'
 }
 
 package() {
   cd numpy-$pkgver
-  python setup.py install --prefix=/usr --root="${pkgdir}" --optimize=1
+  python setup.py install --prefix=/usr --root="$pkgdir" --optimize=1
 
-  install -m755 -d "${pkgdir}/usr/share/licenses/python-numpy"
-  install -m644 LICENSE.txt "${pkgdir}/usr/share/licenses/python-numpy/"
+  install -D -m644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/python-numpy/
 }

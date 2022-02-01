@@ -2,23 +2,24 @@
 # Contributor: tobias <tobias@arhlinux.org>
 
 pkgname=exiv2
-pkgver=0.27.3
+pkgver=0.27.5
 pkgrel=1
 pkgdesc="Exif, Iptc and XMP metadata manipulation library and tools"
 url="https://exiv2.org"
 arch=('x86_64')
 license=('GPL2')
-depends=('gcc-libs' 'zlib' 'expat' 'gettext' 'curl')
-makedepends=('cmake' 'gtest')
+depends=('gcc-libs' 'zlib' 'expat' 'libexpat.so' 'gettext' 'curl' 'libcurl.so')
+makedepends=('cmake' 'gtest' 'ninja')
 checkdepends=('python')
 provides=('libexiv2.so')
 source=(https://github.com/Exiv2/exiv2/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
-sha512sums=('92775e1c79f06f7b4fb4c214cb2732982cbf01d8bc07d0e8f440facca712a41e579ef2baf72a0471889bb74d3f4975fbc76b47adbe6839decb6770458f76a341')
-b2sums=('f57afed9adbc578c6db0bec843112b12af4aa706a92a12fcd6cfe989ddc07090701f99bc3fb17946d696fe36073d8cefa4ec87a819e8407fda8c48f25d368964')
+sha512sums=('fb7153c141502de4a3446abb49d991735aa034ef30d0ee2050cffc6c73778faa8ba2a666797565d45c11f9ae1130544b6ed854570d38351505dbb3c1610c4b7c')
+b2sums=('97eab9341e039f11a09630f428dee77bcda699451507076f78012dc84bd57f3aa9b47ee7346aebf809788917754be0ff83b5d624ee18759155c2585026b76f1b')
 
 build() {
   cd ${pkgname}-${pkgver}
   cmake -B build \
+    -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_SKIP_RPATH=ON \
@@ -28,20 +29,21 @@ build() {
     -DEXIV2_ENABLE_NLS=ON \
     -DEXIV2_ENABLE_XMP=ON \
     -DEXIV2_ENABLE_CURL=ON \
-    -DEXIV2_ENABLE_WEBREADY=ON
-  make -C build VERBOSE=1
+    -DEXIV2_ENABLE_WEBREADY=ON \
+    -DEXIV2_ENABLE_BMFF=ON
+  ninja -C build
 }
 
 check() {
   cd ${pkgname}-${pkgver}
-  make -C build tests
+  ninja -C build tests
 }
 
 package() {
   cd ${pkgname}-${pkgver}
   # remove samples instal which are only needed for unit tests
   sed '/samples\/cmake_install.cmake/d' -i build/cmake_install.cmake
-  make -C build DESTDIR="${pkgdir}" install
+  DESTDIR="${pkgdir}" ninja -C build install
 }
 
 # vim: ts=2 sw=2 et:

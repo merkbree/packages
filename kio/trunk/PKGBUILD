@@ -3,7 +3,7 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=kio
-pkgver=5.74.1
+pkgver=5.90.0
 pkgrel=1
 pkgdesc='Resource and network access abstraction'
 arch=(x86_64)
@@ -12,10 +12,10 @@ license=(LGPL)
 depends=(solid kjobwidgets kbookmarks libxslt kwallet ktextwidgets kded)
 makedepends=(extra-cmake-modules kdoctools doxygen qt5-tools qt5-doc)
 optdepends=('kio-extras: extra protocols support (sftp, fish and more)' 'kdoctools: for the help kioslave'
-            'knetattach: to add new kio-remote entries' 'kio-fuse: to mount remote filesystems via FUSE')
+            'kio-fuse: to mount remote filesystems via FUSE')
 groups=(kf5)
-source=("https://download.kde.org/stable/frameworks/${pkgver%.*}/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('2f88a383b751194d4f327d3f87f8ea25fe882f8cc5c58a368529d9ab7143a6e7'
+source=(https://download.kde.org/stable/frameworks/${pkgver%.*}/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('3a1f2eb6453172ecb5b9936c6a5205306e9e729f19bec6bf12527eef8a214637'
             'SKIP')
 validpgpkeys=(53E6B47B45CEA3E0D5B7457758D0EE648A48B3BB) # David Faure <faure@kde.org>
 

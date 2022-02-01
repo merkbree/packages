@@ -1,39 +1,58 @@
-# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 # Contributor: Jan de Groot <jgc@archlinux.org>
 # Contributor: Link Dupont <link@subpop.net>
 
-pkgname=devhelp
-pkgver=3.36.2
-pkgrel=1
+pkgbase=devhelp
+pkgname=(devhelp devhelp-docs)
+pkgver=41.2
+pkgrel=3
 pkgdesc="API documentation browser for GNOME"
+url="https://wiki.gnome.org/Apps/Devhelp"
 arch=(x86_64)
 license=(GPL)
-url="https://wiki.gnome.org/Apps/Devhelp"
-depends=(webkit2gtk amtk)
-makedepends=(gtk-doc git appstream-glib gobject-introspection meson yelp-tools)
-groups=(gnome-extra)
-_commit=70d627f397de9b557f572b2e58cd630650769737  # tags/3.36.2^0
+depends=(webkit2gtk)
+makedepends=(git appstream-glib gobject-introspection meson yelp-tools
+             gi-docgen)
+_commit=f05e288031ba171e8a0a589d65cba693487726d9  # tags/41.2^0
 source=("git+https://gitlab.gnome.org/GNOME/devhelp.git#commit=$_commit")
 sha256sums=('SKIP')
 
 pkgver() {
-  cd $pkgname
-  git describe --tags | sed 's/-/+/g'
+  cd devhelp
+  git describe --tags | sed 's/\.alpha/alpha/;s/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
-  cd $pkgname
+  cd devhelp
 }
 
 build() {
-  arch-meson $pkgname build -D gtk_doc=true
-  ninja -C build
+  arch-meson devhelp build \
+    -D gtk_doc=true \
+    -D plugin_emacs=true \
+    -D plugin_gedit=true \
+    -D plugin_vim=true
+  meson compile -C build
 }
 
 check() {
   meson test -C build --print-errorlogs
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+package_devhelp() {
+  groups=(gnome-extra)
+
+  meson install -C build --destdir "$pkgdir"
+
+  # Split -docs
+  mkdir -p docs/usr/share
+  mv -t docs/usr/share "$pkgdir"/usr/share/doc
+}
+
+package_devhelp-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+  options=(!strip)
+
+  mv -t "$pkgdir" docs/*
 }

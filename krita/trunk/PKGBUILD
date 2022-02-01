@@ -1,30 +1,28 @@
 # Maintainer: Antonio Rojas <arojas@archlinux,org>
 
 pkgname=krita
-_pkgver=4.3.0
+_pkgver=5.0.2
 pkgver=${_pkgver/-/}
-pkgrel=2
-pkgdesc="Edit and paint images"
+pkgrel=3
+pkgdesc='Edit and paint images'
 arch=(x86_64)
-url="https://krita.org"
+url='https://krita.org'
 license=(GPL3)
 depends=(kitemviews kitemmodels ki18n kcompletion kguiaddons kcrash qt5-svg qt5-multimedia quazip
-         gsl libraw exiv2 openexr fftw boost-libs giflib openjpeg2 hicolor-icon-theme)
-makedepends=(extra-cmake-modules kdoctools boost eigen vc poppler-qt5 opencolorio python-pyqt5 libheif
-             qt5-tools sip5)
-optdepends=('poppler-qt5: PDF filter' 'ffmpeg: to save animations' 'opencolorio: for the LUT docker'
-            "krita-plugin-gmic: G'MIC plugin" 'python-pyqt5: for the Python plugins' 'libheif: HEIF filter')
-conflicts=(calligra-krita krita-l10n)
-replaces=(calligra-krita krita-l10n)
-source=("https://download.kde.org/stable/krita/$_pkgver/$pkgname-$_pkgver.tar.gz"
-         krita-sip5.patch)
-sha256sums=('d071887c73bffbdc179054826b9752f5e5ab43fdcd9ffdd0402e9ab2ceee4bda'
-            '08076f5e3aa47a34f358efef16d95ae008dd71bcabc6da83a29f9597c1d25453')
-validpgpkeys=('05D00A8B73A686789E0A156858B9596C722EA3BD') # Boudewijn Rempt <foundation@krita.org>
-
-prepare() {
-  patch -d $pkgname-$_pkgver -p1 -i ../krita-sip5.patch # Fix build with SIP 5
-}
+         gsl libraw exiv2 openexr fftw openjpeg2 opencolorio libwebp hicolor-icon-theme)
+makedepends=(extra-cmake-modules kdoctools boost eigen vc poppler-qt5 python-pyqt5 libheif
+             qt5-tools sip kseexpr libmypaint)
+optdepends=('poppler-qt5: PDF filter' 'ffmpeg: to save animations'
+            'python-pyqt5: for the Python plugins' 'libheif: HEIF filter'
+            'kseexpr: SeExpr generator layer' 'kimageformats: PSD support' 'libmypaint: support for MyPaint brushes'
+            'krita-plugin-gmic: GMic plugin')
+source=(https://download.kde.org/stable/krita/$_pkgver/$pkgname-$_pkgver.tar.gz{,.sig})
+sha256sums=('e6751fc7eb504977a4880a376ebbd3995c87dad154486084e82397e65d499cbf'
+            'SKIP')
+validpgpkeys=('05D00A8B73A686789E0A156858B9596C722EA3BD'  # Boudewijn Rempt <foundation@krita.org>
+              'E9FB29E74ADEACC5E3035B8AB69EB4CF7468332F'  # Dmitry Kazakov (main key) <dimula73@gmail.com>
+              '064182440C674D9F8D0F6F8B4DA79EDA231C852B') # Stichting Krita Foundation <foundation@krita.org>
+options=(debug)
 
 build() {
   cmake -B build -S $pkgname-$_pkgver \

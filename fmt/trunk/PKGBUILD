@@ -2,7 +2,7 @@
 # Contributor: Mihai Bişog <mihai.bisog@gmail.com>
 
 pkgname=fmt
-pkgver=7.0.3
+pkgver=8.1.1
 pkgrel=1
 pkgdesc='Open-source formatting library for C++'
 arch=(x86_64)
@@ -19,19 +19,18 @@ makedepends=(
   python-virtualenv
 )
 provides=(libfmt.so)
-_tag=cd4af11efc9c622896a3e4cb599fa28668ca3d05
+_tag=b6f4ceaed0a0a24ccf575fab6c56dd50ccf6f1a9
 source=(git+https://github.com/fmtlib/fmt.git#tag=${_tag})
 b2sums=(SKIP)
-
-pkgver() {
-  cd fmt
-
-  git describe --tags
-}
 
 prepare() {
   npm install less less-plugin-clean-css
   sed "s/'lessc',/'npx', 'lessc',/" -i fmt/doc/build.py
+}
+
+pkgver() {
+  cd fmt
+  git describe --tags
 }
 
 build() {
@@ -39,7 +38,7 @@ build() {
     -DCMAKE_BUILD_TYPE=None \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=/usr/lib \
-    -DBUILD_SHARED_LIBS=1
+    -DBUILD_SHARED_LIBS=ON
   cmake --build build
   cmake --build build --target doc
 }
@@ -50,7 +49,7 @@ check() {
 
 package() {
   DESTDIR="${pkgdir}" cmake --build build --target install
-  install -Dm 644 fmt/LICENSE.rst -t "${pkgdir}"/usr/share/licenses/fmt
+  install -Dm 644 fmt/LICENSE.rst -t "${pkgdir}"/usr/share/licenses/fmt/
 }
 
 # vim: ts=2 sw=2 et:

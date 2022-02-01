@@ -2,22 +2,22 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gnome-maps
-pkgver=3.36.4
+pkgver=41.2
 pkgrel=1
 pkgdesc="A simple GNOME 3 maps application"
 url="https://wiki.gnome.org/Apps/Maps"
 arch=(x86_64)
 license=(GPL)
-depends=(geocode-glib geoclue gjs libchamplain libgee folks gfbgraph)
+depends=(geocode-glib geoclue gjs libchamplain libgee folks gfbgraph libhandy)
 makedepends=(gobject-introspection git meson yelp-tools)
 groups=(gnome)
-_commit=5a17713c5465303dc459cc593171630059fbd139  # tags/v3.36.4^0
+_commit=47ac76371c1616f936d298053f03562f442d5c0d  # tags/v41.2^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-maps.git#commit=$_commit")
 sha256sums=('SKIP')
 
 pkgver() {
   cd $pkgname
-  git describe --tags | sed 's/^v//;s/-/+/g'
+  git describe --tags | sed 's/^v//;s/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
@@ -34,5 +34,5 @@ check() {
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

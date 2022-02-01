@@ -1,7 +1,7 @@
 # Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
 
 pkgname=('geoip-database' 'geoip-database-extra')
-pkgver=20200825
+pkgver=20220125
 pkgrel=1
 arch=('any')
 url="https://mailfud.org/geoip-legacy/"
@@ -15,12 +15,12 @@ source=(GeoIP-$pkgver.dat.gz::$_source_base/GeoIP.dat.gz
         GeoIPCityv6-$pkgver.dat.gz::$_source_base/GeoIPCityv6.dat.gz
         GeoIPASNum-$pkgver.dat.gz::$_source_base/GeoIPASNum.dat.gz
         GeoIPASNumv6-$pkgver.dat.gz::$_source_base/GeoIPASNumv6.dat.gz)
-sha256sums=('3e3dd1250b4136b6712ae5f218cba4b8c50ce355545f724e91a6840d2566e710'
-            '040814055a992dc1b6e91ed28fad12e74d8d262cb4e3fd6e05fd24199a2822b5'
-            '43aa413a195a7d3c6ab34e948bf79d276d3dd3390f23c2748009d59764439167'
-            '5d4bc7c334ddb04ea8961c47e0dbe9b6564074adc7937728c4bef024ec523769'
-            '40913266143ea7c85d57233f0b9ade1e6baa014e62c2bdd342c0e2849bcbd871'
-            'e3e63900dac3b4bdcffa52b05e219d1a58bff54c9628c37681f7861bd6f071ec')
+sha256sums=('6184d6e50bb58f0e79f24b98707bc929d72af3c698383d58c7da53425f861c58'
+            '53beefabfb95879b9abf100f8274544973c997cc195d2942454e199378a6a5db'
+            '991a56807682313bd4de9e07c4b9efb135d85555f762127f4501f0b0a03908fc'
+            'cd2bc7978e235c0c4477384fc769aa0df159836db086e2374c59bd5ae8e3a463'
+            'a12c6e427091c69c7e346b2023f975140522fdaa2d45bdb15e25f2b20e1c3d08'
+            'e08f96ef50461f881e10d5f8021c6703cb04a44fefe5590ccc1b8268c1372528')
 
 prepare() {
   cd "$srcdir"

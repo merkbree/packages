@@ -7,49 +7,53 @@ pkgname=(
   mkvtoolnix-cli
   mkvtoolnix-gui
 )
-pkgver=50.0.0
+pkgver=64.0.0
 pkgrel=1
 pkgdesc='Set of tools to create, edit and inspect Matroska files'
 arch=(x86_64)
 url=https://mkvtoolnix.download/
 license=(GPL2)
+depends=(
+  gcc-libs
+  glibc
+  libebml.so
+  libfmt.so
+  libmatroska.so
+  pugixml
+  qt5-base
+)
 makedepends=(
   boost
-  boost-libs
   cmark
   docbook-xsl
-  file
   flac
-  fmt
   git
-  libebml
-  libmatroska
-  libogg
+  libdvdread
   libvorbis
+  po4a
   qt5-multimedia
+  qt5-tools
   ruby-rake
   zlib
 )
-_tag=09a589378bb093e9f18b8dec35d6239aafd94e37
-source=(git+https://gitlab.com/mbunkus/mkvtoolnix.git?signed#tag=${_tag})
+_tag=61c4802798d657d47ada0616994ac9d388adb21d
+#source=(git+https://gitlab.com/mbunkus/mkvtoolnix.git?signed#tag=${_tag})
+source=(git+https://gitlab.com/mbunkus/mkvtoolnix.git#tag=${_tag})
 validpgpkeys=(D9199745B0545F2E8197062B0F92290A445B9007) # Moritz Bunkus <moritz@bunkus.org>
 sha256sums=(SKIP)
 
-pkgver() {
-  cd mkvtoolnix
-
-  git describe --tags | sed 's/release-//'
-}
-
 prepare() {
   cd mkvtoolnix
-
   ./autogen.sh
+}
+
+pkgver() {
+  cd mkvtoolnix
+  git describe --tags | sed 's/release-//'
 }
 
 build() {
   cd mkvtoolnix
-
   ./configure \
     --prefix=/usr \
     --disable-update-check
@@ -57,20 +61,15 @@ build() {
 }
 
 package_mkvtoolnix-cli() {
-  depends=(
-    boost-libs
-    file
-    flac
-    libogg
-    zlib
-    libebml.so
-    libfmt.so
-    libmatroska.so
+  depends+=(
+    libdvdread
+    libFLAC.so
+    libogg.so
     libvorbis.so
+    zlib
   )
 
   cd mkvtoolnix
-
   rake DESTDIR="${pkgdir}" install
   rm -rf "${pkgdir}"/usr/share/{applications,icons,metainfo,mime,mkvtoolnix}
   find "${pkgdir}" -name mkvtoolnix-gui* -delete
@@ -81,12 +80,10 @@ package_mkvtoolnix-gui() {
     cmark
     hicolor-icon-theme
     mkvtoolnix-cli
-    qt5-base
     qt5-multimedia
   )
 
   cd mkvtoolnix
-
   rake DESTDIR="${pkgdir}" install
   rm -rf "${pkgdir}"/usr/share/locale
   for t in mkv{extract,info,merge,propedit}; do

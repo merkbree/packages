@@ -20,7 +20,7 @@ index 7a7cbc72..6705a0f3 100644
          "-fno-strict-aliasing", "-fPIC", "-fno-omit-frame-pointer", // optimization flags
          "-fstack-protector",
 +        "-Wno-error=cast-function-type",
-         "-Wextra", "-Wall", "-Wformat-security", "-Wno-unused", "-Wno-parentheses", "-Werror=implicit-function-declaration"] // warning flags
+         "-Wextra", "-Wall", "-Wformat-security", "-Wno-unused", "-Wno-parentheses", "-Werror=trampolines"] // warning flags
  
 +commonFlags.addAll(System.getenv("CFLAGS").trim().split(" "))
 +
@@ -38,8 +38,8 @@ index 7a7cbc72..6705a0f3 100644
  }
 @@ -294,7 +299,7 @@ LINUX.iio.nativeSource = [
  LINUX.iio.compiler = compiler
- LINUX.iio.ccFlags = [ccFlags].flatten()
- LINUX.iio.linker = linker
+ LINUX.iio.ccFlags = [cFlags, "-fvisibility=hidden"].flatten()
+ LINUX.iio.linker = IS_STATIC_BUILD ? "ld" : linker
 -LINUX.iio.linkFlags = [linkFlags].flatten()
 +LINUX.iio.linkFlags = [linkFlags, "-ljpeg"].flatten()
  LINUX.iio.lib = "javafx_iio"

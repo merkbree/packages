@@ -3,19 +3,17 @@
 # Contributor: Aurelien Foret <orelien@chez.com>
 
 pkgname=xfce4-terminal
-pkgver=0.8.9.2
-pkgrel=1
+pkgver=0.8.10
+pkgrel=2
 pkgdesc="A modern terminal emulator primarily for the Xfce desktop environment"
 arch=('x86_64')
-url="https://www.xfce.org/"
+url="https://docs.xfce.org/apps/terminal/start"
 license=('GPL2')
 groups=('xfce4')
 depends=('libxfce4ui' 'vte3' 'hicolor-icon-theme')
 makedepends=('intltool')
-conflicts=('terminal')
-replaces=('terminal')
 source=(https://archive.xfce.org/src/apps/$pkgname/0.8/$pkgname-$pkgver.tar.bz2)
-sha256sums=('9ba23bf86d350ef8a95d2dfb50bbd1bbb2144d82985a779ec28caf47faaeeeeb')
+sha256sums=('7a3337c198e01262a0412384823185753ac8a0345be1d6776a7e9bbbcbf33dc7')
 
 prepare() {
   cd "$srcdir/$pkgname-$pkgver"

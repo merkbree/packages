@@ -3,12 +3,12 @@
 
 pkgname=hunspell-de
 pkgver=20161207
-pkgrel=4
+pkgrel=7
 pkgdesc="German hunspell dictionaries"
 arch=('any')
 url="https://www.j3e.de/ispell/igerman98/"
 license=('GPL')
-makedepends=('hunspell' 'ispell' 'qt5-webengine')
+makedepends=('hunspell' 'ispell' 'qt6-webengine')
 optdepends=('hunspell: the spell checking libraries and apps')
 source=("https://www.j3e.de/ispell/igerman98/dict/igerman98-$pkgver.tar.bz2")
 sha256sums=('17296f03c5fea62d76ecc530ebe80f6adc430278f58d472dc1842d71612960a8')
@@ -18,6 +18,20 @@ build() {
   make hunspell/de_AT.dic hunspell/de_AT.aff \
        hunspell/de_CH.dic hunspell/de_CH.aff \
        hunspell/de_DE.dic hunspell/de_DE.aff
+
+  # fix file encoding - FS#68481
+  # check for broken files using
+  # file -i  $(pacman -Ql hunspell-de | sed "s/hunspell-de//") | grep iso
+  pushd hunspell
+    for file in de_AT.dic de_AT.aff README_de_AT.txt \
+                de_CH.dic de_CH.aff README_de_CH.txt \
+                de_DE.dic de_DE.aff README_de_DE.txt; do
+      mv $file $file.ISO-8859
+      iconv -f iso-8859-1 -t utf-8 $file.ISO-8859 -o $file
+      # fix encoding in .aff files
+      sed -i "s/ISO8859-1/UTF-8/" $file
+    done
+  popd
 }
 
 package() {
@@ -47,10 +61,11 @@ package() {
   popd
 
   # Install webengine dictionaries
-  install -d "$pkgdir"/usr/share/qt/qtwebengine_dictionaries/
+  install -d "$pkgdir"/usr/share/qt{,6}/qtwebengine_dictionaries/
   for _file in "$pkgdir"/usr/share/hunspell/*.dic; do
   _filename=$(basename $_file)
-    qwebengine_convert_dict $_file "$pkgdir"/usr/share/qt/qtwebengine_dictionaries/${_filename/\.dic/\.bdic}
+    /usr/lib/qt6/qwebengine_convert_dict $_file "$pkgdir"/usr/share/qt6/qtwebengine_dictionaries/${_filename/\.dic/\.bdic}
+  ln -rs "$pkgdir"/usr/share/qt6/qtwebengine_dictionaries/${_filename/\.dic/\.bdic} "$pkgdir"/usr/share/qt/qtwebengine_dictionaries/
   done
 
   # docs

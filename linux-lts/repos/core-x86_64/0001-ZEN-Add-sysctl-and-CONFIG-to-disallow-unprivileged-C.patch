@@ -1,4 +1,4 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 0948f6ce6d898c598f8fe88240954e578fdc8387 Mon Sep 17 00:00:00 2001
 From: "Jan Alexander Steffens (heftig)" <jan.steffens@gmail.com>
 Date: Mon, 16 Sep 2019 04:53:20 +0200
 Subject: [PATCH] ZEN: Add sysctl and CONFIG to disallow unprivileged
@@ -6,17 +6,40 @@ Subject: [PATCH] ZEN: Add sysctl and CONFIG to disallow unprivileged
 
 Our default behavior continues to match the vanilla kernel.
 ---
- init/Kconfig            | 16 ++++++++++++++++
- kernel/fork.c           | 15 +++++++++++++++
- kernel/sysctl.c         | 12 ++++++++++++
- kernel/user_namespace.c |  7 +++++++
- 4 files changed, 50 insertions(+)
+ include/linux/user_namespace.h |  4 ++++
+ init/Kconfig                   | 16 ++++++++++++++++
+ kernel/fork.c                  | 14 ++++++++++++++
+ kernel/sysctl.c                | 12 ++++++++++++
+ kernel/user_namespace.c        |  7 +++++++
+ 5 files changed, 53 insertions(+)
 
+diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+index 33a4240e6a6f1..82213f9c4c17f 100644
+--- a/include/linux/user_namespace.h
++++ b/include/linux/user_namespace.h
+@@ -139,6 +139,8 @@ static inline void set_rlimit_ucount_max(struct user_namespace *ns,
+ 
+ #ifdef CONFIG_USER_NS
+ 
++extern int unprivileged_userns_clone;
++
+ static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
+ {
+ 	if (ns)
+@@ -172,6 +174,8 @@ extern bool current_in_userns(const struct user_namespace *target_ns);
+ struct ns_common *ns_get_owner(struct ns_common *ns);
+ #else
+ 
++#define unprivileged_userns_clone 0
++
+ static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
+ {
+ 	return &init_user_ns;
 diff --git a/init/Kconfig b/init/Kconfig
-index 6db3e310a5e4..2dd7dd1b6b0d 100644
+index 11f8a845f259d..02b7a0e455a5d 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -1083,6 +1083,22 @@ config USER_NS
+@@ -1226,6 +1226,22 @@ config USER_NS
  
  	  If unsure, say N.
  
@@ -40,22 +63,21 @@ index 6db3e310a5e4..2dd7dd1b6b0d 100644
  	bool "PID Namespaces"
  	default y
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 9180f4416dba..a02f83b1d9b4 100644
+index 10885c649ca42..e0fe98e1afbdb 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -106,6 +106,11 @@
+@@ -98,6 +98,10 @@
+ #include <linux/io_uring.h>
+ #include <linux/bpf.h>
  
- #define CREATE_TRACE_POINTS
- #include <trace/events/task.h>
 +#ifdef CONFIG_USER_NS
-+extern int unprivileged_userns_clone;
-+#else
-+#define unprivileged_userns_clone 0
++#include <linux/user_namespace.h>
 +#endif
- 
- /*
-  * Minimum number of threads to boot the kernel
-@@ -1779,6 +1784,10 @@ static __latent_entropy struct task_struct *copy_process(
++
+ #include <asm/pgalloc.h>
+ #include <linux/uaccess.h>
+ #include <asm/mmu_context.h>
+@@ -1950,6 +1954,10 @@ static __latent_entropy struct task_struct *copy_process(
  	if ((clone_flags & (CLONE_NEWUSER|CLONE_FS)) == (CLONE_NEWUSER|CLONE_FS))
  		return ERR_PTR(-EINVAL);
  
@@ -66,7 +88,7 @@ index 9180f4416dba..a02f83b1d9b4 100644
  	/*
  	 * Thread groups must share signals as well, and detached threads
  	 * can only be started up within the thread group.
-@@ -2837,6 +2846,12 @@ int ksys_unshare(unsigned long unshare_flags)
+@@ -3056,6 +3064,12 @@ int ksys_unshare(unsigned long unshare_flags)
  	if (unshare_flags & CLONE_NEWNS)
  		unshare_flags |= CLONE_FS;
  
@@ -80,20 +102,20 @@ index 9180f4416dba..a02f83b1d9b4 100644
  	if (err)
  		goto bad_unshare_out;
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 70665934d53e..9797869ed829 100644
+index 083be6af29d70..42aa3c7835b96 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -110,6 +110,9 @@ extern int core_uses_pid;
- extern char core_pattern[];
- extern unsigned int core_pipe_limit;
+@@ -105,6 +105,9 @@
+ #ifdef CONFIG_LOCKUP_DETECTOR
+ #include <linux/nmi.h>
  #endif
 +#ifdef CONFIG_USER_NS
-+extern int unprivileged_userns_clone;
++#include <linux/user_namespace.h>
 +#endif
- extern int pid_max;
- extern int pid_max_min, pid_max_max;
- extern int percpu_pagelist_fraction;
-@@ -546,6 +549,15 @@ static struct ctl_table kern_table[] = {
+ 
+ #if defined(CONFIG_SYSCTL)
+ 
+@@ -1949,6 +1952,15 @@ static struct ctl_table kern_table[] = {
  		.proc_handler	= proc_dointvec,
  	},
  #endif
@@ -110,7 +132,7 @@ index 70665934d53e..9797869ed829 100644
  	{
  		.procname	= "tainted",
 diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index 8eadadc478f9..c36ecd19562c 100644
+index 6b2e3ca7ee993..0253002184f1d 100644
 --- a/kernel/user_namespace.c
 +++ b/kernel/user_namespace.c
 @@ -21,6 +21,13 @@

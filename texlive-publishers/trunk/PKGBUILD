@@ -2,8 +2,8 @@
 # Maintainer: Rémy Oudompheng <remy@archlinux.org>
 
 pkgname=texlive-publishers
-pkgver=2020.55415
-_revnr=${pkgver#2020.}
+pkgver=2021.61397
+_revnr=${pkgver#2021.}
 pkgrel=1
 pkgdesc="TeX Live - LaTeX classes and packages for specific publishers"
 license=('GPL')
@@ -13,7 +13,7 @@ groups=('texlive-most')
 url='http://tug.org/texlive/'
 source=("https://sources.archlinux.org/other/texlive/$pkgname-$pkgver-src.zip")
 options=('!emptydirs')
-sha256sums=('4d36cad1e18e5ad9b9866bba17c9288454f6d7b17a3ac144160ec4a5bce79176')
+sha256sums=('9c1246e11f27ce69e10652a2bf3ec24b082e405dbb6c2a59f5f90d4dc6159096')
 
 build() {
    cd "$srcdir"

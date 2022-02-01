@@ -1,0 +1,31 @@
+# Maintainer: AndyRTR <andyrtr@archlinux.org>
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+
+pkgname=luit
+pkgver=20210218
+pkgrel=1
+pkgdesc="Filter that can be run between an arbitrary application and a UTF-8 terminal emulator"
+arch=('x86_64')
+url="https://invisible-island.net/luit/luit.html"
+license=('custom')
+depends=('libfontenc')
+makedepends=('libx11')
+replaces=('xorg-luit')
+conflicts=('xorg-luit')
+source=(https://invisible-mirror.net/archives/${pkgname}/${pkgname}-${pkgver}.tgz{,.asc})
+sha256sums=('f3c7cfea61f4175b087fd4200e8e43d2d4b87575ed265403f9d67850ea1740e6'
+            'SKIP')
+validpgpkeys=('C52048C0C0748FEE227D47A2702353E0F7E48EDB') # "Thomas Dickey <dickey@invisible-island.net>"
+
+build() {
+  cd luit-${pkgver}
+  ./configure --prefix=/usr --enable-fontenc
+  make
+}
+
+package() {
+  cd luit-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+}

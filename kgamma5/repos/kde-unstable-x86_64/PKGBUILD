@@ -1,19 +1,19 @@
 # Maintainer:Antonio Rojas <arojas@archlinux.org>
 
 pkgname=kgamma5
-pkgver=5.19.90
+pkgver=5.23.90
 pkgrel=1
-pkgdesc="Adjust your monitor's gamma settings"
+pkgdesc='Adjust your monitor gamma settings'
 arch=(x86_64)
-url='https://www.kde.org/workspaces/plasmadesktop/'
+url='https://kde.org/plasma-desktop/'
 license=(LGPL)
-depends=(kconfigwidgets)
+depends=(systemsettings)
 makedepends=(extra-cmake-modules kdoctools)
 groups=(plasma)
-source=("https://download.kde.org/unstable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('f76bafd2d4de723ba6c3a4b1a9f8753dc829d58cfbbc2415ccfe8cff5d375fee'
+source=(https://download.kde.org/unstable/plasma/$pkgver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('672c2b130cf4ea214297f97702ee5182f6b5859173a7e2f1a19e3ae91961560b'
             'SKIP')
-validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr@jriddell.org>
+validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
               '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
               'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
               '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>

@@ -2,11 +2,11 @@
 # Contributor: Kritoke <typeolinux@yahoo.com>
 
 pkgname=gnumeric
-pkgver=1.12.48
+pkgver=1.12.51
 pkgrel=1
 pkgdesc="A GNOME Spreadsheet Program"
 arch=('x86_64')
-url="https://www.gnome.org/projects/gnumeric/"
+url="http://www.gnumeric.org/"
 license=('GPL')
 depends=('goffice')
 makedepends=('intltool' 'psiconv' 'pygobject-devel' docbook-xml
@@ -15,7 +15,7 @@ optdepends=('python-gobject: for python plugin support'
             'perl: for perl plugin support'
             'psiconv: for Psion 5 file support'
             'yelp: for viewing the help manual')
-_commit=4d3bb014941abb18f6e5236b6ea76ffe3b39a26e
+_commit=a243d1d077f6685372e6fef25b5ea0d3bee68417
 source=("git+https://gitlab.gnome.org/GNOME/gnumeric.git#commit=$_commit"
         revert-warnings.patch)
 sha256sums=('SKIP'

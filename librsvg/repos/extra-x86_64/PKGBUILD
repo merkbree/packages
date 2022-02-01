@@ -2,7 +2,7 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=librsvg
-pkgver=2.48.8
+pkgver=2.52.5
 pkgrel=1
 epoch=2
 pkgdesc="SVG rendering library"
@@ -12,25 +12,22 @@ license=(LGPL)
 depends=(gdk-pixbuf2 pango)
 makedepends=(gobject-introspection vala gtk-doc git rust)
 provides=(librsvg-${pkgver%%.*}.so)
-_commit=e5760d450ac862e6f639575bc2861b6fac191d60  # tags/2.48.8^0
-source=("git+https://gitlab.gnome.org/GNOME/librsvg.git#commit=$_commit"
-        lto.diff)
-sha256sums=('SKIP'
-            '3cc8ad1af515b2cb4071f0647319c1cf3280dc054875634239061800af1616b6')
+_commit=756616b808ce63ef09036f37952409b88b471522  # tags/2.52.5^0
+source=("git+https://gitlab.gnome.org/GNOME/librsvg.git#commit=$_commit")
+sha256sums=('SKIP')
 
 pkgver() {
   cd librsvg
-  git describe --tags | sed 's/-/+/g'
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
   cd librsvg
-
-  # Turn LTO back on
-  git apply -3 ../lto.diff
-
   NOCONFIGURE=1 ./autogen.sh
 }
+
+# Use LTO
+export CARGO_PROFILE_RELEASE_LTO=true CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
 
 build() {
   cd librsvg
@@ -52,4 +49,4 @@ package() {
   make DESTDIR="$pkgdir" install
 }
 
-# vim: ts=2 sw=2 et:
+# vim:set sw=2 et:

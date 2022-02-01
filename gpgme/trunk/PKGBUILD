@@ -4,23 +4,29 @@
 
 pkgbase=gpgme
 pkgname=(gpgme qgpgme python-gpgme)
-pkgver=1.14.0
-pkgrel=1
-_python_ver=3.8
+pkgver=1.16.0
+pkgrel=3
+_python_ver=3.10
 pkgdesc="A C wrapper library for GnuPG"
 arch=('x86_64')
 url='https://www.gnupg.org/related_software/gpgme/'
 license=('LGPL')
 makedepends=('libgpg-error' 'gnupg' 'qt5-base' 'python' 'swig')
-source=("https://www.gnupg.org/ftp/gcrypt/${pkgbase}/${pkgbase}-${pkgver}.tar.bz2"{,.sig})
-sha256sums=('cef1f710a6b0d28f5b44242713ad373702d1466dcbe512eb4e754d7f35cd4307'
-            'SKIP')
-validpgpkeys=('D8692123C4065DEA5E0F3AB5249B39D24F25E3B6') # Werner Koch
+validpgpkeys=('6DAA6E64A76D2840571B4902528897B826403ADA') # Werner Koch (dist signing 2020)
+source=("https://www.gnupg.org/ftp/gcrypt/${pkgbase}/${pkgbase}-${pkgver}.tar.bz2"{,.sig}
+        python310.patch)
+sha256sums=('6c8cc4aedb10d5d4c905894ba1d850544619ee765606ac43df7405865de29ed0'
+            'SKIP'
+            '5de2f6bcb6b30642d0cbc3fbd86803c9460d732f44a526f44cedee8bb78d291a')
+
+prepare() {
+  cd ${pkgbase}-${pkgver}
+  patch -Np1 -i ../python310.patch
+}
 
 build() {
   cd ${pkgbase}-${pkgver}
 
-  export PYTHONHASHSEED=0
   ./configure \
     --prefix=/usr \
     --disable-fd-passing \
@@ -31,9 +37,9 @@ build() {
   # ensure reproducibility of .pyc files
   touch -d @$SOURCE_DATE_EPOCH lang/python/version.py
   touch -d @$SOURCE_DATE_EPOCH lang/python/python${_python_ver}-gpg/lib.linux-x86_64-${_python_ver}/gpg/gpgme.py
-  
+
   # .pyc files will be created if check() is used - generate them here
-  
+
 }
 
 check() {

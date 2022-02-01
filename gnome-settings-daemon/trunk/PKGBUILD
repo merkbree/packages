@@ -1,25 +1,27 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgname=gnome-settings-daemon
-pkgver=3.36.1
-pkgrel=1
+pkgver=41.0
+pkgrel=2
 pkgdesc="GNOME Settings Daemon"
 url="https://gitlab.gnome.org/GNOME/gnome-settings-daemon"
 arch=(x86_64)
 license=(GPL)
-depends=(dconf gnome-desktop gsettings-desktop-schemas libcanberra-pulse libnotify systemd-libs
-         libwacom pulseaudio pulseaudio-alsa upower librsvg libgweather geocode-glib geoclue nss
-         libgudev gtk3 libnm gcr)
-makedepends=(xf86-input-wacom libxslt docbook-xsl python git meson usbguard)
+depends=(dconf gnome-desktop gsettings-desktop-schemas libcanberra-pulse libnotify systemd libwacom
+         pulseaudio pulseaudio-alsa upower librsvg libgweather geocode-glib geoclue nss libgudev
+         gtk3 libnm gcr)
+makedepends=(libxslt docbook-xsl python git meson usbguard)
 checkdepends=(python-gobject python-dbusmock)
 optdepends=('usbguard: USB protection support')
 groups=(gnome)
 backup=(etc/xdg/Xwayland-session.d/00-xrdb)
-_commit=28ce4225535329dee6a9aff8c44bd1671ce9d2de  # tags/GNOME_SETTINGS_DAEMON_3_36_1^0
+_commit=6466cae65b2bf962894b71e54a62355148709e4a  # tags/41.0^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-settings-daemon.git#commit=$_commit"
-        "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git")
+        "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
+        fix-meson.diff)
 sha256sums=('SKIP'
-            'SKIP')
+            'SKIP'
+            '704984a4f6cb6fb47c0a6dab7766c1e4e968c47a374deacc085bf629dcf02ad0')
 
 pkgver() {
   cd $pkgname
@@ -28,6 +30,9 @@ pkgver() {
 
 prepare() {
   cd $pkgname
+
+  # Fix build with Meson 0.61.0
+  git apply -3 ../fix-meson.diff
 
   git submodule init
   git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
@@ -44,5 +49,5 @@ check() {
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

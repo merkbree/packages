@@ -4,39 +4,42 @@
 # Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
 
 pkgname=chromium
-pkgver=85.0.4183.102
-pkgrel=1
-_launcher_ver=6
-_gcc_patchset=2
+pkgver=97.0.4692.99
+pkgrel=2
+_launcher_ver=8
+_gcc_patchset=4
 pkgdesc="A web browser built for speed, simplicity, and security"
 arch=('x86_64')
 url="https://www.chromium.org/Home"
 license=('BSD')
 depends=('gtk3' 'nss' 'alsa-lib' 'xdg-utils' 'libxss' 'libcups' 'libgcrypt'
-         'ttf-liberation' 'systemd' 'dbus' 'libpulse' 'pciutils' 'json-glib'
+         'ttf-liberation' 'systemd' 'dbus' 'libpulse' 'pciutils' 'libva'
          'desktop-file-utils' 'hicolor-icon-theme')
-makedepends=('python' 'python2' 'gperf' 'mesa' 'ninja' 'nodejs' 'git' 'libva'
-             'libpipewire02' 'clang' 'lld' 'gn' 'java-runtime-headless'
-             'python2-setuptools')
-optdepends=('pepper-flash: support for Flash content'
-            'libpipewire02: WebRTC desktop sharing under Wayland'
-            'libva: hardware-accelerated video decode [experimental]'
-            'kdialog: needed for file dialogs in KDE'
+makedepends=('python' 'gn' 'ninja' 'clang' 'lld' 'gperf' 'nodejs' 'pipewire'
+             'java-runtime-headless')
+optdepends=('pipewire: WebRTC desktop sharing under Wayland'
+            'kdialog: support for native dialogs in Plasma'
             'org.freedesktop.secrets: password storage backend on GNOME / Xfce'
-            'kwallet: for storing passwords in KWallet on KDE desktops')
-install=chromium.install
+            'kwallet: support for storing passwords in KWallet on Plasma')
+options=('!lto') # Chromium adds its own flags for ThinLTO
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
-        chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz
+        https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver/chromium-launcher-$_launcher_ver.tar.gz
         https://github.com/stha09/chromium-patches/releases/download/chromium-${pkgver%%.*}-patchset-$_gcc_patchset/chromium-${pkgver%%.*}-patchset-$_gcc_patchset.tar.xz
-        media-Set-allocation-limit-compatible-with-FFmpeg-4.3.patch
-        chromium-fix-vaapi-on-intel.patch
-        chromium-skia-harmony.patch)
-sha256sums=('8a68d474724a7a8acfc7742405942836f08e30e713f12f8c3ada46ee6a805e0c'
-            '04917e3cd4307d8e31bfb0027a5dce6d086edb10ff8a716024fbb8bb0c7dccf1'
-            '2194fe22b9e5ccdc4a86da4e3572214f670c561486671f57c90636fd3cbfa43e'
-            '0f041d655335cd2a4773ae7ca5e301a0ff12c6c53f57b7cf6651c268e0420a1c'
-            'e495f2477091557b15bff2c99831e0a3db64ea2ebde7dcb22857a6469c944b9a'
-            '771292942c0901092a402cc60ee883877a99fb804cb54d568c8c6c94565a48e1')
+        wayland-fix-binding-to-wrong-version.patch
+        sql-make-VirtualCursor-standard-layout-type.patch
+        chromium-93-ffmpeg-4.4.patch
+        unbundle-ffmpeg-av_stream_get_first_dts.patch
+        unexpire-accelerated-video-decode-flag.patch
+        use-oauth2-client-switches-as-default.patch)
+sha256sums=('c91bae205705b367f2cfc1f72ce1ee99b2ceb5edfc584e15c60a6ab5ff01ecba'
+            '213e50f48b67feb4441078d50b0fd431df34323be15be97c55302d3fdac4483a'
+            '7af5c0a55a20c0fb496b2f4448d89203a83bb1914754d864460e55e68731ef0b'
+            '29541840921302060f712838ba460cd7e988148af3ce3c9dc45437fc78442a67'
+            'dd317f85e5abfdcfc89c6f23f4c8edbcdebdd5e083dcec770e5da49ee647d150'
+            '1a9e074f417f8ffd78bcd6874d8e2e74a239905bf662f76a7755fa40dc476b57'
+            '1f0c1a7a1eb67d91765c9f28df815f58e1c6dc7b37d0acd4d68cac8e5515786c'
+            '2a97b26c3d6821b15ef4ef1369905c6fa3e9c8da4877eb9af4361452a425290b'
+            'e393174d7695d0bafed69e868c5fbfecf07aa6969f3b64596d0bae8b067e1711')
 
 # Possible replacements are listed in build/linux/unbundle/replace_gn_files.py
 # Keys are the names in the above script; values are the dependencies in Arch
@@ -67,9 +70,10 @@ depends+=(${_system_libs[@]})
 # Google API keys (see https://www.chromium.org/developers/how-tos/api-keys)
 # Note: These are for Arch Linux use ONLY. For your own distribution, please
 # get your own set of keys.
+#
+# Starting with Chromium 89 (2021-03-02) the OAuth2 credentials have been left
+# out: https://archlinux.org/news/chromium-losing-sync-support-in-early-march/
 _google_api_key=AIzaSyDwr302FpOSkGRpLlUpPThNTDPbXcIn_FM
-_google_default_client_id=413772536636.apps.googleusercontent.com
-_google_default_client_secret=0ZChLK6AxeA3Isu96MkwqDR4
 
 prepare() {
   cd "$srcdir/$pkgname-$pkgver"
@@ -82,26 +86,40 @@ prepare() {
   sed -i -e 's/\<xmlMalloc\>/malloc/' -e 's/\<xmlFree\>/free/' \
     third_party/blink/renderer/core/xml/*.cc \
     third_party/blink/renderer/core/xml/parser/xml_document_parser.cc \
-    third_party/libxml/chromium/*.cc
+    third_party/libxml/chromium/*.cc \
+    third_party/maldoca/src/maldoca/ole/oss_utils.h
 
-  # https://crbug.com/1095962
-  patch -Np1 -i ../media-Set-allocation-limit-compatible-with-FFmpeg-4.3.patch
+  # Use the --oauth2-client-id= and --oauth2-client-secret= switches for
+  # setting GOOGLE_DEFAULT_CLIENT_ID and GOOGLE_DEFAULT_CLIENT_SECRET at
+  # runtime -- this allows signing into Chromium without baked-in values
+  patch -Np1 -i ../use-oauth2-client-switches-as-default.patch
+
+  # Fix build with older ffmpeg
+  patch -Np1 -i ../chromium-93-ffmpeg-4.4.patch
+
+  # Substitute the custom function 'av_stream_get_first_dts'; will need to
+  # switch to bundled ffmpeg when we're no longer using ffmpeg 4.4 in Arch
+  # Upstream commit that made first_dts internal causing Chromium to add a
+  # custom function: https://github.com/FFmpeg/FFmpeg/commit/591b88e6787c4
+  # https://crbug.com/1251779
+  patch -Np1 -i ../unbundle-ffmpeg-av_stream_get_first_dts.patch
+
+  # https://crbug.com/1207478
+  patch -Np0 -i ../unexpire-accelerated-video-decode-flag.patch
+
+  # Upstream fixes
+  patch -Np1 -i ../wayland-fix-binding-to-wrong-version.patch
+
+  # https://chromium-review.googlesource.com/c/chromium/src/+/2862724
+  patch -Np1 -i ../sql-make-VirtualCursor-standard-layout-type.patch
 
   # Fixes for building with libstdc++ instead of libc++
-  patch -Np1 -i ../patches/chromium-85-NearbyShareEncryptedMetadataKey-include.patch
-  patch -Np1 -i ../patches/chromium-85-sim_hash-include.patch
+  #patch -Np1 -i ../patches/
 
-  # Patch from rpmfusion: chromium-freeworld
-  patch -Np1 -i ../chromium-fix-vaapi-on-intel.patch
-
-  # https://crbug.com/skia/6663#c10
-  patch -Np0 -i ../chromium-skia-harmony.patch
-
-  # Force script incompatible with Python 3 to use /usr/bin/python2
-  sed -i '1s|python$|&2|' third_party/dom_distiller_js/protoc_plugins/*.py
-
+  # Link to system tools required by the build
   mkdir -p third_party/node/linux/node-linux-x64/bin
   ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
+  ln -s /usr/bin/java third_party/jdk/current/bin/
 
   # Remove bundled libraries for which we will use the system copies; this
   # *should* do what the remove_bundled_libraries.py script does, with the
@@ -116,7 +134,7 @@ prepare() {
       -delete
   done
 
-  python2 build/linux/unbundle/replace_gn_files.py \
+  ./build/linux/unbundle/replace_gn_files.py \
     --system-libraries "${!_system_libs[@]}"
 }
 
@@ -124,11 +142,6 @@ build() {
   make -C chromium-launcher-$_launcher_ver
 
   cd "$srcdir/$pkgname-$pkgver"
-
-  if check_buildoption ccache y; then
-    # Avoid falling back to preprocessor mode when sources contain time macros
-    export CCACHE_SLOPPINESS=time_macros
-  fi
 
   export CC=clang
   export CXX=clang++
@@ -141,7 +154,8 @@ build() {
     'clang_use_chrome_plugins=false'
     'is_official_build=true' # implies is_cfi=true on x86_64
     'treat_warnings_as_errors=false'
-    'fieldtrial_testing_like_official_build=true'
+    'disable_fieldtrial_testing_config=true'
+    'blink_enable_generated_code_formatting=false'
     'ffmpeg_branding="Chrome"'
     'proprietary_codecs=true'
     'rtc_use_pipewire=true'
@@ -151,11 +165,8 @@ build() {
     'use_custom_libcxx=false'
     'enable_hangout_services_extension=true'
     'enable_widevine=true'
-    'use_vaapi=true'
     'enable_nacl=false'
-    "google_api_key=\"${_google_api_key}\""
-    "google_default_client_id=\"${_google_default_client_id}\""
-    "google_default_client_secret=\"${_google_default_client_secret}\""
+    "google_api_key=\"$_google_api_key\""
   )
 
   if [[ -n ${_system_libs[icu]+set} ]]; then
@@ -175,7 +186,20 @@ build() {
   CFLAGS+='   -Wno-unknown-warning-option'
   CXXFLAGS+=' -Wno-unknown-warning-option'
 
-  gn gen out/Release --args="${_flags[*]}" --script-executable=/usr/bin/python2
+  # https://github.com/ungoogled-software/ungoogled-chromium-archlinux/issues/123
+  CFLAGS=${CFLAGS/-fexceptions}
+  CFLAGS=${CFLAGS/-fcf-protection}
+  CXXFLAGS=${CXXFLAGS/-fexceptions}
+  CXXFLAGS=${CXXFLAGS/-fcf-protection}
+
+  # This appears to cause random segfaults
+  CFLAGS=${CFLAGS/-fstack-clash-protection}
+  CXXFLAGS=${CXXFLAGS/-fstack-clash-protection}
+
+  # https://crbug.com/957519#c122
+  CXXFLAGS=${CXXFLAGS/-Wp,-D_GLIBCXX_ASSERTIONS}
+
+  gn gen out/Release --args="${_flags[*]}"
   ninja -C out/Release chrome chrome_sandbox chromedriver
 }
 
@@ -214,6 +238,8 @@ package() {
   local toplevel_files=(
     chrome_100_percent.pak
     chrome_200_percent.pak
+    chrome_crashpad_handler
+    chromedriver
     resources.pak
     v8_context_snapshot.bin
 
@@ -221,7 +247,9 @@ package() {
     libEGL.so
     libGLESv2.so
 
-    chromedriver
+    # SwiftShader ICD
+    libvk_swiftshader.so
+    vk_swiftshader_icd.json
   )
 
   if [[ -z ${_system_libs[icu]+set} ]]; then

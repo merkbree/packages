@@ -1,16 +1,17 @@
-# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgname=polari
-pkgver=3.36.3
+pkgver=41.0
 pkgrel=1
 pkgdesc="An IRC Client for GNOME"
 url="https://wiki.gnome.org/Apps/Polari"
 arch=(x86_64)
 license=(GPL)
-depends=(gjs gtk3 telepathy-glib telepathy-idle telepathy-mission-control telepathy-logger gspell)
+depends=(gjs gtk3 telepathy-glib telepathy-idle telepathy-mission-control
+         telepathy-logger gspell libsoup3)
 makedepends=(gobject-introspection yelp-tools appstream-glib git meson)
 groups=(gnome-extra)
-_commit=10cb78f0b81fb3177926e3048d9425383e98c3b0  # tags/3.36.3^0
+_commit=0eab55718a07fcf7b3231ac565bf3f1651bfbe7e  # tags/41.0^0
 source=("git+https://gitlab.gnome.org/GNOME/polari.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -33,5 +34,5 @@ check() {
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

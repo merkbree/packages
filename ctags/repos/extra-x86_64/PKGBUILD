@@ -3,27 +3,27 @@
 # Contributor: John Proctor <jproctor@prium.net>
 
 pkgname=ctags
-_commit=a3c87ab5232ffb9d047b187d6fd3852bfd12b197  # master
-pkgver=r20200106+ga3c87ab5
+_commit=ca81123303640582358ce7b8a4e466615950a1f7  # p5.9.20210905.0
+pkgver=5.9.20210905.0
 pkgrel=1
 epoch=1
 pkgdesc='Generates an index file of language objects found in source files'
 url='https://ctags.io/'
 arch=('x86_64')
 license=('GPL')
-depends=('libxml2' 'jansson' 'libyaml' 'libseccomp')
+depends=('glibc' 'libxml2' 'jansson' 'libyaml' 'libseccomp' 'libseccomp.so')
 makedepends=('git' 'python-docutils')
 provides=('universal-ctags')
-source=("git+https://github.com/universal-ctags/ctags#commit=$_commit")
+source=("git+https://github.com/universal-ctags/ctags.git#commit=$_commit")
 sha512sums=('SKIP')
 
 pkgver() {
-  git -C ctags show --pretty='r%cd+g%h' --date='format:%Y%m%d' --no-patch
+  git -C ctags describe --tags --match 'p*' | sed 's/^p//;s/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare() {
   cd ctags
-  ./autogen.sh
+  autoreconf -fiv
 }
 
 build() {

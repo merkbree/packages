@@ -2,8 +2,8 @@
 # Maintainer: Rémy Oudompheng <remy@archlinux.org>
 
 pkgname=texlive-pstricks
-pkgver=2020.55289
-_revnr=${pkgver#2020.}
+pkgver=2021.61407
+_revnr=${pkgver#2021.}
 pkgrel=1
 pkgdesc="TeX Live - Additional PSTricks packages"
 license=('GPL')
@@ -13,7 +13,7 @@ groups=('texlive-most')
 url='http://tug.org/texlive/'
 source=("https://sources.archlinux.org/other/texlive/$pkgname-$pkgver-src.zip")
 options=('!emptydirs')
-sha256sums=('be0eb4d24474a3af116af7d34af5b78f6cdc7aee6235ed4d63f1682dc2ef0cbc')
+sha256sums=('b6883953e89dab6197b7faf95214241e012acf30d9280dc9bbfbed3792c771f5')
 
 build() {
    for p in *.tar.xz; do

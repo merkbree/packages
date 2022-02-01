@@ -1,18 +1,21 @@
 # Maintainer: Antonio Rojas <arojas@archlinux.org>
 
 pkgname=markdownpart
-pkgver=0.1.0
+pkgver=21.12.1
 pkgrel=1
 pkgdesc='KPart for rendering Markdown content'
 arch=(x86_64)
-url='https://kde.org/'
+url='https://apps.kde.org/markdownpart/'
 license=(GPL)
 depends=(kparts)
 makedepends=(extra-cmake-modules)
-source=("https://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('29831a64548444559740bcff230c4093fbc79155be8ce6af2994f619eb7c7cc3'
+groups=(kde-applications kde-utilities)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('df75ea49a64cc7fd4b572717cff8acb11416daaa3bc0b21b593e6b89e119810b'
             'SKIP')
-validpgpkeys=('0A48BC961075B4BA8523E3790A345FB086E797D9')  # Friedrich W. H. Kossebau <kossebau@kde.org>
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
   cmake -B build -S $pkgname-$pkgver \

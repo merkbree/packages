@@ -1,47 +1,39 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 # Contributor: uastasi <uastasi@archlinux.us>
 
 pkgname=gnote
-pkgver=3.36.1
+pkgver=41.2
 pkgrel=1
 pkgdesc="A note taking application"
 url="https://wiki.gnome.org/Apps/Gnote"
 arch=(x86_64)
 license=(GPL3)
 depends=(gtkmm3 gspell libxslt dconf libsecret)
-makedepends=(intltool yelp-tools autoconf-archive git)
-_commit=39d111c838a6895290fc7e6dbc0dc182fc1d05c6  # tags/3.36.1^0
+makedepends=(yelp-tools meson git)
+_commit=56074f03883f11fd91669b5dcd2145efa7440128  # tags/41.2^0
 source=("git+https://gitlab.gnome.org/GNOME/gnote.git#commit=$_commit")
 sha256sums=('SKIP')
 
 pkgver() {
-  cd $pkgname
-  git describe --tags | sed 's/-/+/g'
+  cd gnote
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
-  cd $pkgname
-  NOCONFIGURE=1 ./autogen.sh
+  cd gnote
 }
 
 build() {
-  cd $pkgname
-  ./configure --prefix=/usr \
-    --sysconfdir=/etc \
-    --localstatedir=/var \
-    --libexecdir=/usr/lib \
-    --disable-schemas-compile \
-    --disable-static
-  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make
+  arch-meson gnote build
+  meson compile -C build
 }
 
 check() {
-  cd $pkgname
-  make check
+  meson test -C build
 }
 
 package() {
-  cd $pkgname
-  make DESTDIR="$pkgdir" install
+  meson install -C build --destdir "$pkgdir"
 }

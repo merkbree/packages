@@ -1,47 +1,30 @@
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 
-pkgbase=python-attrs
-pkgname=('python-attrs' 'python2-attrs')
-pkgver=20.2.0
+pkgname=python-attrs
+pkgver=21.4.0
 pkgrel=1
 pkgdesc="Attributes without boilerplate."
 arch=('any')
 license=('MIT')
 url="https://attrs.readthedocs.org/"
-makedepends=('python-setuptools' 'python2-setuptools')
-checkdepends=('python-pytest-runner' 'python-zope-interface' 'python-hypothesis')
+depends=('python')
+makedepends=('python-setuptools')
+checkdepends=('python-pytest' 'python-cloudpickle' 'python-hypothesis' 'python-zope-interface')
 source=("https://pypi.io/packages/source/a/attrs/attrs-$pkgver.tar.gz")
-sha512sums=('829030d8c1fe7bffbbb8d70fc56228f4c378d85a24c89d802e51f63a78abbfa24f46f5aa8b56cb7ba26ef0bf1fb272163873c45c994145de0be45b14c6fb29cd')
-
-prepare() {
-  cp -a attrs-$pkgver{,-py2}
-}
+sha512sums=('5a52776eb505c8a354912fa037a9710e49830fa6ad37272cb6d8c3298f4179a5b237e36cd7db3b1c9af19fbf0194ad6b83c3db9a473f9349769180073273ba65')
 
 build() {
   cd "$srcdir"/attrs-$pkgver
   python setup.py build
-
-  cd "$srcdir"/attrs-$pkgver-py2
-  python2 setup.py build
 }
 
 check() {
   cd attrs-$pkgver
-  python setup.py pytest
+  PYTHONPATH=build/lib pytest
 }
 
-package_python-attrs() {
-  depends=('python')
-
+package() {
   cd attrs-$pkgver
   python setup.py install --root="$pkgdir" --optimize=1 --skip-build
-  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-}
-
-package_python2-attrs() {
-  depends=('python2')
-
-  cd attrs-$pkgver-py2
-  python2 setup.py install --root="$pkgdir" --optimize=1 --skip-build
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

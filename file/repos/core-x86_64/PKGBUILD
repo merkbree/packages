@@ -3,7 +3,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=file
-pkgver=5.39
+pkgver=5.41
 pkgrel=1
 pkgdesc='File type identification utility'
 arch=('x86_64')
@@ -12,9 +12,10 @@ groups=('base-devel')
 url='https://www.darwinsys.com/file/'
 depends=('glibc' 'zlib' 'xz' 'bzip2' 'libseccomp' 'libseccomp.so')
 provides=('libmagic.so')
+options=('!emptydirs')
 source=("https://astron.com/pub/$pkgname/$pkgname-$pkgver.tar.gz"{,.asc})
 validpgpkeys=('BE04995BA8F90ED0C0C176C471112AB16CB33B3A') # Christos Zoulas
-sha256sums=('f05d286a76d9556243d0cb05814929c2ecf3a5ba07963f8f70bfaaa70517fad1'
+sha256sums=('13e532c7b364f7d57e23dfeea3147103150cb90593a57af86c10e4f6e411603f'
             'SKIP')
 
 prepare() {

@@ -3,20 +3,21 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=cervisia
-pkgver=20.08.1
+pkgver=21.12.1
 pkgrel=1
 pkgdesc='CVS Frontend'
-url='https://kde.org/applications/development/cervisia/'
+url='https://apps.kde.org/cervisia/'
 arch=(x86_64)
 license=(GPL LGPL FDL)
 groups=(kde-applications kdesdk)
 depends=(kdesu kparts hicolor-icon-theme kinit)
 makedepends=(extra-cmake-modules kdoctools)
-source=("https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('eedd3b3f00b97d513437fdbd2eeaa28cd6db29512983b82196bdededd8b701f2'
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('28dd44c523cea981af244d144cda32c718bf975ddf77ee93c0ede89b3ee637e1'
             'SKIP')
 validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
-              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87) # Christoph Feck <cfeck@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
   cmake -B build -S $pkgname-$pkgver \

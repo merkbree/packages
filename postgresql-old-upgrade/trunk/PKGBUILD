@@ -2,24 +2,24 @@
 # Maintainer: Dan McGee <dan@archlinux.org>
 
 pkgname=postgresql-old-upgrade
-pkgver=11.9
+pkgver=12.8
 _majorver=${pkgver%.*}
-pkgrel=1
+pkgrel=5
 pkgdesc='PostgreSQL build for migrating between major versions with pg_upgrade'
 url='https://www.postgresql.org/'
 arch=('x86_64')
 license=('custom:PostgreSQL')
 depends=("postgresql-libs>=${_majorver}" 'libxml2' 'openssl>=1.0.0' 'pam'
-         'zlib' 'icu' 'systemd-libs' 'libldap' 'krb5')
-makedepends=('python' 'python2' 'perl' 'tcl>=8.6.0' 'systemd')
+         'zlib' 'icu' 'systemd-libs' 'libldap' 'krb5' 'llvm-libs')
+makedepends=('python' 'python2' 'perl' 'tcl>=8.6.0' 'systemd' 'llvm' 'clang')
 optdepends=('python2: for PL/Python 2 support'
             'python: for PL/Python 3 support'
             'perl: for PL/Perl support'
             'tcl: for PL/Tcl support')
 source=(https://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2)
-sha256sums=('35618aa72e0372091f923c42389c6febd07513157b4fbb9408371706afbb6635')
-sha512sums=('2c5c2f51aa01f02af4aa0849441767383e30fef69dd52efa442892f39d2456bfa8bf01f633a265e00eca0745e792609d2c1d33f77d8f29a02f5f374c84f2bf6e')
-b2sums=('655d1c9e6eebde19402a4c220ee674c589641c5b6f4e6298c8c06d3330069178952455f5af58f90b9af196ba9c8fd03db0ccd70b8bc49335e465f0ed537eaf59')
+sha256sums=('e26401e090c34ccb15ffb33a111f340833833535a7b7c5cd11cd88ab57d9c62a')
+sha512sums=('970fe1041e427ac1c8a786c93e2079b0a9c8b3fcaf9d38877894eb02e8a9afc7cd73d7ac28078c455845a922a1b7d9c1e22cb7990d8d523dd6496af9442fba01')
+b2sums=('20ad970f03665b9c1f24c646096476398c1791c49eb4f34bb6c3b1c7cf3955bb79ef81e178e5d72ffb91625a9ec1cff409fa95d390caa02862fec2599e6d8a9b')
 
 build() {
   cd postgresql-${pkgver}
@@ -38,12 +38,13 @@ build() {
     --with-icu
     --with-systemd
     --with-ldap
+    --with-llvm
     --disable-nls
     --enable-thread-safety
   )
 
   # only build plpython3 for now
-  ./configure ${options[@]} \
+  ./configure "${options[@]}" \
     PYTHON=/usr/bin/python
   make -C src/pl/plpython all
   make -C contrib/hstore_plpython all
@@ -57,7 +58,7 @@ build() {
   make distclean
 
   # regular build with everything
-  ./configure ${options[@]} \
+  ./configure "${options[@]}" \
     PYTHON=/usr/bin/python2
   make -C src all
   make -C contrib all

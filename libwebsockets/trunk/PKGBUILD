@@ -1,0 +1,62 @@
+# Maintainer: Jelle van der Waa <jelle@archlinux.org>
+# Contributor: David Runge <dvzrv@archlinux.org>
+# Contributor: Jingbei Li <i@jingbei.li>
+
+pkgname=libwebsockets
+pkgver=4.3.1
+pkgrel=1
+pkgdesc="C library for websocket clients and servers"
+arch=(x86_64)
+url="https://libwebsockets.org"
+license=(MIT)
+depends=(glibc openssl libuv libev zlib)
+makedepends=(cmake glib2 libcap)
+provides=(libwebsockets.so)
+source=("$pkgname-$pkgver.tar.gz::https://github.com/warmcat/libwebsockets/archive/v$pkgver.tar.gz")
+sha512sums=('3cc2daadd7d2587ce946209a31741662d98367f0f9f77a1555497bef6fc6acc6cb97f5196d6ecef2d13828bb5613c60cccada03d9a01a5c970a9cfd25baeb0ae')
+b2sums=('420343dd358e4ca45d0cadde7f0a6398dbd5043c4cd2c1a70f32dc9b5ef4cb222239971c4ce758ee156deac4d06bd18289a8e975a7f41508abfdcb05870994f6')
+
+build() {
+  cmake -D CMAKE_INSTALL_PREFIX=/usr \
+        -D CMAKE_BUILD_TYPE=None \
+        -D DISABLE_WERROR=ON \
+        -D LWS_IPV6=ON \
+        -D LWS_LINK_TESTAPPS_DYNAMIC=ON \
+        -D LWS_WITH_ACME=ON \
+        -D LWS_WITH_DISKCACHE=ON \
+        -D LWS_WITH_EXTERNAL_POLL=ON \
+        -D LWS_WITH_FTS=ON \
+        -D LWS_WITH_GLIB=ON \
+        -D LWS_WITH_HTTP2=ON \
+        -D LWS_WITH_HTTP_PROXY=ON \
+        -D LWS_WITH_LIBEV=ON \
+        -D LWS_WITH_LIBEVENT=OFF \
+        -D LWS_WITH_LIBUV=ON \
+        -D LWS_WITH_LWSAC=ON \
+        -D LWS_WITH_RANGES=ON \
+        -D LWS_WITH_SOCKS5=ON \
+        -D LWS_WITH_STATIC=OFF \
+        -D LWS_WITH_THREADPOOL=ON \
+        -D LWS_WITH_ZIP_FOPS=ON \
+        -D LWS_WITHOUT_BUILTIN_GETIFADDRS=ON \
+        -D LWS_WITHOUT_BUILTIN_SHA1=ON \
+        -D LWS_WITHOUT_CLIENT=OFF \
+        -D LWS_WITHOUT_SERVER=OFF \
+        -D LWS_WITHOUT_TESTAPPS=ON \
+        -D LWS_WITHOUT_TEST_CLIENT=ON \
+        -D LWS_WITHOUT_TEST_PING=ON \
+        -D LWS_WITHOUT_TEST_SERVER=OFF \
+        -D LWS_WITHOUT_TEST_SERVER_EXTPOLL=ON \
+        -D LWS_UNIX_SOCK=ON \
+        -Wno-dev \
+        -B build \
+        -S "$pkgname-$pkgver"
+  make VERBOSE=1 -C build
+}
+
+package() {
+  depends+=(libcap.so libglib-2.0.so)
+
+  make DESTDIR="${pkgdir}" install -C build
+  install -vDm 644 "$pkgname-$pkgver/LICENSE" -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}

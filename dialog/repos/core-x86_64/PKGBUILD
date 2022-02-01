@@ -4,7 +4,7 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=dialog
-pkgver=1.3_20200327
+pkgver=1.3_20220117
 pkgrel=1
 epoch=1
 pkgdesc="A tool to display dialog boxes from shell scripts"
@@ -13,8 +13,10 @@ url="https://invisible-island.net/dialog/"
 license=('LGPL2.1')
 depends=('sh' 'ncurses')
 provides=('libdialog.so')
-source=(https://invisible-mirror.net/archives/$pkgname/$pkgname-${pkgver/_/-}.tgz)
-sha256sums=('466163e8b97c2b7709d00389199add3156bd813f60ccb0335d0a30f2d4a17f99')
+source=(https://invisible-mirror.net/archives/$pkgname/$pkgname-${pkgver/_/-}.tgz{,.asc})
+sha256sums=('754cb6bf7dc6a9ac5c1f80c13caa4d976e30a5a6e8b46f17b3bb9b080c31041f'
+            'SKIP')
+validpgpkeys=('19882D92DDA4C400C22C0D56CC2AF4472167BE03') # Thomas E. Dickey (self-signed w/o SHA1) <dickey@invisible-island.net>
 
 build() {
   cd "$srcdir/$pkgname-${pkgver/_/-}"

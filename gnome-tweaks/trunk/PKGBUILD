@@ -1,9 +1,9 @@
-# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gnome-tweaks
-pkgver=3.34.0
-pkgrel=3
+pkgver=40.0
+pkgrel=2
 pkgdesc="Graphical interface for advanced GNOME 3 settings (Tweak Tool)"
 url="https://wiki.gnome.org/Apps/Tweaks"
 arch=(any)
@@ -14,7 +14,7 @@ groups=(gnome-extra)
 provides=("gnome-tweak-tool=$pkgver")
 conflicts=(gnome-tweak-tool)
 replaces=(gnome-tweak-tool)
-_commit=44f73bb706863aae50a52bb9514c525cdc01293d  # tags/3.34.0^0
+_commit=7a16849f498c8a57d525eb9184a8b0163e2ddcbb  # tags/40.0^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-tweaks.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -25,7 +25,7 @@ pkgver() {
 
 build() {
   arch-meson $pkgname build
-  ninja -C build
+  meson compile -C build
 }
 
 check() {

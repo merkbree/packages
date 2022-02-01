@@ -2,16 +2,16 @@
 # Contributor: francois <francois.archlinux.org>
 
 pkgname=('texlive-bin' 'libsynctex')
-pkgver=2020.54586
-pkgrel=5
+pkgver=2021.59745
+pkgrel=1
 license=('GPL')
 arch=('x86_64')
-makedepends=('git' 'cairo' 'pixman' 'graphite' 't1lib' 'gd' 'poppler'
+makedepends=('git' 'cairo' 'pixman' 'graphite' 't1lib' 'gd'
          'libsigsegv' 'zziplib' 'libpng' 'libjpeg' 'freetype2'
          'icu' 'harfbuzz' 'harfbuzz-icu' 'gmp' 'mpfr' 'potrace' 'libpaper'
          'perl' 'clisp' 'ffcall' 'libxcrypt')
 url='https://tug.org/texlive/'
-_commit=8e5e0e89d413d09cca133c8966d1a3af8a2ac440 # svn://tug.org/texlive/trunk/Build/source@54586
+_commit=7eaec95e244515fe11445111c0aaa1349de6790d # svn://tug.org/texlive/tags/texlive-2021.3/Build/source@59745
 source=("git+https://github.com/Tex-Live/texlive-source.git#commit=${_commit}")
 sha256sums=('SKIP')
 
@@ -20,10 +20,6 @@ prepare() {
 
     # t4ht expects to be un /usr/share/texmf/bin/t4ht (FS#27251)
     sed -i s/SELFAUTOPARENT/TEXMFROOT/ texk/tex4htk/t4ht.c
-
-    # pdftex poppler compatibility
-    cp -pv texk/web2c/pdftexdir/pdftoepdf{-poppler0.86.0,}.cc
-    cp -pv texk/web2c/pdftexdir/pdftosrc{-poppler0.83.0,}.cc
 }
 
 build() {
@@ -36,7 +32,11 @@ build() {
    echo "--> Initial configuration..."
    # we use temporary prefix to avoid messing the existing
    # $pkgdir/usr/share/texmf tree
-   ../configure --prefix=/usr -C \
+   #
+   # Preset float endianness to avoid a crash in cairo configure
+   # with recent toolchains. We are not building cairo anyway.
+   ax_cv_c_float_words_bigendian=no \
+     ../configure --prefix=/usr -C \
      --sysconfdir=/etc \
      --datarootdir=/usr/share \
      --datadir=/usr/share \
@@ -57,8 +57,6 @@ build() {
      --with-system-ncurses \
      --with-system-t1lib \
      --with-system-gd \
-     --with-system-poppler \
-     --with-system-xpdf \
      --with-system-freetype2 \
      --with-system-pixman \
      --with-system-cairo \
@@ -170,6 +168,7 @@ a2ping
 a5toa4
 adhocfilelist
 afm2afm
+albatross
 allcm
 allec
 allneeded
@@ -208,6 +207,7 @@ fmtutil-sys
 fmtutil-user
 fontinst
 fragmaster
+git-latexdiff
 ht
 htcontext
 htlatex
@@ -236,6 +236,7 @@ latexmk
 latexpand
 latexrevise
 listings-ext.sh
+llmk
 ltxfileinfo
 ltximg
 luaotfload-tool
@@ -276,6 +277,7 @@ repstopdf
 rpdfcrop
 rungs
 simpdftex
+spix
 srcredact
 sty2dtx
 tex4ebook
@@ -328,6 +330,7 @@ kanji-config-updmap-user
    _latexextra_scripts="
 authorindex
 exceltex
+hyperxmp-add-bytecount
 l3build
 makedtx
 makeglossaries
@@ -342,7 +345,10 @@ webquiz
 wordcount
 yplan"
    _music_scripts="lily-glyph-commands lily-image-commands lily-rebuild-pdfs
-m-tx musixtex musixflx pmxchords"
+m-tx
+musixtex
+musixflx
+pmxchords"
    _pictures_scripts="
 cachepic
 epspdf
@@ -351,7 +357,8 @@ fig4latex
 getmapdl
 mathspic
 mkpic
-pn2pdf"
+pn2pdf
+tikztosvg"
    _pstricks_scripts="pedigree pst2pdf"
    _science_scripts="pygmentex ulqda"
    for s in \

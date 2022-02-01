@@ -4,31 +4,32 @@
 # Contributor: Martin Sandsmark <martin.sandsmark@kde.org>
 
 pkgname=vlc
-_vlcver=3.0.11.1
+_vlcver=3.0.16
 # optional fixup version including hyphen
 _vlcfixupver=
 pkgver=${_vlcver}${_vlcfixupver//-/.r}
-pkgrel=2
+pkgrel=7
 pkgdesc='Multi-platform MPEG, VCD/DVD, and DivX player'
 url='https://www.videolan.org/vlc/'
 arch=('x86_64')
 license=('LGPL2.1' 'GPL2')
 depends=('a52dec' 'libdvbpsi' 'libxpm' 'libdca' 'libproxy' 'lua52' 'libidn'
-         'libmatroska' 'taglib' 'libmpcdec' 'ffmpeg' 'faad2' 'libupnp' 'libmad'
+         'libmatroska' 'taglib' 'libmpcdec' 'ffmpeg' 'faad2' 'libmad'
          'libmpeg2' 'xcb-util-keysyms' 'libtar' 'libxinerama' 'libsecret'
-         'libarchive' 'qt5-base' 'qt5-x11extras' 'qt5-svg' 'freetype2'
-         'fribidi' 'harfbuzz' 'fontconfig' 'libxml2' 'gnutls' 'libplacebo'
-         'wayland-protocols' 'aribb24')
+         'libupnp' 'libixml.so' 'libupnp.so' 'libarchive' 'qt5-base'
+         'qt5-x11extras' 'qt5-svg' 'freetype2' 'fribidi' 'harfbuzz'
+         'fontconfig' 'libxml2' 'gnutls' 'libplacebo' 'wayland-protocols')
 makedepends=('gst-plugins-base-libs' 'live-media' 'libnotify' 'libbluray'
              'flac' 'libdc1394' 'libavc1394' 'libcaca' 'gtk3'
              'librsvg' 'libgme' 'xosd' 'twolame' 'aalib' 'avahi' 'systemd-libs'
-             'libmtp' 'libupnp' 'libmicrodns' 'libdvdcss' 'smbclient'
+             'libmtp' 'libmicrodns' 'libdvdcss' 'smbclient'
              'vcdimager' 'libssh2' 'mesa' 'protobuf' 'libnfs' 'mpg123'
              'libdvdread' 'libdvdnav' 'libogg' 'libshout' 'libmodplug' 'libvpx'
              'libvorbis' 'speex' 'opus' 'libtheora' 'libpng' 'libjpeg-turbo'
              'libx265.so' 'libx264.so' 'zvbi' 'libass' 'libkate' 'libtiger'
              'sdl_image' 'libpulse' 'alsa-lib' 'jack' 'libsamplerate' 'libsoxr'
-             'lirc' 'libgoom2' 'projectm' 'chromaprint' 'aom' 'srt' 'dav1d')
+             'lirc' 'libgoom2' 'projectm' 'chromaprint' 'aom' 'srt' 'dav1d'
+             'aribb24' 'aribb25' 'pcsclite')
 optdepends=('avahi: service discovery using bonjour protocol'
             'aom: AOM AV1 codec'
             'gst-plugins-base-libs: for libgst plugins'
@@ -56,7 +57,6 @@ optdepends=('avahi: service discovery using bonjour protocol'
             'protobuf: chromecast streaming'
             'libmicrodns: mDNS services discovery (chromecast etc)'
             'lua52-socket: http interface'
-            'live-media: RTSP input'
             'libdvdread: DVD input module'
             'libdvdnav: DVD with navigation input module'
             'libogg: Ogg and OggSpots codec'
@@ -91,17 +91,24 @@ optdepends=('avahi: service discovery using bonjour protocol'
             'projectm: ProjectM visualisation'
             'ncurses: ncurses interface'
             'libnotify: notification plugin'
-            'gtk3: notification plugin')
+            'gtk3: notification plugin'
+            'aribb24: aribsub support'
+            'aribb25: aribcam support'
+            'pcsclite: aribcam support')
 conflicts=('vlc-plugin')
 replaces=('vlc-plugin')
 options=('!emptydirs')
 source=(https://download.videolan.org/${pkgname}/${_vlcver}/${pkgname}-${_vlcver}${_vlcfixupver}.tar.xz{,.asc}
         update-vlc-plugin-cache.hook
-        qt_5_15.patch)
-sha512sums=('8ce1e2f11aabf847dc5c55cf21ce6d7c0419a1051b5f4795e36cd060eab82d5056e44b4c070b80af56744e6aa841ef538386d08bc3b397a444e7258b2ba3f76b'
+        caca-fix-to-newer-version.patch
+        vlc-3.0.11.1-srt_1.4.2.patch
+        vlc-live-media-2021.patch)
+sha512sums=('35cdf191071224d0cf1b5a83c00773ff87b9e5bfcf0f5523f7edd53f75b23eda6b27bb49ffa97d69a1d176b8fe4786d959aeeb00d4380beab71c9f7e6b7c7298'
             'SKIP'
             'b247510ffeadfd439a5dadd170c91900b6cdb05b5ca00d38b1a17c720ffe5a9f75a32e0cb1af5ebefdf1c23c5acc53513ed983a736e8fa30dd8fad237ef49dd3'
-            '43446257248461e7e6c237dbc63d58b994f4ce527573ff67437e3bade6ffb752aad94de19309c9cdca5f513e5c42f9d0c8b1db36198af6d41e18d3634c08761f')
+            'ef479a246dc98f882a05ca56a1c2872cc67ced154c625790070b887858ddc250d55b1295db82c9122e5ecd3c2c9c712ec9718e28d0a9d21ff6a230eb6c5010ce'
+            'ac1d33d434aca2a0ad6e70800073deeaefc02b8fd72656b682ca833ee0cffe10dfa19a9355388700cab46ffbf9421c007d00ed04c7fa562698ff81e70db5f283'
+            'ad17d6f4f2cc83841c1c89623c339ec3ee94f6084ea980e2c8cbc3903854c85e5396e31bfd8dc90745b41794670903d854c4d282d8adec263087a9d47b226ccc')
 validpgpkeys=('65F7C6B4206BD057A7EB73787180713BE58D1ADC') # VideoLAN Release Signing Key
 
 prepare() {
@@ -115,17 +122,19 @@ prepare() {
     src="${src%%::*}"
     src="${src##*/}"
     [[ $src = *.patch ]] || continue
-    msg2 "Applying patch $src..."
+    echo "Applying patch $src..."
     patch -Np1 < "../$src"
   done
+  autoreconf -vf
 }
 
 build() {
   cd ${pkgname}-${_vlcver}
 
-  export CFLAGS+=" -I/usr/include/samba-4.0"
+  export CFLAGS+=" -I/usr/include/samba-4.0 -ffat-lto-objects"
   export CPPFLAGS+=" -I/usr/include/samba-4.0"
   export CXXFLAGS+=" -std=c++11"
+  # upstream doesn't support lua 5.4 yet: https://trac.videolan.org/vlc/ticket/25036
   export LUAC=/usr/bin/luac5.2
   export LUA_LIBS="$(pkg-config --libs lua5.2)"
   export RCC=/usr/bin/rcc-qt5
@@ -223,6 +232,7 @@ build() {
     --enable-libplacebo \
     --enable-vlc \
     --enable-aribsub \
+    --enable-aribcam \
     --enable-aom \
     --enable-srt \
     --enable-dav1d

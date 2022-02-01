@@ -1,15 +1,15 @@
 # Maintainer: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=libnumbertext
-pkgver=1.0.6
+pkgver=1.0.8
 pkgrel=1
 pkgdesc="Number to number name and money text conversion library"
 arch=('x86_64')
 url="https://github.com/Numbertext/libnumbertext"
 license=('LGPL3' 'custom')
 depends=('gcc-libs')
-source=(https://github.com/Numbertext/libnumbertext/archive/$pkgver.tar.gz)
-sha256sums=('d03860c98ec01bc52a2a65f04b1fc4c7e7823c76d54dec800ca32ab2196023bc')
+source=(${pkgname}-${pkgver}::https://github.com/Numbertext/libnumbertext/archive/$pkgver.tar.gz)
+sha256sums=('211bf7b1371b2251105aa2dde111f6dd4eb02dcd13cdd05430c3d66bc692d87e')
 
 prepare() {
   cd "$pkgname-$pkgver"
@@ -19,6 +19,7 @@ prepare() {
 build() {
   cd "$pkgname-$pkgver"
   ./configure --prefix=/usr
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make
 }
 

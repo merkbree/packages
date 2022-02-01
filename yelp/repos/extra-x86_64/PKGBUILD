@@ -1,17 +1,17 @@
-# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=yelp
-pkgver=3.36.0
+pkgver=41.2
 pkgrel=1
 pkgdesc="Get help with GNOME"
 url="https://wiki.gnome.org/Apps/Yelp"
 license=(GPL)
 arch=(x86_64)
-depends=(webkit2gtk yelp-xsl libxslt xz bzip2)
-makedepends=(gtk-doc itstool autoconf-archive git xorg-server-xvfb appstream-glib)
+depends=(webkit2gtk-4.1 yelp-xsl libxslt xz bzip2)
+makedepends=(gtk-doc itstool autoconf-archive git appstream-glib)
 groups=(gnome)
-_commit=3bf412214bf80a586406d5a75226ada38a877985  # tags/3.36.0^0
+_commit=72d73437a3d444739d722e580153f2dd8ee50f1d  # tags/41.2^0
 source=("git+https://gitlab.gnome.org/GNOME/yelp.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -30,9 +30,7 @@ build() {
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
     --disable-static --enable-gtk-doc --enable-compile-warnings=minimum
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-
-  # Documentation generation segfaults without X11
-  xvfb-run -s '-screen 0 1920x1080x24 -nolisten local' make
+  make
 }
 
 package() {

@@ -1,34 +1,38 @@
-# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
-# Maintainer: Jan de Groot <jgc@archlinux.org>
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgbase=nautilus
 pkgname=(nautilus libnautilus-extension)
-pkgver=3.36.3
+pkgver=41.2
 pkgrel=1
 pkgdesc="Default file manager for GNOME"
 url="https://wiki.gnome.org/Apps/Files"
 arch=(x86_64)
 license=(GPL)
-depends=(libgexiv2 gnome-desktop gvfs dconf tracker gnome-autoar
-         gst-plugins-base-libs tracker-miners)
+depends=(libgexiv2 gnome-desktop gvfs dconf tracker3 tracker3-miners
+         gnome-autoar gst-plugins-base-libs libhandy libportal-gtk3)
 makedepends=(gobject-introspection git gtk-doc meson appstream-glib)
-_commit=efc97f8a99e1059126a20817bb0691a7c0d29311  # tags/3.36.3^0
+checkdepends=(python-gobject)
+_commit=1394dfc4588348cf6c9ae3d1cf373120f65eefb5  # tags/41.2^0
 source=("git+https://gitlab.gnome.org/GNOME/nautilus.git#commit=$_commit"
         "git+https://gitlab.gnome.org/GNOME/libgd.git")
 sha256sums=('SKIP'
             'SKIP')
 
+pkgver() {
+  cd $pkgbase
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
 prepare() {
   cd $pkgbase
+
+  # libportal 0.5
+  git cherry-pick -n ae752ea07895b918683f664fe78950255f7faab0
 
   git submodule init
   git submodule set-url subprojects/libgd "$srcdir/libgd"
   git submodule update
-}
-
-pkgver() {
-  cd $pkgbase
-  git describe --tags | sed 's/-/+/g'
 }
 
 build() {
@@ -53,17 +57,17 @@ _pick() {
 }
 
 package_nautilus() {
-  depends+=(libnautilus-extension)
+  depends+=(libnautilus-extension.so)
   optdepends=('nautilus-sendto: Send files via mail extension')
   groups=(gnome)
 
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 
-### Split libnautilus-extension
+  cd "$pkgdir"
 
-  _pick libne "$pkgdir"/usr/include
-  _pick libne "$pkgdir"/usr/lib/{girepository-1.0,libnautilus-extension*,pkgconfig}
-  _pick libne "$pkgdir"/usr/share/{gir-1.0,gtk-doc}
+  _pick libne usr/include
+  _pick libne usr/lib/{girepository-1.0,libnautilus-extension*,pkgconfig}
+  _pick libne usr/share/{gir-1.0,gtk-doc}
 }
 
 package_libnautilus-extension() {

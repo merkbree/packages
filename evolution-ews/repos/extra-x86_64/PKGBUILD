@@ -2,15 +2,15 @@
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=evolution-ews
-pkgver=3.36.5
+pkgver=3.42.3
 pkgrel=1
 pkgdesc="MS Exchange integration through Exchange Web Services"
 url="https://wiki.gnome.org/Apps/Evolution/EWS"
 arch=(x86_64)
 license=(LGPL2.1)
 depends=(libmspack evolution)
-makedepends=(git intltool python cmake ninja)
-_commit=29e4a5f334219ed9775b3a8845f807f32c4b5e53  # tags/3.36.5^0
+makedepends=(git intltool python cmake ninja systemd)
+_commit=7799ad084bfff29b7d0c24aa5e992f3ce2ec8269  # tags/3.42.3^0
 source=("git+https://gitlab.gnome.org/GNOME/evolution-ews.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -24,9 +24,7 @@ prepare() {
 }
 
 build() {
-  CFLAGS+=" $CPPFLAGS"
-  CXXFLAGS+=" $CPPFLAGS"
-  cmake -H$pkgname -Bbuild -G Ninja \
+  cmake -S $pkgname -B build -G Ninja \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DLIBEXEC_INSTALL_DIR=/usr/lib \
     -DSYSCONF_INSTALL_DIR=/etc
@@ -34,5 +32,5 @@ build() {
 }
 
 package() {
-  DESTDIR="$pkgdir" cmake --build build --target install
+  DESTDIR="$pkgdir" cmake --install build
 }

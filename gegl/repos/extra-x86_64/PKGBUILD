@@ -1,27 +1,22 @@
 # Maintainer: Daniel Isenmann <daniel@archlinux.org>
 
 pkgname=gegl
-pkgver=0.4.24
-pkgrel=2
+_tag='0dcdbe3e1244110e8284219250bf2345672de6a0'
+pkgver=0.4.34
+pkgrel=1
 pkgdesc="Graph based image processing framework"
 arch=('x86_64')
 url="https://www.gegl.org/"
 license=('GPL3' 'LGPL3')
 depends=('babl' 'libspiro' 'json-glib' 'libgexiv2' 'libraw' 'openexr' 'librsvg' 'libtiff' 'luajit' 'jasper' 'lensfun' 'suitesparse' 'poppler-glib')
 makedepends=('intltool' 'ruby' 'mesa' 'glu' 'ffmpeg' 'exiv2' 'vala' 'gobject-introspection' 'git' 'meson' 'python-gobject')
-optdepends=('ffmpeg: ffmpeg plugin')
-_commit=c3c87d5ac4eb7a6ed79b0be089fff3bd1850fc02  # tags/GEGL_0_4_24^0
-source=("git+https://gitlab.gnome.org/GNOME/gegl.git#commit=$_commit")
+optdepends=('ffmpeg: ffmpeg plugin' 'graphviz: for gegl-introspect')
+source=("git+https://gitlab.gnome.org/GNOME/gegl.git#tag=$_tag")
 sha256sums=('SKIP')
 
 pkgver() {
   cd $pkgname
-  git describe --tags | sed 's/^GEGL_//;s/_/./g;s/-/+/g'
-}
-
-prepare() {
-  cd ${pkgname}
-  git cherry-pick -n c1c3541caab485384087bbbcf1c83ef2d5bd4d43
+  git describe --tags | sed 's/^GEGL_//;s/_$//;s/_/./g;s/-/+/g'
 }
 
 build() {
@@ -29,7 +24,8 @@ build() {
   cd build
   arch-meson ../$pkgname \
     -Dworkshop=true \
-    -Dmrg=disabled
+    -Dmrg=disabled \
+    -Dmaxflow=disabled
   ninja
 }
 
