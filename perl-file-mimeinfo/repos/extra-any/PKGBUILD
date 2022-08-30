@@ -1,8 +1,8 @@
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 
 pkgname=perl-file-mimeinfo
-pkgver=0.30
-pkgrel=2
+pkgver=0.33
+pkgrel=1
 pkgdesc='Determine file type, includes mimeopen and mimetype'
 arch=('any')
 url="https://metacpan.org/release/File-MimeInfo"
@@ -11,7 +11,7 @@ depends=('perl-encode-locale' 'perl-file-basedir' 'perl-file-desktopentry' 'shar
 checkdepends=('perl-test-pod' 'perl-test-pod-coverage')
 options=('!emptydirs')
 source=(https://cpan.metacpan.org/authors/id/M/MI/MICHIELB/File-MimeInfo-$pkgver.tar.gz)
-sha512sums=('44030d2e2be66cb67d4329f8f308bf114014c511fe965979600157d62deffd5c2f05fdf883cb02d98f00d5d0b77c56e252cd377a398461ec421fe7491cd544ec')
+sha512sums=('5fbba13775079da56928175f48db1c1ab8ac4d7fa3e85bdb5384c4021cab7cf8c363a3d8219cf34318136b1470e32163abae7c37a119416a5e510d8d07848c9d')
 
 build() {
   cd File-MimeInfo-$pkgver

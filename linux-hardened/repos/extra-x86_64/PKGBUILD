@@ -4,15 +4,16 @@
 # Contributor: Thomas Baechler <thomas@archlinux.org>
 
 pkgbase=linux-hardened
-pkgver=5.15.16.hardened1
+pkgver=5.19.5.hardened1
 pkgrel=1
 pkgdesc='Security-Hardened Linux'
 url='https://github.com/anthraxx/linux-hardened'
 arch=(x86_64)
 license=(GPL2)
 makedepends=(
-  bc kmod libelf pahole cpio perl tar xz
-  xmlto python-sphinx python-sphinx_rtd_theme graphviz imagemagick
+  bc libelf pahole cpio perl tar xz
+  xmlto python-sphinx python-sphinx_rtd_theme graphviz imagemagick texlive-latexextra
+  git
 )
 options=('!strip')
 _srcname=linux-${pkgver%.*}
@@ -27,11 +28,11 @@ validpgpkeys=(
   '647F28654894E3BD457199BE38DBBDC86092693E'  # Greg Kroah-Hartman
   'E240B57E2C4630BA768E2F26FC1B547C8D8172C8'  # Levente Polyak
 )
-sha256sums=('ba0a0a14e89f8212bf3effa3e3118da9939e445bab52a6544f9f98a272ff1794'
+sha256sums=('8c3f1cc4f93e50056bb0a8c15a41a8eb6acc7fd71bff6de60b1ef8c4532537bd'
             'SKIP'
-            '25301989b42e63c9f6ca853abd726dee2359723ff68a03641a59022d786f0c29'
+            'a40cdda0768cd23fba299d86793739d2643e82cb5f8c4f5fb0edae6a7a6bdfb8'
             'SKIP'
-            'e1a4219234447435d76d9025110a7541d9a1514bca641f649dbcaec5e2a478a2')
+            'd5bb723cb52c2bb10d4f9845c3436fa6f8ef30e8d11a461f335f9b0db83885b0')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
@@ -57,6 +58,7 @@ prepare() {
   echo "Setting config..."
   cp ../config .config
   make olddefconfig
+  diff -u ../config .config || :
 
   make -s kernelrelease > version
   echo "Prepared $pkgbase version $(<version)"
@@ -64,17 +66,16 @@ prepare() {
 
 build() {
   cd $_srcname
-  make all
-  make htmldocs
+  make htmldocs all
 }
 
 _package() {
   pkgdesc="The $pkgdesc kernel and modules"
   depends=(coreutils kmod initramfs)
-  optdepends=('crda: to set the correct wireless channels of your country'
+  optdepends=('wireless-regdb: to set the correct wireless channels of your country'
               'linux-firmware: firmware images needed for some devices'
               'usbctl: deny_new_usb control')
-  provides=(VIRTUALBOX-GUEST-MODULES WIREGUARD-MODULE)
+  provides=(VIRTUALBOX-GUEST-MODULES WIREGUARD-MODULE KSMBD-MODULE)
 
   cd $_srcname
   local kernver="$(<version)"
@@ -89,7 +90,8 @@ _package() {
   echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
 
   echo "Installing modules..."
-  make INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 modules_install
+  make INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 \
+    DEPMOD=/doesnt/exist modules_install  # Suppress depmod
 
   # remove build and source links
   rm "$modulesdir"/{source,build}
@@ -97,6 +99,7 @@ _package() {
 
 _package-headers() {
   pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel"
+  depends=(pahole)
 
   cd $_srcname
   local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
@@ -108,11 +111,11 @@ _package-headers() {
   install -Dt "$builddir/arch/x86" -m644 arch/x86/Makefile
   cp -t "$builddir" -a scripts
 
-  # add objtool for external module building and enabled VALIDATION_STACK option
+  # required when STACK_VALIDATION is enabled
   install -Dt "$builddir/tools/objtool" tools/objtool/objtool
 
-  # add xfs and shmem for aufs building
-  mkdir -p "$builddir"/{fs/xfs,mm}
+  # required when DEBUG_INFO_BTF_MODULES is enabled
+  # install -Dt "$builddir/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
 
   echo "Installing headers..."
   cp -t "$builddir" -a include

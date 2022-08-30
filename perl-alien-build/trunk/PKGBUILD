@@ -1,7 +1,7 @@
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 
 pkgname=perl-alien-build
-pkgver=2.46
+pkgver=2.52
 pkgrel=1
 pkgdesc="Build external dependencies for use in CPAN"
 arch=('any')
@@ -14,7 +14,7 @@ checkdepends=('perl-alien-base-modulebuild' 'perl-alien-cmake3' 'perl-env-shellw
               'perl-pkgconfig' 'perl-pkgconfig-libpkgconf' 'perl-readonly' 'perl-sort-versions')
 options=('!emptydirs')
 source=("https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-Build-$pkgver.tar.gz")
-sha512sums=('44b2090440f9348c662c5caa285a4cf52a5e6b38add7cc520894f0d09362df8c7f94def834cbfa3917477870ec5b4a95d3178da4b941122060030071990df25b')
+sha512sums=('e226680e39d0dab19e75fae56ba25c1a634ba7892df65895a17173cbb619326571b54eae8a6f1341333e6480b37aa8b77bf5fc20ea81c1807ef8f1a5d9f71c69')
 
 build() {
   cd Alien-Build-$pkgver

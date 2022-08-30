@@ -7,7 +7,7 @@ pkgname=(
   mkvtoolnix-cli
   mkvtoolnix-gui
 )
-pkgver=64.0.0
+pkgver=70.0.0
 pkgrel=1
 pkgdesc='Set of tools to create, edit and inspect Matroska files'
 arch=(x86_64)
@@ -20,7 +20,7 @@ depends=(
   libfmt.so
   libmatroska.so
   pugixml
-  qt5-base
+  qt6-base
 )
 makedepends=(
   boost
@@ -31,12 +31,13 @@ makedepends=(
   libdvdread
   libvorbis
   po4a
-  qt5-multimedia
-  qt5-tools
+  qt6-multimedia
+  qt6-svg
+  qt6-tools
   ruby-rake
   zlib
 )
-_tag=61c4802798d657d47ada0616994ac9d388adb21d
+_tag=e3c3fff6fbf161b8f6655b61166dddad115ccee9
 #source=(git+https://gitlab.com/mbunkus/mkvtoolnix.git?signed#tag=${_tag})
 source=(git+https://gitlab.com/mbunkus/mkvtoolnix.git#tag=${_tag})
 validpgpkeys=(D9199745B0545F2E8197062B0F92290A445B9007) # Moritz Bunkus <moritz@bunkus.org>
@@ -80,7 +81,8 @@ package_mkvtoolnix-gui() {
     cmark
     hicolor-icon-theme
     mkvtoolnix-cli
-    qt5-multimedia
+    qt6-multimedia
+    qt6-svg
   )
 
   cd mkvtoolnix

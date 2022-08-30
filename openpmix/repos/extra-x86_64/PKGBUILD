@@ -1,0 +1,46 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
+
+_name=pmix
+pkgname=openpmix
+pkgver=4.2.0
+pkgrel=1
+pkgdesc="Extended version of the PMI standard"
+arch=(x86_64)
+url="https://github.com/openpmix/openpmix"
+license=(BSD)
+depends=(curl glibc hwloc jansson libevent zlib)
+makedepends=(perl python)
+provides=(libpmix.so pmix)
+backup=(etc/$pkgname/pmix-mca-params.conf)
+options=(debug)
+source=($pkgname-$pkgver.tar.gz::https://github.com/$pkgname/$pkgname/archive/refs/tags/v$pkgver.tar.gz)
+sha512sums=('7809d3c39198b3a59fc01a770dcb684bed7fbf7e8a2d0eab03738709a854919050f9ad07157be37daf71f63c3adc40f2797e3f0b4329799c4a918a418251cf09')
+b2sums=('d16a623d91dfdd967fc2bfd76a3f81f9bba837d7c6c29b1aeaa90b28461f9c68563137d2db18a5f3e353a3d84cfe303bab570e0b8a78eab6eae6ffadb0ad2a63')
+
+prepare() {
+  cd $pkgname-$pkgver
+  ./autogen.pl
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc/$pkgname \
+    --with-curl \
+    --with-jansson
+  # prevent excessive overlinking due to libtool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make V=1
+}
+
+check() {
+  make -k check -C $pkgname-$pkgver
+}
+
+package() {
+  depends+=(libcurl.so)
+
+  make DESTDIR="$pkgdir" install -C $pkgname-$pkgver
+  install -vDm 644 $pkgname-$pkgver/LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

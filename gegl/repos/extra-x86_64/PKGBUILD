@@ -1,28 +1,32 @@
 # Maintainer: Daniel Isenmann <daniel@archlinux.org>
 
 pkgname=gegl
-_tag='0dcdbe3e1244110e8284219250bf2345672de6a0'
-pkgver=0.4.34
+_tag='e45bf4479cc96e968ff39e7f3e83c8b6ca7ee757'
+pkgver=0.4.38
 pkgrel=1
-pkgdesc="Graph based image processing framework"
+pkgdesc='Graph based image processing framework'
 arch=('x86_64')
-url="https://www.gegl.org/"
+url='https://www.gegl.org/'
 license=('GPL3' 'LGPL3')
-depends=('babl' 'libspiro' 'json-glib' 'libgexiv2' 'libraw' 'openexr' 'librsvg' 'libtiff' 'luajit' 'jasper' 'lensfun' 'suitesparse' 'poppler-glib')
-makedepends=('intltool' 'ruby' 'mesa' 'glu' 'ffmpeg' 'exiv2' 'vala' 'gobject-introspection' 'git' 'meson' 'python-gobject')
-optdepends=('ffmpeg: ffmpeg plugin' 'graphviz: for gegl-introspect')
+depends=('babl' 'jasper' 'json-glib' 'lensfun' 'libgexiv2' 'libraw' 'librsvg' 'libspiro'
+         'libtiff' 'luajit' 'openexr' 'poppler-glib' 'suitesparse')
+makedepends=('exiv2' 'ffmpeg' 'git' 'glu' 'gobject-introspection' 'intltool' 'mesa'
+             'meson' 'python-gobject' 'ruby' 'vala')
+options=('debug')
+optdepends=('ffmpeg: ffmpeg plugin'
+            'graphviz: for gegl-introspect')
 source=("git+https://gitlab.gnome.org/GNOME/gegl.git#tag=$_tag")
 sha256sums=('SKIP')
 
 pkgver() {
-  cd $pkgname
+  cd "${pkgname}"
   git describe --tags | sed 's/^GEGL_//;s/_$//;s/_/./g;s/-/+/g'
 }
 
 build() {
   mkdir -p build
   cd build
-  arch-meson ../$pkgname \
+  arch-meson ../"${pkgname}" \
     -Dworkshop=true \
     -Dmrg=disabled \
     -Dmaxflow=disabled

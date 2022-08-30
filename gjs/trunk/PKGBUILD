@@ -2,29 +2,34 @@
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gjs
-pkgver=1.70.0
-pkgrel=3
+pkgver=1.72.2
+pkgrel=1
 epoch=2
 pkgdesc="Javascript Bindings for GNOME"
 url="https://wiki.gnome.org/Projects/Gjs"
 arch=(x86_64)
 license=(GPL)
-depends=(cairo gobject-introspection-runtime js78 dconf readline
+depends=(cairo gobject-introspection-runtime js91 dconf readline
          libsysprof-capture)
 makedepends=(gobject-introspection git meson dbus)
-checkdepends=(valgrind xorg-server-xvfb gtk3 gtk4)
+checkdepends=(xorg-server-xvfb gtk3 gtk4)
 provides=(libgjs.so)
-_commit=da5d5fe74469c799de80117758d79ad694d1116a  # tags/1.70.0^0
+options=(debug)
+_commit=56d74f6fd6398d933696eaf96c1f3a3f2a52cbf9  # tags/1.72.2^0
 source=("git+https://gitlab.gnome.org/GNOME/gjs.git#commit=$_commit")
 sha256sums=('SKIP')
 
 pkgver() {
   cd gjs
-  git describe --tags | sed 's/-/+/g'
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
   cd gjs
+
+  # Work around https://github.com/mesonbuild/meson/issues/10577
+  sed -e "/protocol/s/'tap'/'exitcode'/" \
+      -i {test,installed-tests{,/js}}/meson.build
 }
 
 build() {

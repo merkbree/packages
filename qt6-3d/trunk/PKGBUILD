@@ -3,9 +3,9 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=qt6-3d
-_qtver=6.2.3
+_qtver=6.3.1
 pkgver=${_qtver/-/}
-pkgrel=2
+pkgrel=1
 arch=(x86_64)
 url='https://www.qt.io'
 license=(GPL3 LGPL3 FDL custom)
@@ -15,9 +15,9 @@ makedepends=(cmake ninja qt6-declarative qt6-shadertools assimp)
 optdepends=('qt6-shadertools: RHI renderer' 'qt6-declarative: QML bindings' 'assimp: assimp importer plugin')
 groups=(qt6)
 options=(debug)
-_pkgfn="${pkgname/6-/}-everywhere-src-$_qtver"
+_pkgfn=${pkgname/6-/}-everywhere-src-$_qtver
 source=(https://download.qt.io/official_releases/qt/${pkgver%.*}/$_qtver/submodules/$_pkgfn.tar.xz)
-sha256sums=('7ae9b513a88e729bf7db5e0e5c8d38b62e1c06f968aa620db423cd102dbbc85d')
+sha256sums=('9919b66dfb253fa26db1a7d664358cbc07f46c8810082ee3120d0a54b153edfe')
 
 build() {
   cmake -B build -S $_pkgfn -G Ninja

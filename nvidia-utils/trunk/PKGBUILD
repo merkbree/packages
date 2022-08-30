@@ -4,7 +4,7 @@
 
 pkgbase=nvidia-utils
 pkgname=('nvidia-utils' 'opencl-nvidia' 'nvidia-dkms')
-pkgver=510.47.03
+pkgver=515.65.01
 pkgrel=2
 arch=('x86_64')
 url="http://www.nvidia.com/"
@@ -18,14 +18,14 @@ source=('nvidia-drm-outputclass.conf'
 sha512sums=('de7116c09f282a27920a1382df84aa86f559e537664bb30689605177ce37dc5067748acf9afd66a3269a6e323461356592fdfc624c86523bf105ff8fe47d3770'
             '4b3ad73f5076ba90fe0b3a2e712ac9cde76f469cd8070280f960c3ce7dc502d1927f525ae18d008075c8f08ea432f7be0a6c3a7a6b49c361126dcf42f97ec499'
             'a0ceb0a6c240cf97b21a2e46c5c212250d3ee24fecef16aca3dffb04b8350c445b9f4398274abccdb745dd0ba5132a17942c9508ce165d4f97f41ece02b0b989'
-            '7488b1ae99acfa4cd6f8fd071a0e7652dcc9e499ff587d1dfdaf5d202a5b9daa43ed014876d2b2c9caf7f7c531ec380540f30833bb9790395cf159d177f2e803')
+            '5221a4ac071eb39a37a841f19cfe4983286dc35e918956b40604404ef36c122612475df7b9a391a9a70bd60f44e598c8a0e5ec54ccc3e90d51f01e1b2fbe5e33')
 
 
 create_links() {
     # create soname links
     find "$pkgdir" -type f -name '*.so*' ! -path '*xorg/*' -print0 | while read -d $'\0' _lib; do
         _soname=$(dirname "${_lib}")/$(readelf -d "${_lib}" | grep -Po 'SONAME.*: \[\K[^]]*' || true)
-        _base=$(echo ${_soname} | sed -r 's/(.*).so.*/\1.so/')
+        _base=$(echo ${_soname} | sed -r 's/(.*)\.so.*/\1.so/')
         [[ -e "${_soname}" ]] || ln -s $(basename "${_lib}") "${_soname}"
         [[ -e "${_base}" ]] || ln -s $(basename "${_soname}") "${_base}"
     done
@@ -77,7 +77,8 @@ package_opencl-nvidia() {
 package_nvidia-dkms() {
     pkgdesc="NVIDIA drivers - module sources"
     depends=('dkms' "nvidia-utils=$pkgver" 'libglvnd')
-    provides=('NVIDIA-MODULE')
+    provides=('NVIDIA-MODULE' 'nvidia')
+    conflicts=('NVIDIA-MODULE' 'nvidia')
 
     cd ${_pkg}
 
@@ -220,7 +221,8 @@ package_nvidia-utils() {
     install -Dm644 systemd/system/*.service -t "${pkgdir}/usr/lib/systemd/system"
     install -Dm755 systemd/system-sleep/nvidia "${pkgdir}/usr/lib/systemd/system-sleep/nvidia"
     install -Dm755 systemd/nvidia-sleep.sh "${pkgdir}/usr/bin/nvidia-sleep.sh"
-    install -Dm644 nvidia-powerd "${pkgdir}/usr/bin/nvidia-powerd"
+    install -Dm755 nvidia-powerd "${pkgdir}/usr/bin/nvidia-powerd"
+    install -Dm644 nvidia-dbus.conf "${pkgdir}"/usr/share/dbus-1/system.d/nvidia-dbus.conf
 
     # distro specific files must be installed in /usr/share/X11/xorg.conf.d
     install -Dm644 "${srcdir}/nvidia-drm-outputclass.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf"

@@ -2,8 +2,8 @@
 
 pkgname=nftables
 epoch=1
-pkgver=1.0.1
-pkgrel=3
+pkgver=1.0.5
+pkgrel=1
 pkgdesc='Netfilter tables userspace tools'
 arch=('x86_64')
 url='https://netfilter.org/projects/nftables/'
@@ -17,7 +17,7 @@ source=("https://netfilter.org/projects/nftables/files/nftables-$pkgver.tar.bz2"
         'nftables.conf'
         'nftables.service')
 install=nftables.install
-sha256sums=('3ceeba625818e81a0be293e9dd486c3ef799ebd92165270f1e57e9a201efa423'
+sha256sums=('8d1b4b18393af43698d10baa25d2b9b6397969beecac7816c35dd0714e4de50a'
             'SKIP'
             '2aff88019097d21dbfa4713f5b54c184751c86376e458b683f8d90f3abd232a8'
             'deffeef36fe658867dd9203ec13dec85047a6d224ea63334dcf60db97e1809ea')
@@ -25,18 +25,20 @@ sha256sums=('3ceeba625818e81a0be293e9dd486c3ef799ebd92165270f1e57e9a201efa423'
 prepare() {
   cd $pkgname-$pkgver
   # apply patch from the source array (should be a pacman feature)
-  local filename
-  for filename in "${source[@]}"; do
-    if [[ "$filename" =~ \.patch$ ]]; then
-      msg2 "Applying patch ${filename##*/}"
-      patch -p1 -N -i "$srcdir/${filename##*/}"
-    fi
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    msg2 "Applying patch $src..."
+    patch -Np1 < "../$src"
   done
   :
 }
 
 build() {
   cd $pkgname-$pkgver
+  autoreconf -fi #FIXME: To remove with 01.patch
   ./configure \
     --prefix=/usr \
     --sbindir=/usr/bin \

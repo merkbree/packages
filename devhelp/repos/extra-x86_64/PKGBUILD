@@ -4,8 +4,8 @@
 
 pkgbase=devhelp
 pkgname=(devhelp devhelp-docs)
-pkgver=41.2
-pkgrel=3
+pkgver=41.3
+pkgrel=1
 pkgdesc="API documentation browser for GNOME"
 url="https://wiki.gnome.org/Apps/Devhelp"
 arch=(x86_64)
@@ -13,7 +13,8 @@ license=(GPL)
 depends=(webkit2gtk)
 makedepends=(git appstream-glib gobject-introspection meson yelp-tools
              gi-docgen)
-_commit=f05e288031ba171e8a0a589d65cba693487726d9  # tags/41.2^0
+options=(debug)
+_commit=f3a08affbfe5033db8d8cb4668a2436958c68157  # tags/41.3^0
 source=("git+https://gitlab.gnome.org/GNOME/devhelp.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -52,7 +53,6 @@ package_devhelp() {
 package_devhelp-docs() {
   pkgdesc+=" (documentation)"
   depends=()
-  options=(!strip)
 
   mv -t "$pkgdir" docs/*
 }

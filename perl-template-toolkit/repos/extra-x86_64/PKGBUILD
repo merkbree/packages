@@ -4,7 +4,7 @@
 # Contributor: FJ <joostef@gmail.com>
 
 pkgname=perl-template-toolkit
-pkgver=3.010
+pkgver=3.101
 pkgrel=1
 pkgdesc="Perl template processing system"
 arch=('x86_64')
@@ -13,8 +13,8 @@ license=('PerlArtistic')
 depends=('perl-appconfig' 'perl')
 checkdepends=('perl-cgi' 'perl-image-info' 'perl-test-leaktrace')
 options=('!emptydirs')
-source=(https://search.cpan.org/CPAN/authors/id/A/AT/ATOOMIC/Template-Toolkit-$pkgver.tar.gz)
-sha512sums=('9f6215eebe4151f93c0b83a49bc75fc6b2f00fff31729df9358b5bfd872e7a98207d146f4c1cb384a8cab002896b44cf09803a9049f9c8db0354b1d553c67452')
+source=(https://search.cpan.org/CPAN/authors/id/A/AB/ABW/Template-Toolkit-$pkgver.tar.gz)
+sha512sums=('7e74b1317a7fc113161999c9eeb63bdbee9ed8ff843bd4388039a683976eb71cd4ee2af7fecab639f3be7ef17386a45a6065a4eac6b599b5a0cc2f235d34962f')
 
 build() {
   cd Template-Toolkit-$pkgver

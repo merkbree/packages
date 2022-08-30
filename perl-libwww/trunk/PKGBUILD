@@ -1,7 +1,7 @@
 # Maintainer: Eric Bélanger <eric@archlinux.org>
 
 pkgname=perl-libwww
-pkgver=6.58
+pkgver=6.67
 pkgrel=1
 pkgdesc="The World-Wide Web library for Perl"
 arch=('any')
@@ -15,7 +15,7 @@ optdepends=('perl-lwp-protocol-https: for https:// url schemes')
 checkdepends=('perl-test-fatal' 'perl-test-needs' 'perl-test-requiresinternet')
 options=('!emptydirs')
 source=(https://cpan.metacpan.org/authors/id/O/OA/OALDERS/libwww-perl-$pkgver.tar.gz)
-sha512sums=('a8891b07ca3f2c3a49a11226051d6fa252667328a427140335719e16475de936b5b0287af56f4e5b26acaaf8fec75306b6ac9fd22388690f86cf3b923ba1306b')
+sha512sums=('0e0c148e7d7e29e813e880e18be63d86b04a1b74fa7862e988727d7a9e6497e17baa7a90f79608f4edb83552d468c8b9be0ea7562a3777d305ae8891a04e496e')
 
 build() {
   cd libwww-perl-$pkgver

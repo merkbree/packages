@@ -1,38 +1,43 @@
+# Maintainer: David Runge <dvzrv@archlinux.org>
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgbase=pipewire
 pkgname=(pipewire alsa-card-profiles pipewire-docs pipewire-alsa pipewire-jack
-         pipewire-pulse gst-plugin-pipewire pipewire-zeroconf pipewire-v4l2 pipewire-x11-bell)
-pkgver=0.3.44
+         pipewire-pulse gst-plugin-pipewire pipewire-zeroconf pipewire-v4l2
+         pipewire-x11-bell)
+_commit=f274e53d25ee8f483ac6fce9e516bb1830abe88b  # tags/0.3.56
+pkgver=0.3.56
 pkgrel=1
 epoch=1
 pkgdesc="Low-latency audio/video router and processor"
 url="https://pipewire.org"
-license=(MIT)
 arch=(x86_64)
-makedepends=(git meson doxygen graphviz python-docutils valgrind libpulse
-             alsa-lib libusb gst-plugins-base rtkit dbus sdl2 ncurses libcanberra libsndfile
-             bluez-libs sbc libldac libfreeaptx libfdk-aac avahi lilv
-             webrtc-audio-processing)
+license=(MIT)
+makedepends=(alsa-lib bluez-libs avahi git dbus doxygen graphviz
+             gst-plugins-base libcanberra libfdk-aac libfreeaptx libldac
+             libpulse libsndfile libusb libx11 libxfixes lilv meson ncurses
+             python-docutils rtkit sbc sdl2 valgrind webrtc-audio-processing)
 checkdepends=(desktop-file-utils)
-_commit=c4ca245b24071c33b1d131e131cf1ebc5fb64f2e  # tags/0.3.44
-source=("git+https://gitlab.freedesktop.org/pipewire/pipewire.git#commit=$_commit")
+options=(debug)
+source=(git+https://gitlab.freedesktop.org/pipewire/pipewire.git#commit=$_commit)
 sha256sums=('SKIP')
 
 pkgver() {
   cd pipewire
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+  git describe --tags | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare() {
   cd pipewire
+
   # remove export of LD_LIBRARY_PATH for pw-jack as it would add /usr/lib
-  sed -e '/LD_LIBRARY_PATH/d' -i pipewire-jack/src/pw-jack.in
+  sed -i '/LD_LIBRARY_PATH/d' pipewire-jack/src/pw-jack.in
 }
 
 build() {
   local meson_options=(
+    -D bluez5-codec-lc3plus=disabled
     -D docs=enabled
     -D jack=disabled
     -D jack-devel=true
@@ -109,12 +114,15 @@ package_pipewire() {
     _pick zeroconf usr/lib/pipewire-$_ver/libpipewire-module-{raop,zeroconf}-discover.so
 
     _pick v4l2 usr/bin/pw-v4l2 usr/lib/pipewire-$_ver/v4l2
-    _pick x11-bell usr/lib/pipewire-$_ver/libpipewire-module-x11-bell.so
-  )
 
-  mkdir -p "$pkgdir/etc/alsa/conf.d"
-  ln -st "$pkgdir/etc/alsa/conf.d" \
-    /usr/share/alsa/alsa.conf.d/50-pipewire.conf
+    _pick x11-bell usr/lib/pipewire-$_ver/libpipewire-module-x11-bell.so
+
+    mkdir -p etc/alsa/conf.d
+    ln -st etc/alsa/conf.d /usr/share/alsa/alsa.conf.d/50-pipewire.conf
+
+    # directories for overrides
+    mkdir -p etc/pipewire/{client-rt,client,minimal,pipewire,pipewire-pulse}.conf.d
+  )
 
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 pipewire/COPYING
 }
@@ -136,7 +144,7 @@ package_pipewire-docs() {
 
 package_pipewire-alsa() {
   pkgdesc+=" - ALSA configuration"
-  depends=(pipewire-session-manager)
+  depends=(wireplumber)
   provides=(pulseaudio-alsa)
 
   mkdir -p "$pkgdir/etc/alsa/conf.d"
@@ -152,7 +160,7 @@ package_pipewire-alsa() {
 package_pipewire-jack() {
   pkgdesc+=" - JACK support"
   license+=(GPL2)  # libjackserver
-  depends=(sh pipewire-session-manager libpipewire-$_ver.so)
+  depends=(wireplumber libpipewire-$_ver.so sh)
   optdepends=('jack-example-tools: for official JACK example-clients and tools')
   conflicts=(jack jack2)
   provides=(jack libjack.so libjackserver.so libjacknet.so)
@@ -162,12 +170,15 @@ package_pipewire-jack() {
   install -Dm644 /dev/null \
     "$pkgdir/usr/share/pipewire/media-session.d/with-jack"
 
+  # directories for overrides
+  mkdir -p "$pkgdir/etc/pipewire/jack.conf.d"
+
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 pipewire/COPYING
 }
 
 package_pipewire-pulse() {
   pkgdesc+=" - PulseAudio replacement"
-  depends=(pipewire-session-manager libpipewire-$_ver.so libpulse.so
+  depends=(wireplumber libpipewire-$_ver.so libpulse.so
            libavahi-{client,common}.so)
   provides=(pulseaudio pulseaudio-bluetooth)
   conflicts=(pulseaudio pulseaudio-bluetooth)
@@ -201,7 +212,7 @@ package_pipewire-zeroconf() {
 
 package_pipewire-v4l2() {
   pkgdesc+=" - V4L2 interceptor"
-  depends=(sh pipewire-session-manager libpipewire-$_ver.so)
+  depends=(pipewire-session-manager libpipewire-$_ver.so sh)
 
   mv v4l2/* "$pkgdir"
 
@@ -211,7 +222,7 @@ package_pipewire-v4l2() {
 
 package_pipewire-x11-bell() {
   pkgdesc+=" - X11 bell"
-  depends=(libcanberra.so libpipewire-$_ver.so libx11)
+  depends=(pipewire libpipewire-$_ver.so libx11 libxfixes libcanberra.so)
 
   mv x11-bell/* "$pkgdir"
 

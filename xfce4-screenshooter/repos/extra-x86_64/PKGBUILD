@@ -2,8 +2,8 @@
 # Contributor: Tobias Kieslich <tobias (at) archlinux.org>
 
 pkgname=xfce4-screenshooter
-pkgver=1.9.9
-pkgrel=2
+pkgver=1.9.11
+pkgrel=1
 pkgdesc="An application to take screenshots"
 arch=('x86_64')
 url="https://docs.xfce.org/apps/screenshooter/start"
@@ -12,10 +12,14 @@ groups=('xfce4-goodies')
 depends=('xfce4-panel' 'libsoup' 'hicolor-icon-theme')
 makedepends=('intltool' 'python')
 source=(https://archive.xfce.org/src/apps/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
-sha256sums=('33c8aeb53fbdb82dbd7d40bca77a8affbb4116ba0993cd59474b554558e5daa4')
+sha256sums=('e73d06be594b32f57d56b31482214cd7572c54adc0963f6b66c224c205f3f8b4')
+
+prepare() {
+  cd $pkgname-$pkgver
+}
 
 build() {
-  cd "$srcdir/$pkgname-$pkgver"
+  cd $pkgname-$pkgver
 
   ./configure \
     --prefix=/usr \
@@ -28,7 +32,7 @@ build() {
 }
 
 package() {
-  cd "$srcdir/$pkgname-$pkgver"
+  cd $pkgname-$pkgver
   make DESTDIR="$pkgdir" install
 }
 

@@ -1,7 +1,7 @@
 # Maintainer: Laurent Carlier <lordheavym@gmail.com>
 
 pkgname=vulkan-icd-loader
-pkgver=1.2.203
+pkgver=1.3.221
 pkgrel=1
 arch=(x86_64)
 pkgdesc="Vulkan Installable Client Driver (ICD) Loader"
@@ -12,7 +12,7 @@ depends=(glibc)
 optdepends=('vulkan-driver: packaged vulkan driver') # vulkan-driver: vulkan-intel/vulkan-radeon/nvidia-utils/....
 provides=('libvulkan.so')
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/KhronosGroup/Vulkan-Loader/archive/v${pkgver}.tar.gz")
-sha256sums=('a431c627f36f90ce8d1aa752e7a37838db569760a54bb97edaee35dae4743118')
+sha256sums=('ba7042b2b14a11646ba8bd33c041ccb4f1abe5bdfa2758e301a76bf6d31d2748')
 
 build() {
   cd "${srcdir}"/Vulkan-Loader*

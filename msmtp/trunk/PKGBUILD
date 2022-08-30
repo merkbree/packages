@@ -2,15 +2,15 @@
 
 pkgbase=msmtp
 pkgname=('msmtp' 'msmtp-mta')
-pkgver=1.8.19
-pkgrel=1
+pkgver=1.8.22
+pkgrel=2
 pkgdesc="A mini smtp client"
 arch=('x86_64')
 url="https://marlam.de/msmtp/"
 license=('GPL3')
 makedepends=('texlive-plainextra' 'libsecret' 'gsasl')
 source=("https://marlam.de/msmtp/releases/msmtp-$pkgver.tar.xz"{,.sig})
-sha512sums=('0be193fc0a415824e311f88b57521898caaed49737370b6ae688c7f75e3ff5bc3dc9d87d9d08289b46a1b9650b2a48fb3cd40fb156f894b3fe805136d124f1bd'
+sha512sums=('13307bd8004bb7e229193b74f4e736c8462624a4aa1aedbb57421098efb2aa6b8cf1358ebc874a2db48aa6266414b4c6a1673d631356e92c1c538391533e098a'
             'SKIP')
 validpgpkeys=('2F61B4828BBA779AECB3F32703A2A4AB1E32FD34')  # Martin Lambers
 

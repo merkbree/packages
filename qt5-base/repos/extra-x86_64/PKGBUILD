@@ -3,9 +3,10 @@
 
 pkgbase=qt5-base
 pkgname=(qt5-base qt5-xcb-private-headers)
-pkgver=5.15.2+kde+r296
-pkgrel=2
-_commit=53a047c212af7fbded6505651f648172f9d7a34d
+_basever=5.15.5
+pkgver=5.15.5+kde+r178
+pkgrel=1
+_commit=7f9253defd2e90f900d963c6d248a2a0bdaca1a8
 arch=('x86_64')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
@@ -27,27 +28,24 @@ optdepends=('qt5-svg: to use SVG icon themes'
             'perl: for fixqt4headers and syncqt')
 conflicts=('qtchooser')
 groups=('qt' 'qt5')
-_pkgfqn=qtbase
+_pkgfqn=${pkgbase/5-/}
 source=(git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit
-        qt5-base-cflags.patch
-        qt5-base-nostrip.patch)
+        qmake-cflags.patch
+        qmake-config.patch)
 sha256sums=('SKIP'
             '5411edbe215c24b30448fac69bd0ba7c882f545e8cf05027b2b6e2227abc5e78'
-            '4b93f6a79039e676a56f9d6990a324a64a36f143916065973ded89adc621e094')
+            '4abc22150fa3e06b2fdcec32146abc9be4e316692aa4d5bd5aa53b4b726783fa')
 options=(debug)
 
 pkgver() {
   cd $_pkgfqn
-  echo "5.15.2+kde+r"`git rev-list --count origin/5.15.2..$_commit`
+  echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit`
 }
 
 prepare() {
   cd ${_pkgfqn}
-
-  git revert -n 6344955d17e17e2398720fe60c34cfc2a4a95208 # Revert version bump
-
-  patch -p1 < ../qt5-base-cflags.patch # Use system CFLAGS in qmake
-  patch -p1 < ../qt5-base-nostrip.patch # Don't strip binaries with qmake
+  patch -p1 < ../qmake-cflags.patch # Use system CFLAGS in qmake
+  patch -p1 < ../qmake-config.patch # Don't strip binaries with qmake and use -ltcg, cf. QTBUG-73834
 }
 
 build() {

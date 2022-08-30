@@ -2,8 +2,8 @@
 
 pkgbase=ibus
 pkgname=(ibus libibus)
-pkgver=1.5.25
-pkgrel=5
+pkgver=1.5.27
+pkgrel=1
 pkgdesc="Next Generation Input Bus for Linux"
 arch=('x86_64')
 url="https://github.com/ibus/ibus/wiki"
@@ -11,26 +11,13 @@ license=('LGPL')
 depends=('dconf' 'gtk3' 'hicolor-icon-theme' 'libnotify' 'python-dbus' 'python-gobject'
          'iso-codes' 'librsvg')
 makedepends=('gobject-introspection' 'vala' 'intltool' 'gnome-common' 'gtk-doc' 'gtk4' 'gtk2'
-             'qt5-base' 'unicode-cldr' 'unicode-character-database' 'unicode-emoji' 'git')
-options=('!emptydirs')
-_commit=cfb263f04f82a83dd94f6eedcd5017d40a4a1a05  # 1.5.25
-source=("git+https://github.com/ibus/ibus#commit=$_commit")
-sha512sums=('SKIP')
-
-pkgver() {
-  cd ibus
-  git describe --tags | sed 's/-/+/g'
-}
-
-prepare() {
-  cd ibus
-  sed -i 's|$(libibus) $(libibus_emoji_dialog)|$(libibus_emoji_dialog) $(libibus)|' ui/gtk3/Makefile.am
-  git cherry-pick -n 936a0e76df79d92a8bdc03e9205330fb84a2083e
-  NOCONFIGURE=1 ./autogen.sh
-}
+             'qt5-base' 'unicode-cldr' 'unicode-character-database' 'unicode-emoji')
+options=('!emptydirs' 'debug')
+source=("https://github.com/ibus/ibus/releases/download/$pkgver/ibus-$pkgver.tar.gz")
+sha512sums=('b5f3ae555d19eb780a416383e6351ed2cd8834fcc2bc4ebe4f4a194fc934dd055c5e782f9ec382fb21e1e2103c5409804174a79d192b5494a9018ce9081305e4')
 
 build() {
-  cd ibus
+  cd ibus-$pkgver
   ./configure \
     --prefix=/usr \
     --libexecdir=/usr/lib/ibus \
@@ -51,7 +38,7 @@ build() {
 package_ibus() {
   depends+=("libibus=$pkgver")
 
-  cd ibus
+  cd ibus-$pkgver
   make DESTDIR="$pkgdir" install
   make -C src DESTDIR="$pkgdir" uninstall
   make -C bindings DESTDIR="$pkgdir" uninstall
@@ -63,7 +50,7 @@ package_libibus() {
   depends=(libg{lib,object,io}-2.0.so)
   provides=('libibus-1.0.so')
 
-  cd ibus
+  cd ibus-$pkgver
   make -C src DESTDIR="$pkgdir" install
   make -C bindings DESTDIR="$pkgdir" install
   make DESTDIR="$pkgdir" install-pkgconfigDATA
