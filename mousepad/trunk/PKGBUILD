@@ -2,18 +2,18 @@
 # Contributor: tobias [tobias at archlinux.org]
 
 pkgname=mousepad
-pkgver=0.5.10
-pkgrel=1
+pkgver=0.6.1
+pkgrel=2
 pkgdesc="Simple text editor for Xfce"
 arch=('x86_64')
 url="https://docs.xfce.org/apps/mousepad/start"
 license=('GPL2')
 groups=('xfce4-goodies')
 depends=('gtksourceview4' 'desktop-file-utils' 'hicolor-icon-theme')
-makedepends=('intltool' 'gspell')
+makedepends=('gspell' 'polkit')
 optdepends=('gspell: spell checking support')
 source=(https://archive.xfce.org/src/apps/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
-sha256sums=('6ebaf38d52bee5560d9650c52a693f8a6ed0a67d88cc938d73f7d5ce13552bad')
+sha256sums=('560c5436c7bc7de33fbf3e9f6cc545280772ad898dfb73257d86533880ffff36')
 
 build() {
   cd $pkgname-$pkgver
@@ -21,9 +21,7 @@ build() {
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
-    --libexecdir=/usr/lib/xfce4 \
     --localstatedir=/var \
-    --disable-static \
     --disable-debug
   make
 }

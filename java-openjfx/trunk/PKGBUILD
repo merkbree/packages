@@ -15,7 +15,7 @@ pkgname=(
   java-openjfx-doc
   java-openjfx-src
 )
-pkgver=18.0.2.u2
+pkgver=20.0.1.u1
 pkgrel=1
 pkgdesc="Java OpenJFX client application platform (open-source implementation of JavaFX) - latest version"
 arch=(x86_64)
@@ -34,7 +34,7 @@ makedepends=(
   gradle
   gtk2
   gtk3
-  java-environment-openjdk=18
+  java-environment-openjdk=17
   libgl
   libx11
   libxtst
@@ -47,32 +47,29 @@ makedepends=(
   zip
 )
 source=(
-  https://github.com/openjdk/jfx/archive/refs/tags/${pkgver//.u/+}.tar.gz
+  https://github.com/openjdk/jfx${pkgver//.*}u/archive/refs/tags/${pkgver//.u/+}.tar.gz
   # ${pkgname}-${pkgver}.tar.gz::https://github.com/openjdk/jfx${pkgver%%.*}u/archive/refs/tags/${pkgver//.u/+}.tar.gz
   gradle.properties
   java-openjfx-flags.patch
   java-openjfx-no-xlocale.patch
-  java-openjfx-gstreamer-lite-gcc10-compat.patch
 )
-b2sums=('7c913def2a1f1248221a51a7730a6067183f3f7ce1bea5a2792c961f73f423754e50e4f01b0f51ae4703a24bf11c334f4dfa4e8913623399d457cff88f820ab7'
+b2sums=('f90129048df11e7b313681c974731ce8b47bb01a3a3e60b70b93385a9d924127f2420310faec79d84a23fb669fb0d8c003142494054d672c44e978ce44b5c788'
         'a77fd8814a5978827de01a652f7b945f3439df04606434ced8998c8d77a82985292490e6965299aeb52f9da3d8069b4091d75519bd4ec8a15f70bc6d28b13498'
-        'c8372fef5837b0c9067e7f01d3310ddc6f9143cdd6891b6627f783a63b24e3b69a88e17b82e01686a0d43a17c692008c3b20a563abc647964f2b34300e6ffc1a'
-        '13216615c01b8d48d17889ffa22668c38568870d83ab30c542eb5b5620db305f02efb1acb99d9b5e89eb0a73a134bb336cb301f4de4e8855cae50efb099e384e'
-        '119fa1cc5da2cdefa22bbe9b6f76581faa74e05fa7b6e5576470fc0251c6e257f122fbba03754cc01f7c7251145cfa1cab4ffc2f9d59ff0c175a121e943a0f64')
+        '609ffbc0938922f00ccebab6d1e9ab0d54b84f088f75c10c0eb4211ff1b33438481d76092eae8811a5e9f53dfc3ff422f7aa4e98abd8fc27fb73f1c3d4661c41'
+        '13216615c01b8d48d17889ffa22668c38568870d83ab30c542eb5b5620db305f02efb1acb99d9b5e89eb0a73a134bb336cb301f4de4e8855cae50efb099e384e')
 
 prepare() {
-  cd jfx-${pkgver//.u/-}
+  cd jfx${pkgver//.*}u-${pkgver//.u/-}
   # cd jfx${pkgver%%.*}u-${pkgver//.u/-}
 
   ln -sf ../gradle.properties .
   patch -Np1 -i ../java-openjfx-flags.patch
   patch -Np1 -i ../java-openjfx-no-xlocale.patch
-  patch -Np1 -i ../java-openjfx-gstreamer-lite-gcc10-compat.patch
   sed 's|, "-Werror"||g' -i buildSrc/linux.gradle
 }
 
 build() {
-  cd jfx-${pkgver//.u/-}
+  cd jfx${pkgver//.*}u-${pkgver//.u/-}
   # cd jfx${pkgver%%.*}u-${pkgver//.u/-}
 
   # build against ffmpeg4.4
@@ -96,7 +93,7 @@ package_java-openjfx() {
   )
   provides=(java-openjfx=${pkgver%%.*})
 
-  cd jfx-${pkgver//.u/-}
+  cd jfx${pkgver//.*}u-${pkgver//.u/-}
   # cd jfx${pkgver%%.*}u-${pkgver//.u/-}
 
   install -dm 755  "${pkgdir}"/usr/{lib/jvm/java-${pkgver%%.*}-openjdk,share/licenses}
@@ -106,7 +103,7 @@ package_java-openjfx() {
 }
 
 package_java-openjfx-doc() {
-  cd jfx-${pkgver//.u/-}
+  cd jfx${pkgver//.*}u-${pkgver//.u/-}
   # cd jfx${pkgver%%.*}u-${pkgver//.u/-}
 
   install -dm 755 "${pkgdir}"/usr/share/{doc,licenses}
@@ -115,7 +112,7 @@ package_java-openjfx-doc() {
 }
 
 package_java-openjfx-src() {
-  cd jfx-${pkgver//.u/-}
+  cd jfx${pkgver//.*}u-${pkgver//.u/-}
   # cd jfx${pkgver%%.*}u-${pkgver//.u/-}
 
   install -dm 755  "${pkgdir}"/usr/{lib/jvm/java-${pkgver%%.*}-openjdk,share/licenses}

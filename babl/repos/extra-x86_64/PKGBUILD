@@ -1,8 +1,8 @@
 # Maintainer: Daniel Isenmann <daniel@archlinux.org>
 
 pkgname=babl
-_tag='e3f61c65825271f2846c72558dedd2556065cbe3'
-pkgver=0.1.96
+_tag='ddb6912548e1490edc9638a37b1fa4f16b5e044b'
+pkgver=0.1.104
 pkgrel=1
 pkgdesc='Dynamic, any to any, pixel format conversion library'
 arch=('x86_64')
@@ -10,7 +10,6 @@ url='https://gegl.org/babl/'
 license=('LGPL3')
 depends=('glibc' 'lcms2')
 makedepends=('git' 'meson' 'gobject-introspection' 'vala')
-options=('debug')
 source=("git+https://gitlab.gnome.org/GNOME/babl.git#tag=$_tag")
 sha256sums=('SKIP')
 

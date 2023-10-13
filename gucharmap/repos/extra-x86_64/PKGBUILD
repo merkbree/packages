@@ -2,20 +2,29 @@
 # Contributor: Jan De Groot <jgc@archlinux.org>
 
 pkgname=gucharmap
-pkgver=14.0.3
+pkgver=15.0.4
 pkgrel=1
 pkgdesc="Gnome Unicode Charmap"
 url="https://wiki.gnome.org/Apps/Gucharmap"
 arch=(x86_64)
 license=(GPL3)
 depends=(gtk3)
-makedepends=(gtk-doc gobject-introspection yelp-tools appdata-tools git meson
-             unicode-character-database unzip vala)
+makedepends=(
+  appdata-tools
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  unicode-character-database
+  unzip
+  vala
+  yelp-tools
+)
 provides=(libgucharmap_2_90.so)
-options=(debug)
-_commit=c5ed6328814952e7a6e7997d02697119dc52eb90  # tags/14.0.3^0
+options=(!lto)
+_commit=367f957574e7d7277839e7dfc3de6890937c4e2a  # tags/15.0.4^0
 source=("git+https://gitlab.gnome.org/GNOME/gucharmap.git#commit=$_commit")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 
 pkgver() {
   cd $pkgname
@@ -27,7 +36,12 @@ prepare() {
 }
 
 build() {
-  arch-meson $pkgname build -D ucd_path=/usr/share/unicode
+  local meson_options=(
+    -D b_lto=false
+    -D ucd_path=/usr/share/unicode
+  )
+
+  arch-meson $pkgname build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -38,3 +52,5 @@ check() {
 package() {
   meson install -C build --destdir "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:

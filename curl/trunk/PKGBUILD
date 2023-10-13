@@ -6,46 +6,78 @@
 
 pkgbase=curl
 pkgname=(curl libcurl-compat libcurl-gnutls)
-pkgver=7.85.0
-pkgrel=2
-pkgdesc='An URL retrieval utility and library'
+_tag='189aed698b23f7a1390d1b561ba73d02e66d96d2' # git rev-parse v${_tag_name}
+_tag_name='8_1_0'
+pkgver="${_tag_name//_/.}"
+pkgrel=1
+pkgdesc='command line tool and library for transferring data with URLs'
 arch=('x86_64')
-url='https://curl.haxx.se'
+url='https://curl.se/'
 license=('MIT')
-options=('debug')
 depends=('ca-certificates' 'brotli' 'libbrotlidec.so' 'krb5' 'libgssapi_krb5.so'
          'libidn2' 'libidn2.so' 'libnghttp2' 'libpsl' 'libpsl.so' 'libssh2' 'libssh2.so'
          'openssl' 'zlib' 'zstd' 'libzstd.so')
-makedepends=('patchelf')
+makedepends=('git' 'patchelf')
 provides=('libcurl.so')
-source=("https://curl.haxx.se/download/${pkgname}-${pkgver}.tar.gz"{,.asc})
-sha512sums=('bbad693bcde9c55e5942499950d76011f53ad43d3270eee2c8db486bcf46f5fc92b32dd8752caf4c5976fe493d083e2d34fa299cb96fb8e76d8f5fcc2cc56a36'
-            'SKIP')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
+source=("git+https://github.com/bagder/curl.git#tag=${_tag}?signed")
+sha512sums=('SKIP')
 
-_configure_options=(
-  --prefix='/usr'
-  --mandir='/usr/share/man'
-  --disable-ldap
-  --disable-ldaps
-  --disable-manual
-  --enable-ipv6
-  --enable-threaded-resolver
-  --with-gssapi
-  --with-libssh2
-  --with-openssl
-  --with-random='/dev/urandom'
-  --with-ca-bundle='/etc/ssl/certs/ca-certificates.crt'
+_backports=(
 )
 
+_reverts=(
+)
+
+prepare() {
+  cd "$pkgbase"
+
+  local _c
+  for _c in "${_backports[@]}"; do
+    if [[ $_c == *..* ]]; then
+      git log --oneline --reverse "${_c}"
+    else
+      git log --oneline -1 "${_c}"
+    fi
+    git cherry-pick -n -m1 "${_c}"
+  done
+  for _c in "${_reverts[@]}"; do
+    git log --oneline -1 "${_c}"
+    git revert -n "${_c}"
+  done
+
+  # no '-DEV' in version, release date from tagged commit...
+  sed -i \
+    -e "/\WLIBCURL_VERSION\W/c #define LIBCURL_VERSION \"${pkgver}\"" \
+    -e "/\WLIBCURL_TIMESTAMP\W/c #define LIBCURL_TIMESTAMP \"$(git log -1 --format=%cs "${_tag}")\"" \
+    include/curl/curlver.h
+
+  autoreconf -fi
+}
+
 build() {
+  local _configure_options=(
+    --prefix='/usr'
+    --mandir='/usr/share/man'
+    --disable-ldap
+    --disable-ldaps
+    --disable-manual
+    --enable-ipv6
+    --enable-threaded-resolver
+    --with-gssapi
+    --with-libssh2
+    --with-random='/dev/urandom'
+    --with-ca-bundle='/etc/ssl/certs/ca-certificates.crt'
+  )
+
   mkdir build-curl{,-compat,-gnutls}
 
   # build curl
   cd "${srcdir}"/build-curl
 
-  "${srcdir}/${pkgbase}-${pkgver}"/configure \
+  "${srcdir}/${pkgbase}"/configure \
     "${_configure_options[@]}" \
+    --with-openssl \
     --enable-versioned-symbols
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make
@@ -53,8 +85,9 @@ build() {
   # build libcurl-compat
   cd "${srcdir}"/build-curl-compat
 
-  "${srcdir}/${pkgbase}-${pkgver}"/configure \
+  "${srcdir}/${pkgbase}"/configure \
     "${_configure_options[@]}" \
+    --with-openssl \
     --disable-versioned-symbols
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make -C lib
@@ -62,11 +95,11 @@ build() {
   # build libcurl-gnutls
   cd "${srcdir}"/build-curl-gnutls
 
-  "${srcdir}/${pkgbase}-${pkgver}"/configure \
+  "${srcdir}/${pkgbase}"/configure \
     "${_configure_options[@]}" \
     --disable-versioned-symbols \
-    --without-ssl \
-    --with-gnutls='/usr'
+    --without-openssl \
+    --with-gnutls
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make -C lib
   patchelf --set-soname 'libcurl-gnutls.so.4' ./lib/.libs/libcurl.so
@@ -78,15 +111,16 @@ package_curl() {
   make DESTDIR="${pkgdir}" install
   make DESTDIR="${pkgdir}" install -C scripts
 
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${srcdir}/${pkgname}"
 
   # license
-  install -Dt "${pkgdir}/usr/share/licenses/$pkgname" -m0644 COPYING
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m0644 COPYING
 }
 
 package_libcurl-compat() {
-  pkgdesc='An URL retrieval library (without versioned symbols)'
+  pkgdesc='command line tool and library for transferring data with URLs (no versioned symbols)'
   depends=('curl' 'openssl')
+  provides=('libcurl-compat.so')
 
   cd "${srcdir}"/build-curl-compat
 
@@ -103,8 +137,9 @@ package_libcurl-compat() {
 }
 
 package_libcurl-gnutls() {
-  pkgdesc='An URL retrieval library (without versioned symbols and linked against gnutls)'
+  pkgdesc='command line tool and library for transferring data with URLs (no versioned symbols, linked against gnutls)'
   depends=('curl' 'gnutls')
+  provides=('libcurl-gnutls.so')
 
   cd "${srcdir}"/build-curl-gnutls
 

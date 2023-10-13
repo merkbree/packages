@@ -3,26 +3,56 @@
 
 pkgbase=glib2
 pkgname=(glib2 glib2-docs)
-pkgver=2.72.3
-pkgrel=3
+pkgver=2.76.2
+pkgrel=1
 pkgdesc="Low level core library"
 url="https://wiki.gnome.org/Projects/GLib"
 license=(LGPL)
 arch=(x86_64)
-depends=(pcre libffi util-linux-libs zlib libsysprof-capture)
-makedepends=(gettext gtk-doc shared-mime-info python libelf git util-linux
-             meson dbus)
-checkdepends=(desktop-file-utils)
-options=(debug staticlibs)
-_commit=dce30492f6087a8e1e288f1706d41142b74ca1ff  # tags/2.72.3^0
-source=("git+https://gitlab.gnome.org/GNOME/glib.git#commit=$_commit"
-        0001-glib-compile-schemas-Remove-noisy-deprecation-warnin.patch
-        glib-compile-schemas.hook gio-querymodules.{hook,script})
-sha256sums=('SKIP'
-            'f410289d8acf787cf0fc512efe5622d4bbd574c032e3ee0efd9cae2155b2c3dc'
-            '64ae5597dda3cc160fc74be038dbe6267d41b525c0c35da9125fbf0de27f9b25'
-            '2a9f9b8235f48e3b7d0f6cfcbc76cd2116c45f28692cac4bd61074c495bd5eb7'
-            '92d08db5aa30bda276bc3d718e7ff9dd01dc40dcab45b359182dcc290054e24e')
+depends=(
+  libffi
+  libsysprof-capture
+  pcre2
+  util-linux-libs
+  zlib
+)
+makedepends=(
+  dbus
+  gettext
+  git
+  gtk-doc
+  libelf
+  meson
+  python
+  shared-mime-info
+  util-linux
+)
+checkdepends=(
+  desktop-file-utils
+  glib2
+)
+options=(
+  debug
+  staticlibs
+)
+_commit=41ae5b5632ce9f6b2b5613ec1912821f769166c2  # tags/2.76.2^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/glib.git#commit=$_commit"
+  "git+https://gitlab.gnome.org/GNOME/gvdb.git"
+  0001-glib-compile-schemas-Remove-noisy-deprecation-warnin.patch
+  0002-glocalfile-Sum-apparent-size-only-for-files-and-syml.patch
+  0003-tests-file-Do-not-rely-on-du-bytes-behaviour.patch
+  gio-querymodules.hook
+  glib-compile-schemas.hook
+)
+b2sums=('SKIP'
+        'SKIP'
+        'bd7f881ae6054c363783bf45b1add5eef5e8347554e23b9fece526701469d07cdcb9871fa73dee473796a219e8aa513796a96da769949097ea207db038578d07'
+        '6bcbcba60208162f7221701d6a642eabfc92c2fc6a476bcb42da5967577f8f0c75b688d149be01c9c48cd644aafa7fbdd63d9086385b8f7607fc981756d71a68'
+        '257bf37d304cc161dedcde0a2c4d01e297f8263cde48b49d3ee47ca95a8fb9ad44bbb9bf99da51ec766ffb6f9d502e0a8fdc6b86346e6755373ee515e23b9419'
+        '14c9211c0557f6d8d9a914f1b18b7e0e23f79f4abde117cb03ab119b95bf9fa9d7a712aa0a29beb266468aeb352caa3a9e4540503cfc9fe0bbaf764371832a96'
+        'd30d349b4cb4407839d9074ce08f5259b8a5f3ca46769aabc621f17d15effdb89c4bf19bd23603f6df3d59f8d1adaded0f4bacd0333afcab782f2d048c882858')
+
 
 pkgver() {
   cd glib
@@ -34,22 +64,36 @@ prepare() {
 
   # Suppress noise from glib-compile-schemas.hook
   git apply -3 ../0001-glib-compile-schemas-Remove-noisy-deprecation-warnin.patch
+
+  # fix test suite issues with coreutils >=9.2
+  # https://gitlab.gnome.org/GNOME/glib/-/merge_requests/3358
+  git apply -3 ../0002-glocalfile-Sum-apparent-size-only-for-files-and-syml.patch
+  git apply -3 ../0003-tests-file-Do-not-rely-on-du-bytes-behaviour.patch
+
+  git submodule init
+  git submodule set-url subprojects/gvdb "$srcdir/gvdb"
+  git -c protocol.file.allow=always submodule update
 }
 
 build() {
-  # Produce more debug info: GLib has a lot of useful macros
-  # use fat LTO objects for static libraries
-  CFLAGS+=' -ffat-lto-objects -g3'
-  CXXFLAGS+=' -ffat-lto-objects -g3'
-
-  CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
-  arch-meson glib build \
-    --default-library both \
-    -D glib_debug=disabled \
-    -D selinux=disabled \
-    -D sysprof=enabled \
-    -D man=true \
+  local meson_options=(
+    --default-library both
+    -D glib_debug=disabled
     -D gtk_doc=true
+    -D man=true
+    -D selinux=disabled
+    -D sysprof=enabled
+  )
+
+  # Produce more debug info: GLib has a lot of useful macros
+  CFLAGS+=" -g3"
+  CXXFLAGS+=" -g3"
+
+  # use fat LTO objects for static libraries
+  CFLAGS+=" -ffat-lto-objects"
+  CXXFLAGS+=" -ffat-lto-objects"
+
+  arch-meson glib build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -58,17 +102,21 @@ check() {
 }
 
 package_glib2() {
-  depends+=(libmount.so libffi.so)
-  provides+=(libgio-2.0.so libglib-2.0.so libgmodule-2.0.so libgobject-2.0.so
-             libgthread-2.0.so)
-  optdepends=('python: gdbus-codegen, glib-genmarshal, glib-mkenums, gtester-report'
-              'libelf: gresource inspection tool'
-              'gvfs: most gio functionality')
+  depends+=(
+    libffi.so
+    libmount.so
+  )
+  provides+=(libg{lib,io,module,object,thread}-2.0.so)
+  optdepends=(
+    'gvfs: most gio functionality'
+    'libelf: gresource inspection tool'
+    'python: gdbus-codegen, glib-genmarshal, glib-mkenums, gtester-report'
+  )
 
   meson install -C build --destdir "$pkgdir"
 
   install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 *.hook
-  install -D gio-querymodules.script "$pkgdir/usr/share/libalpm/scripts/gio-querymodules"
+  touch "$pkgdir/usr/lib/gio/modules/.keep"
 
   python -m compileall -d /usr/share/glib-2.0/codegen \
     "$pkgdir/usr/share/glib-2.0/codegen"
@@ -81,7 +129,7 @@ package_glib2() {
 }
 
 package_glib2-docs() {
-  pkgdesc="Documentation for GLib"
+  pkgdesc+=" - documentation"
   depends=()
   license+=(custom)
 
@@ -89,4 +137,4 @@ package_glib2-docs() {
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 glib/docs/reference/COPYING
 }
 
-# vim:set sw=2 et:
+# vim:set sw=2 sts=-1 et:

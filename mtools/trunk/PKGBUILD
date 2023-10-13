@@ -3,25 +3,30 @@
 # Contributor: Tom Newsom <Jeepster@gmx.co.uk>
 
 pkgname=mtools
-pkgver=4.0.40
+pkgver=4.0.43
 pkgrel=1
 epoch=1
 pkgdesc="A collection of utilities to access MS-DOS disks"
 arch=(x86_64)
 url="https://www.gnu.org/software/mtools/"
 license=(GPL3)
-depends=(bash glibc)
-makedepends=(libx11 texinfo)
+depends=(
+  bash
+  glibc
+)
+makedepends=(
+  libx11
+  texinfo
+)
 optdepends=(
   'libx11: required by floppyd'
   'libxau: required by floppyd'
 )
 backup=(etc/$pkgname.conf)
-options=(debug)
 source=(https://ftp.gnu.org/gnu/mtools/$pkgname-$pkgver.tar.bz2{,.sig})
-sha512sums=('c3acf8723ae207d9eccdca3c2b55aed262175328417031397c14c7120a1e02f0c52c7fefc0145dfb09fb91f1d3e63254e7a45bc7edf50b1ecc87b7cc95d2f390'
+sha512sums=('b70e483688124a653dd333ab127494dab12d413809680a4846dc4ae5c166a0b9938a2ab290e518c1f1a5b18ed96d2c2a29d92d61b16b772a4ab5e495379fe410'
             'SKIP')
-b2sums=('6ae2dbd2129d48528f6a36f81f44979b2dd977729e3f3f0ab5ff4aa8d29b0841cd770e2ed12f0f772676f6bcfeb3949d4fb79e240cf1d88524bbaa6cdfb4d26e'
+b2sums=('d000839bbb6bc647eb5a32b08b40b1350cd0a85fd564f0705ecbfe20f8f4ef21bf2d59cd0ccd7a159c829c019c6c2f3cbdef82ff3f4a9e8828cc13d44ddabd1d'
         'SKIP')
 validpgpkeys=('51A23D9D7C4DF41AA48FA893E99CF5537790B839') # Alain KNAFF <alain@knaff.lu>
 
@@ -31,12 +36,15 @@ prepare() {
 }
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure \
-    --prefix=/usr \
-    --mandir=/usr/share/man \
-    --infodir=/usr/share/info \
+  local configure_options=(
+    --prefix=/usr
+    --mandir=/usr/share/man
+    --infodir=/usr/share/info
     --sysconfdir=/etc
+  )
+
+  cd $pkgname-$pkgver
+  ./configure "${configure_options[@]}"
   make
 }
 

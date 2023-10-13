@@ -6,13 +6,18 @@
 
 _name=pip
 pkgname=python-pip
-pkgver=22.2.2
-pkgrel=2
+pkgver=23.1.2
+pkgrel=1
 pkgdesc="The PyPA recommended tool for installing Python packages"
 url="https://pip.pypa.io/"
 arch=(any)
 license=(MIT)
-depends=(python)
+depends=(
+  python
+  python-attrs  # for vendored rich
+  python-cryptography  # for vendored requests and urllib3
+  python-wheel  # for internal misc utils
+)
 makedepends=(
   python-build
   python-installer
@@ -22,26 +27,22 @@ makedepends=(
   python-sphinx-copybutton
   python-sphinx-inline-tabs
   python-sphinxcontrib-towncrier
-  python-wheel
 )
 checkdepends=(
   git
-  python-cryptography
   python-freezegun
   python-pytest
   python-pytest-rerunfailures
   python-pytest-xdist
   python-scripttest
-  python-setuptools
   python-tomli-w
   python-virtualenv
   python-werkzeug
-  python-wheel
   subversion
 )
-source=($_name-$pkgver.tar.gz::https://github.com/pypa/$_name/archive/$pkgver.tar.gz)
-sha512sums=('bd59e28b55475b77a8f11ea771cbad3b2602ff974e219f9a55288963a9522c9279a5b00fde40fb65cfebefae0e905d3da3c06fe50b402aa5326b25f70a98a015')
-b2sums=('2179b0d3f5f05bbd678f1785b4dbc0613078c09c83b45faa62d766182dfeb564095abda809ed99f45644abcb06c125efc528aeaed3ad40ab1c9e8972e33ccbb2')
+source=(https://github.com/pypa/$_name/archive/$pkgver/$_name-$pkgver.tar.gz)
+sha512sums=('b33070cb59a1258904a60b48ec8abfd9e316c5f87681fea13d89ddf6d516afac10965ae1db54fea299a0a72f98602ce02e8b3be46f239e857db84866045730e1')
+b2sums=('511ac1a9405e377ccb2525e89676f4a63f138aa526d40e76f4d9681139d94db1f92772beab1a647654c17abc6bee09f52cf4c4f4484716874194565fda07d056')
 
 build() {
   cd $_name-$pkgver
@@ -66,7 +67,7 @@ check() {
   # install to temporary location
   python -m installer --destdir=test_dir dist/*.whl
   export PYTHONPATH="test_dir/$_site_packages:$PYTHONPATH"
-  pytest -vv -m unit "${_deselected[@]}"
+  pytest -vv -m unit "${_deselected[@]}" tests/
 }
 
 package() {

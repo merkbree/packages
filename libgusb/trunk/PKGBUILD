@@ -2,7 +2,7 @@
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=libgusb
-pkgver=0.4.0
+pkgver=0.4.5
 pkgrel=1
 pkgdesc='GObject wrapper for libusb1'
 url=https://github.com/hughsie/libgusb
@@ -14,20 +14,21 @@ depends=(
   libusb-1.0.so
 )
 makedepends=(
+  gi-docgen
   git
   gobject-introspection
   gtk-doc
   meson
+  python-setuptools
   umockdev
   vala
 )
-_tag=6cd1e177a2aada5d26d351d58004040ce0baea45
+_tag=cfe6865211bc241fe5e10b999bc0e27e7bddcb84
 source=(git+https://github.com/hughsie/libgusb.git#tag=${_tag})
 sha256sums=(SKIP)
 
 pkgver() {
   cd libgusb
-
   git describe --tags
 }
 

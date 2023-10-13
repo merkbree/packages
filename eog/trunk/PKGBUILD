@@ -3,18 +3,33 @@
 
 pkgbase=eog
 pkgname=(eog eog-docs)
-pkgver=42.3
+pkgver=44.1
 pkgrel=1
 pkgdesc="Eye of Gnome: An image viewing and cataloging program"
 url="https://wiki.gnome.org/Apps/EyeOfGnome"
 arch=(x86_64)
 license=(GPL)
-depends=(gnome-desktop libexif lcms2 exempi libpeas librsvg libhandy)
-makedepends=(gobject-introspection gi-docgen git meson yelp-tools systemd)
-options=(debug)
-_commit=b38fb1f0048b086100ab9ff5c0b2e18142880e8a  # tags/42.3^0
+depends=(
+  exempi
+  gnome-desktop
+  lcms2
+  libexif
+  libhandy
+  libpeas
+  librsvg
+  webp-pixbuf-loader
+)
+makedepends=(
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+  systemd
+  yelp-tools
+)
+_commit=d989d8ac5e60b8c9c429cbe67f3c79b26f22d75b  # tags/44.1^0
 source=("git+https://gitlab.gnome.org/GNOME/eog.git#commit=$_commit")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 
 pkgver() {
   cd eog
@@ -22,7 +37,12 @@ pkgver() {
 }
 
 build() {
-  arch-meson eog build -D gtk_doc=true -D libportal=false
+  local meson_options=(
+    -D gtk_doc=true
+    -D libportal=false
+  )
+
+  arch-meson eog build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -46,3 +66,5 @@ package_eog-docs() {
 
   mv doc/* "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:

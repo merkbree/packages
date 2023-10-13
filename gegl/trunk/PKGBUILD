@@ -1,8 +1,8 @@
 # Maintainer: Daniel Isenmann <daniel@archlinux.org>
 
 pkgname=gegl
-_tag='e45bf4479cc96e968ff39e7f3e83c8b6ca7ee757'
-pkgver=0.4.38
+_tag='e10b8c9114614dc724390a7e737eafd97f47430f'
+pkgver=0.4.44
 pkgrel=1
 pkgdesc='Graph based image processing framework'
 arch=('x86_64')
@@ -12,7 +12,6 @@ depends=('babl' 'jasper' 'json-glib' 'lensfun' 'libgexiv2' 'libraw' 'librsvg' 'l
          'libtiff' 'luajit' 'openexr' 'poppler-glib' 'suitesparse')
 makedepends=('exiv2' 'ffmpeg' 'git' 'glu' 'gobject-introspection' 'intltool' 'mesa'
              'meson' 'python-gobject' 'ruby' 'vala')
-options=('debug')
 optdepends=('ffmpeg: ffmpeg plugin'
             'graphviz: for gegl-introspect')
 source=("git+https://gitlab.gnome.org/GNOME/gegl.git#tag=$_tag")

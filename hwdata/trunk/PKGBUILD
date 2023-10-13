@@ -1,7 +1,7 @@
 # Maintainer: Tobias Powalowski <tpowa@archlinux.org>
 pkgname=hwdata
-pkgver=0.362
-pkgrel=2
+pkgver=0.370
+pkgrel=1
 pkgdesc="hardware identification databases"
 makedepends=('git')
 replaces=('hwids')
@@ -14,14 +14,10 @@ sha256sums=('SKIP')
 
 build() {
   cd ${pkgname}
-  ./configure --prefix=/usr
-  make
+  ./configure --prefix=/usr --disable-blacklist
 }
 
 package() {
   cd ${pkgname}
   make DESTDIR="${pkgdir}" install
-
-  # Do not package blacklist of kernel modules
-  rm -rf "${pkgdir}"/usr/lib/
 }

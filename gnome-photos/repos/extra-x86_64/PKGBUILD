@@ -1,25 +1,43 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgname=gnome-photos
-pkgver=42.0
-pkgrel=1
+pkgver=44.0
+pkgrel=3
 epoch=1
 pkgdesc="Access, organize, and share your photos on GNOME"
-arch=(x86_64)
 url="https://wiki.gnome.org/Apps/Photos"
+arch=(x86_64)
 license=(GPL)
-depends=(exempi gtk3 libexif librsvg babl gegl gsettings-desktop-schemas
-         grilo-plugins lcms2 tracker3-miners geocode-glib grilo gfbgraph libgdata
-         libgexiv2 libraw gnome-online-accounts dleyna-server dleyna-renderer
-         libdazzle libhandy)
-makedepends=(python yelp-tools git meson docbook-xsl)
+depends=(
+  babl
+  dleyna
+  gegl
+  geocode-glib-2
+  gnome-online-accounts
+  gsettings-desktop-schemas
+  gtk3
+  libdazzle
+  libgexiv2
+  libhandy
+  libportal-gtk3
+  librsvg
+  tracker3-miners
+)
+makedepends=(
+  docbook-xsl
+  git
+  meson
+  python
+  yelp-tools
+)
 groups=(gnome)
-options=(debug)
-_commit=263d82c16b18db0f59c123e34f317a6926debdd8  # tags/42.0^0
-source=("git+https://gitlab.gnome.org/GNOME/gnome-photos.git#commit=$_commit"
-        "git+https://gitlab.gnome.org/GNOME/libgd.git")
-sha256sums=('SKIP'
-            'SKIP')
+_commit=a0eb37bfb6760aa1414fa41ee1ff007336301b8c  # tags/44.0^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/gnome-photos.git#commit=$_commit"
+  "git+https://gitlab.gnome.org/GNOME/libgd.git"
+)
+b2sums=('SKIP'
+        'SKIP')
 
 pkgver() {
   cd $pkgname
@@ -31,14 +49,20 @@ prepare() {
 
   git submodule init
   git submodule set-url subprojects/libgd "$srcdir/libgd"
-  git submodule update
+  git -c protocol.file.allow=always submodule update
 }
 
 build() {
-  arch-meson $pkgname build -D manuals=true
+  local meson_options=(
+    -D manuals=true
+  )
+
+  arch-meson $pkgname build "${meson_options[@]}"
   meson compile -C build
 }
 
 package() {
   meson install -C build --destdir "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:

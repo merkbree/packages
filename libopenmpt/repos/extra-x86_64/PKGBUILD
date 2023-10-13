@@ -1,30 +1,33 @@
 # Maintainer: David Runge <dvzrv@archlinux.org>
 
 pkgname=libopenmpt
-pkgver=0.6.5
+pkgver=0.7.1
 pkgrel=1
 pkgdesc="A library to render tracker music to a PCM audio stream"
 arch=(x86_64)
 url="https://lib.openmpt.org/libopenmpt/"
 license=(BSD)
 depends=(
-  flac libFLAC.so
+  flac
   gcc-libs
   glibc
-  libogg libogg.so
-  libpulse libpulse.so libpulse-simple.so
-  libsndfile libsndfile.so
-  libvorbis libvorbis.so libvorbisfile.so
-  mpg123 libmpg123.so
-  portaudio libportaudio.so
+  libogg  # required by pkgconf
+  libpulse
+  libsndfile
+  libvorbis
+  mpg123
+  portaudio
+  zlib
 )
-makedepends=(autoconf-archive doxygen help2man)
-# TODO: remove provides/replaces on openmpt123 after 2022-05-01
+makedepends=(
+  autoconf-archive
+  doxygen
+  help2man
+)
 provides=(libopenmpt.so)
-options=(debug)
 source=($pkgname-$pkgver.tar.gz::https://lib.openmpt.org/files/libopenmpt/src/$pkgname-$pkgver+release.autotools.tar.gz)
-sha512sums=('eb59ddb22fa07f216c76138c022187c76065be56d51520ed0dcf6f77638aaf832a803f63a398ca8d47bd368aee24dd425242017136c299fade6fd98b9d7b628c')
-b2sums=('f04c3df0322f336bd9e90edbbac4fd0532a41fc1ff17c11a20371946bd9ccdc50c0f8adbf92858516d453213dc04bcc07c08a72739458966aba5dfe37a955b8a')
+sha512sums=('65468341b24d80f8bf0e9cf32d43b3ca3ced0323836373ae3c794b6df5b23d7e9c230ec37dd00777e22038d340adb56b20b83815e048fae22117ead0b4044bba')
+b2sums=('5bc9ad5640e842d7320df59c76cae7619a36dab72a5b084a65ab0b99f00d48ce1aaca4c7344a9e14eab05bd3f05c8f60a93bce68e99cd5f93344453dee90d29f')
 
 prepare() {
   cd $pkgname-$pkgver+release.autotools

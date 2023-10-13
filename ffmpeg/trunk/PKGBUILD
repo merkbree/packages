@@ -5,8 +5,8 @@
 # Contributor: Paul Mattal <paul@archlinux.org>
 
 pkgname=ffmpeg
-pkgver=5.1.1
-pkgrel=3
+pkgver=6.0
+pkgrel=6
 epoch=2
 pkgdesc='Complete solution to record, convert and stream audio and video'
 arch=(x86_64)
@@ -32,8 +32,10 @@ depends=(
   libfreetype.so
   libgl
   libiec61883
+  libjxl.so
   libmfx
   libmodplug
+  libopenmpt.so
   libpulse
   librav1e.so
   libraw1394
@@ -104,7 +106,7 @@ provides=(
 options=(
   debug
 )
-_tag=8536e629f0c35c0e8a2b67e65d3bc60a088fe413
+_tag=3949db4d261748a9f34358a388ee255ad1a7f0c0
 source=(
   git+https://git.ffmpeg.org/ffmpeg.git?signed#tag=${_tag}
   add-av_stream_get_first_dts-for-chromium.patch
@@ -150,12 +152,14 @@ build() {
     --enable-libgsm \
     --enable-libiec61883 \
     --enable-libjack \
+    --enable-libjxl \
     --enable-libmfx \
     --enable-libmodplug \
     --enable-libmp3lame \
     --enable-libopencore_amrnb \
     --enable-libopencore_amrwb \
     --enable-libopenjpeg \
+    --enable-libopenmpt \
     --enable-libopus \
     --enable-libpulse \
     --enable-librav1e \

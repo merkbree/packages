@@ -1,71 +1,97 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Fabian Bornschein <fabiscafe-cat-mailbox-dog-org>
 
-pkgbase=gnome-builder
-pkgname=(gnome-builder gnome-builder-libide-docs)
-pkgver=42.1
-pkgrel=3
+pkgname=gnome-builder
+pkgver=44.2
+pkgrel=2
 pkgdesc="An IDE for writing GNOME-based software"
 url="https://wiki.gnome.org/Apps/Builder"
 arch=(x86_64)
 license=(GPL3)
-depends=(gtksourceview4 devhelp libgit2-glib gjs python-gobject sysprof
-         desktop-file-utils ctags libpeas vte3 vala autoconf-archive libhandy
-         gspell libdazzle template-glib jsonrpc-glib python-sphinx webkit2gtk
-         glade python-lxml meson libportal-gtk3 cmark clang flatpak-builder)
-makedepends=(llvm gobject-introspection gi-docgen yelp-tools appstream-glib git
-             mm-common python-sphinx_rtd_theme jedi-language-server)
-checkdepends=(xorg-server-xvfb)
-options=(debug)
-_commit=a08692eb4f33d571c9f98f23037c6ed8ecba800e  # tags/42.1^0
+depends=(
+  autoconf-archive
+  clang
+  cmark
+  ctags
+  d-spy
+  desktop-file-utils
+  devhelp
+  editorconfig-core-c
+  flatpak-builder
+  gjs
+  glib2
+  gtksourceview5
+  jsonrpc-glib
+  libadwaita
+  libdex
+  libgit2-glib
+  libpanel
+  libpeas
+  libportal-gtk4
+  meson
+  python-gobject
+  python-lxml
+  python-sphinx
+  sysprof
+  template-glib
+  vala
+  vte4
+  webkitgtk-6.0
+)
+makedepends=(
+  appstream-glib
+  git
+  gobject-introspection
+  llvm
+  mm-common
+  python-lsp-server
+  python-sphinx_rtd_theme
+  yelp-tools
+)
+checkdepends=(weston)
+_commit=abc6bbd213df29f156514e40d3f9cdfee57f8c01  # tags/44.2^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-builder.git#commit=$_commit")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 
 pkgver() {
-  cd $pkgbase
+  cd $pkgname
   git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
-  cd $pkgbase
+  cd $pkgname
 }
 
 build() {
-  arch-meson $pkgbase build \
-    -D docs=true \
+  local meson_options=(
     -D help=true
+  )
+
+  arch-meson $pkgname build "${meson_options[@]}"
   meson compile -C build
 }
 
-check() {
-  dbus-run-session xvfb-run -s '-nolisten local' \
-    meson test -C build --print-errorlogs
-}
+check() (
+  export XDG_RUNTIME_DIR="$PWD/runtime-dir" WAYLAND_DISPLAY=wayland-5
 
-_pick() {
-  local p="$1" f d; shift
-  for f; do
-    d="$srcdir/$p/${f#$pkgdir/}"
-    mkdir -p "$(dirname "$d")"
-    mv "$f" "$d"
-    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
-  done
-}
+  mkdir -p -m 700 "$XDG_RUNTIME_DIR"
+  weston --backend=headless-backend.so --socket=$WAYLAND_DISPLAY --idle-time=0 &
+  _w=$!
 
-package_gnome-builder() {
-  depends+=(libgladeui-2.so libgit2.so)
-  optdepends=('gnome-code-assistance: Legacy assistance services'
-              'jedi-language-server: Python code assistance')
+  trap "kill $_w; wait" EXIT
+
+  dbus-run-session meson test -C build --print-errorlogs
+)
+
+package() {
+  depends+=(libgit2.so)
+  optdepends=(
+    'bash-language-server: Shell code assistance'
+    'python-lsp-server: Python code assistance'
+  )
   groups=(gnome-extra)
 
   meson install -C build --destdir "$pkgdir"
-
-  _pick libide-docs "$pkgdir"/usr/share/doc/libide
 }
 
-package_gnome-builder-libide-docs() {
-  pkgdesc+=" (libide API documentation)"
-  depends=()
-  mv libide-docs/* "$pkgdir"
-}
-
-# vim:set sw=2 et:
+# vim:set sw=2 sts=-1 et:

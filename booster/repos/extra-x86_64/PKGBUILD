@@ -1,7 +1,7 @@
 # Maintainer: Anatol Pomozov
 
 pkgname=booster
-pkgver=0.8
+pkgver=0.10
 pkgrel=1
 pkgdesc='Fast and secure initramfs generator'
 arch=(x86_64)
@@ -18,7 +18,7 @@ optdepends=(
 backup=(etc/booster.yaml)
 provides=(initramfs)
 source=(booster-$pkgver.zip::https://github.com/anatol/booster/archive/$pkgver.zip)
-sha512sums=('41c189e59db9ed4ca654e2916843c51bcaa98a42b8cda355fa2ac8a806250b851dc460d150401b3a9c1ac79828f0dbb9d96bab796f8ba298c900360e593bf6a6')
+sha512sums=('4e98feda493a0e42c5f22a0471d09370a3751dc59548125a3ac218f14e6fe31f9af2b126a122c9a1055970ca9361d477949e351a23acd27d3a0e534e052df592')
 
 build() {
   cd booster-$pkgver

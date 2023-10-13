@@ -1,4 +1,3 @@
-
 # Maintainer: Tobias Powalowski <tpowa@archlinux.org>
 # Contributor: judd <jvinet@zeroflux.org>
 # Contributor: Michael Hansen <zrax0111 gmail com>
@@ -9,15 +8,15 @@
 # Contributor: Dhananjay Sathe <dhananjaysathe@gmail.com>
 
 pkgbase=samba
-pkgname=('smbclient' 'samba')
-pkgver=4.16.5
-pkgrel=1
+pkgname=('libwbclient' 'smbclient' 'samba')
+pkgver=4.18.2
+pkgrel=2
 arch=(x86_64)
 url="https://www.samba.org"
 license=('GPL3')
-makedepends=('python' 'python-markdown' 'python-dnspython' 'docbook-xsl' 'pkg-config' 'libbsd' 'db' 'popt' 'libcups'
+makedepends=('python' 'python-markdown' 'python-dnspython' 'docbook-xsl' 'pkg-config' 'libbsd' 'popt' 'libcups'
              'readline' 'tevent' 'acl' 'libldap' 'libcap' 'ldb' 'krb5' 'pam'
-             'systemd' 'gnutls' 'talloc' 'tdb' 'dbus' 'libaio'
+             'systemd' 'gnutls' 'talloc' 'tdb' 'dbus' 
              'perl-parse-yapp' 'libnsl' 'libtirpc' 'rpcsvc-proto' 'jansson'
              'liburing' 'perl-json' 'glusterfs')
 optdepends=(
@@ -30,21 +29,17 @@ source=(https://us1.samba.org/samba/ftp/stable/${pkgbase}-${pkgver}.tar{.gz,.asc
         samba.pam
         samba.conf)
 validpgpkeys=('81F5E2832BD2545A1897B713AA99442FB680B620') #Samba Distribution Verification Key <samba-bugs@samba.org>
-sha512sums=('9c4cd2ccbb6a4910d0da220e24bf3bf2cf25acaaebb5aa7358d8910016fac29b8ed1889f8ee0b4953d695583ff04d8de7bfffc2d97ae30aa7730e157aa7acfcf'
+sha512sums=('e13f1313ae23c65580f3d9eec8ba556f77327d4876f09387a1701dc62df5c7c18955ed42a50250c0ebd53d90afcfdea2743dc6776b63c900c47239afacfa4aba'
             'SKIP'
             '2ba0691ded467e4d6e40821f6de58c00f8962209efe2e60284c0c87756ab471c22c3d63b77d506e48c90ed0d852a2a24e41be1d499cf74a73cb99da0b503c858'
             '1e6183ab0eb812b3ef687ac2c26ce78f7cb30540f606d20023669ac00ba04075487fb72e4dc89cc05dab0269ff6aca98fc1167cc75669c225b88b592482fbf67'
             'e46ee848baabb261e7468ecee43aba4d001a24f86f5322ae522abdb75030fd0ebd9063b9df0be3576c4d1654d81331f5e389aee16ec2fa138259ae4728e94efc')
 ### UNINSTALL dmapi package before building!!!
 
-#prepare() {
-#  cd samba-${pkgver}
-#}
-
+# Use samba-pkg as a staging directory for the split packages
+# (This is so RPATHS and symlinks are generated correctly via
+# make install, but the otherwise unsplit pieces can be split)
 build() {
-  # Use samba-pkg as a staging directory for the split packages
-  # (This is so RPATHS and symlinks are generated correctly via
-  # make install, but the otherwise unsplit pieces can be split)
   _pkgsrc="${srcdir}"/samba-pkg
   rm -rf ${_pkgsrc}
   _samba4_idmap_modules=idmap_ad,idmap_rid,idmap_adex,idmap_hash,idmap_tdb2
@@ -86,21 +81,32 @@ build() {
   fi
 }
 
+package_libwbclient() {
+pkgdesc="winbind client library"
+depends=('libbsd')
+
+    _pkgsrc="${srcdir}"/samba-pkg
+    install -d -m755 "${pkgdir}"/usr/lib
+        for lib in "${_pkgsrc}"/usr/lib/libwbclient.so*; do
+            mv ${lib} "${pkgdir}"/usr/lib/
+        done
+    install -d -m755 "${pkgdir}"/usr/lib/pkgconfig
+    mv "${_pkgsrc}"/usr/lib/pkgconfig/wbclient.pc "${pkgdir}"/usr/lib/pkgconfig/
+    install -d -m755 "${pkgdir}"/usr/include/samba-4.0
+    mv "${_pkgsrc}"/usr/include/samba-4.0/wbclient.h "${pkgdir}"/usr/include/samba-4.0/
+}
+
 package_smbclient() {
 pkgdesc="Tools to access a server's filespace and printers via SMB"
 depends=('popt' 'cifs-utils' 'tdb' 'ldb'
-         'tevent' 'libgcrypt' 'python' 'talloc' 'readline' 'gnutls'
+         'tevent' 'python' 'talloc' 'readline' 'gnutls'
          'libbsd' 'libldap' 'libcups' 'libarchive' 'libnsl' 'jansson'
-         'libldb.so' 'libtdb.so' 'libtevent.so' 'libreadline.so' 'icu' 'libunwind')
-replaces=('libwbclient')
-provides=('libwbclient')
+         'libldb.so' 'libtdb.so' 'libtevent.so' 'libreadline.so' 'icu'
+         'libwbclient')
 
     _smbclient_bins=('smbclient' 'rpcclient' 'smbspool'
                      'smbtree' 'smbcacls' 'smbcquotas' 'smbget' 'net'
                      'nmblookup' 'smbtar')
-    # Use samba-pkg as a staging directory for the split packages
-    # (This is so RPATHS and symlinks are generated correctly via
-    # make install, but the otherwise unsplit pieces can be split)
     _pkgsrc="${srcdir}"/samba-pkg
     install -d -m755 "${pkgdir}"/usr/bin
     for bin in ${_smbclient_bins[@]}; do
@@ -123,7 +129,6 @@ provides=('libwbclient')
     install -d -m755 "${pkgdir}"/usr/lib/pkgconfig
     mv "${_pkgsrc}"/usr/lib/pkgconfig/smbclient.pc "${pkgdir}"/usr/lib/pkgconfig/
     mv "${_pkgsrc}"/usr/lib/pkgconfig/netapi.pc "${pkgdir}"/usr/lib/pkgconfig/
-    mv "${_pkgsrc}"/usr/lib/pkgconfig/wbclient.pc "${pkgdir}"/usr/lib/pkgconfig/
 
     install -d -m755 "${pkgdir}"/usr/share/man/man1
     install -d -m755 "${pkgdir}"/usr/share/man/man7
@@ -141,7 +146,6 @@ provides=('libwbclient')
     install -d -m755 "${pkgdir}"/usr/include/samba-4.0
     mv "${_pkgsrc}"/usr/include/samba-4.0/libsmbclient.h "${pkgdir}"/usr/include/samba-4.0/
     mv "${_pkgsrc}"/usr/include/samba-4.0/netapi.h "${pkgdir}"/usr/include/samba-4.0/
-    mv "${_pkgsrc}"/usr/include/samba-4.0/wbclient.h "${pkgdir}"/usr/include/samba-4.0/
 
     mkdir -p "${pkgdir}"/usr/lib/cups/backend
     ln -sf /usr/bin/smbspool "${pkgdir}"/usr/lib/cups/backend/smb
@@ -149,17 +153,18 @@ provides=('libwbclient')
 
 package_samba() {
 pkgdesc="SMB Fileserver and AD Domain server"
-depends=('db>=4.7' 'popt' 'libcups' 'libcap>=2.16' 'gnutls>=2.4.1'
-         'talloc' 'ldb' 'libbsd' 'python' 'iniparser' 'tdb' 'libaio' 'perl-parse-yapp' "smbclient>=$pkgver" 'gpgme'
-       'libldb.so' 'libtdb.so' 'libtevent.so' 'liburing' 'libunwind')
+depends=('popt' 'libcups' 'libcap>=2.16' 'gnutls>=2.4.1'
+         'talloc' 'ldb' 'libbsd' 'python' 'tdb' "smbclient>=$pkgver" 'gpgme'
+       'libldb.so' 'libtdb.so' 'libtevent.so' 'liburing' 'libwbclient' )
+optdepends=('python-dnspython: netads_dns.py, dnsresolver.py and traffic_packets.py '
+            'python-markdown: ms_schema_markdown.py and ms_forest_updates_markdown.py'
+            "python-cryptography: lockout_tests.py gp_cert_auto_enroll_ext.py \
+                                  gpo.py and kcrypto.py")
 backup=(etc/logrotate.d/samba
         etc/pam.d/samba
         etc/conf.d/samba)
 install=samba.install
-    # Use samba-pkg as a staging directory for the split packages
-    # (This is so RPATHS and symlinks are generated correctly via
-    # make install, but the otherwise unsplit pieces can be split)
-    _pkgsrc="${srcdir}"/samba-pkg
+
     # Everything that libwbclient and smbclient didn't install goes
     # into the samba package...
     mv "${_pkgsrc}"/* "${pkgdir}"

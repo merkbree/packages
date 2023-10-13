@@ -3,18 +3,32 @@
 # Contributor: Patrick Griffis <tingping@tingping.se>
 
 pkgname=xdg-desktop-portal
-pkgver=1.15.0
-pkgrel=1
+pkgver=1.16.0
+pkgrel=3
 pkgdesc="Desktop integration portals for sandboxed apps"
 url="https://github.com/flatpak/xdg-desktop-portal"
 arch=(x86_64)
 license=(LGPL)
-depends=(glib2 pipewire fuse3 geoclue2 rtkit systemd)
-makedepends=(meson xmlto docbook-xsl git flatpak libportal)
-options=(debug)
-_commit=95b70566e05ef493539cdcbe2d9321a529858eb7  # tags/1.15.0
+depends=(
+  fuse3
+  gdk-pixbuf2
+  geoclue
+  glib2
+  pipewire
+  rtkit
+  systemd
+)
+makedepends=(
+  docbook-xsl
+  flatpak
+  git
+  libportal
+  meson
+  xmlto
+)
+_commit=88af6c8ca4106fcf70925355350a669848e9fd5a  # tags/1.16.0^0
 source=("git+https://github.com/flatpak/xdg-desktop-portal#commit=$_commit")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 
 pkgver() {
   cd $pkgname
@@ -23,6 +37,10 @@ pkgver() {
 
 prepare() {
   cd $pkgname
+
+  # https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome/-/issues/74
+  # https://github.com/flatpak/xdg-desktop-portal/pull/985
+  git cherry-pick -n 2a219279997c2124c8a639b0d009c9946ec97b40
 }
 
 build() {
@@ -39,3 +57,5 @@ package() {
 
   meson install -C build --destdir "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:

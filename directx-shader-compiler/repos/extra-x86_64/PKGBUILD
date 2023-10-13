@@ -2,7 +2,7 @@
 
 pkgname=directx-shader-compiler
 pkgdesc="A compiler for HLSL to DXIL (DirectX Intermediate Language)."
-pkgver=1.7.2207
+pkgver=1.7.2212
 pkgrel=1
 arch=('x86_64')
 url="https://github.com/microsoft/${_pkgname}"
@@ -25,7 +25,8 @@ build() {
 
   cmake .. -G Ninja \
     -C ../cmake/caches/PredefinedParams.cmake \
-    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DLLVM_ENABLE_LTO=False
 
   ninja
 }

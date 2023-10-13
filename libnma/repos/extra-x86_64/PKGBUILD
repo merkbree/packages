@@ -2,18 +2,31 @@
 
 pkgbase=libnma
 pkgname=(libnma-common libnma libnma-gtk4)
-pkgver=1.10.2
-pkgrel=1
+pkgver=1.10.6
+pkgrel=2
 pkgdesc="NetworkManager GUI client library"
 url="https://gitlab.gnome.org/GNOME/libnma"
 arch=(x86_64)
 license=(GPL LGPL)
-makedepends=(gobject-introspection git gtk-doc meson vala libnm gcr gtk3 gtk4
-             iso-codes mobile-broadband-provider-info dconf)
-options=(debug)
-_commit=0b0295005cdf10bfb3e38c02509750fcc8416956  # tags/1.10.3-dev~1
-source=("git+https://gitlab.gnome.org/GNOME/libnma.git#commit=$_commit")
-sha256sums=('SKIP')
+makedepends=(
+  dconf
+  gcr-4
+  git
+  gobject-introspection
+  gtk-doc
+  gtk3
+  gtk4
+  iso-codes
+  libnm
+  meson
+  mobile-broadband-provider-info
+  vala
+)
+_commit=3e324b69d0d74c8693fb58b9ee66efe0bad6cb34  # tags/1.10.6^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/libnma.git#commit=$_commit"
+)
+b2sums=('SKIP')
 
 pkgver() {
   cd libnma
@@ -25,7 +38,11 @@ prepare() {
 }
 
 build() {
-  arch-meson libnma build -D libnma_gtk4=true
+  local meson_options=(
+    -D libnma_gtk4=true
+  )
+
+  arch-meson libnma build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -45,7 +62,13 @@ _pick() {
 
 package_libnma-common() {
   pkgdesc+=" (common files)"
-  depends=(libnm iso-codes mobile-broadband-provider-info dconf)
+  depends=(
+    dconf
+    gcr-4
+    iso-codes
+    libnm
+    mobile-broadband-provider-info
+  )
 
   meson install -C build --destdir "$pkgdir"
 
@@ -62,11 +85,15 @@ package_libnma-common() {
   _pick gtk4 usr/lib/girepository-1.0/NMA4-*
   _pick gtk4 usr/share/gir-1.0/NMA4-*
   _pick gtk4 usr/share/vala/vapi/libnma-gtk4.*
+
+  # Moved to network-manager-applet 1.30.0
+  # https://bugs.archlinux.org/task/76489
+  rm usr/share/glib-2.0/schemas/org.gnome.nm-applet.gschema.xml
 }
 
 package_libnma() {
   pkgdesc+=" (GTK3)"
-  depends=(libnma-common="$pkgver-$pkgrel" gtk3 gcr)
+  depends=(libnma-common="$pkgver-$pkgrel" gtk3)
   provides=(libnma.so)
 
   mv gtk3/* "$pkgdir"
@@ -80,4 +107,4 @@ package_libnma-gtk4() {
   mv gtk4/* "$pkgdir"
 }
 
-# vim:set sw=2 et:
+# vim:set sw=2 sts=-1 et:

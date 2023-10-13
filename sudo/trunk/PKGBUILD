@@ -3,14 +3,13 @@
 # Contributor: Tom Newsom <Jeepster@gmx.co.uk>
 
 pkgname=sudo
-_sudover=1.9.11p3
+_sudover=1.9.13p3
 pkgrel=1
 pkgver=${_sudover/p/.p}
 pkgdesc="Give certain users the ability to run some commands as root"
 arch=('x86_64')
 url="https://www.sudo.ws/sudo/"
 license=('custom')
-groups=('base-devel')
 depends=('glibc' 'openssl' 'pam' 'libldap' 'zlib')
 backup=('etc/pam.d/sudo'
         'etc/sudo.conf'
@@ -20,18 +19,18 @@ install=$pkgname.install
 source=(https://www.sudo.ws/sudo/dist/$pkgname-$_sudover.tar.gz{,.sig}
         sudo_logsrvd.service
         sudo.pam)
-sha256sums=('4687e7d2f56721708f59cca2e1352c056cb23de526c22725615a42bb094f1f70'
+sha256sums=('92334a12bb93e0c056b09f53e255ccb7d6f67c6350e2813cd9593ceeca78560b'
             'SKIP'
             '8b91733b73171827c360a3e01f4692772b78e62ceca0cf0fd4b770aba35081a1'
             'd1738818070684a5d2c9b26224906aad69a4fea77aabd960fc2675aee2df1fa2')
 validpgpkeys=('59D1E9CCBA2B376704FDD35BA9F4C021CEA470FB')
 
 prepare() {
-  cd "$srcdir/$pkgname-$_sudover"
+  cd $pkgname-$_sudover
 }
 
 build() {
-  cd "$srcdir/$pkgname-$_sudover"
+  cd $pkgname-$_sudover
 
   ./configure \
     --prefix=/usr \
@@ -52,12 +51,14 @@ build() {
 }
 
 check() {
-  cd "$srcdir/$pkgname-$_sudover"
+  cd $pkgname-$_sudover
   make check
 }
 
 package() {
-  cd "$srcdir/$pkgname-$_sudover"
+  depends+=('libcrypto.so' 'libssl.so')
+
+  cd $pkgname-$_sudover
   make DESTDIR="$pkgdir" install
 
   # sudo_logsrvd service file (taken from sudo-logsrvd-1.9.0-1.el8.x86_64.rpm)

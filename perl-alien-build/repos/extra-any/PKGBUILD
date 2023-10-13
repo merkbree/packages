@@ -1,7 +1,7 @@
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 
 pkgname=perl-alien-build
-pkgver=2.64
+pkgver=2.78
 pkgrel=1
 pkgdesc="Build external dependencies for use in CPAN"
 arch=('any')
@@ -11,10 +11,11 @@ depends=('perl-capture-tiny' 'perl-ffi-checklib' 'perl-file-chdir' 'perl-file-wh
          'perl-path-tiny')
 makedepends=('perl-test2-suite')
 checkdepends=('perl-alien-base-modulebuild' 'perl-alien-cmake3' 'perl-env-shellwords'
-              'perl-pkgconfig' 'perl-pkgconfig-libpkgconf' 'perl-readonly' 'perl-sort-versions')
+              'perl-pkgconfig' 'perl-pkgconfig-libpkgconf' 'perl-readonly' 'perl-sort-versions'
+              'wget')
 options=('!emptydirs')
 source=("https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/Alien-Build-$pkgver.tar.gz")
-sha512sums=('54904d59c8172e5f29dd33bf94b08a61deec264f844fbfb2db9faa4aaf82eabeaf39fdcb4f5f46e80dc8806d3e13736cfae34aaa5d8632cf5ff2505bed9f176b')
+sha512sums=('1947d46d3a95ca3ed42ad3f1ae69eb487a2ff7322188ab9b03ddfba691044378b31a5cbee1ef52731ff7b690049e34e9d948ea4144d263f947275bd3703f91f6')
 
 build() {
   cd Alien-Build-$pkgver

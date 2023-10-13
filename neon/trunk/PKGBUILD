@@ -3,7 +3,7 @@
 # Contributor: Juergen Hoetzel <juergen@archlinux.org>
 
 pkgname=neon
-pkgver=0.32.3
+pkgver=0.32.5
 pkgrel=1
 pkgdesc="HTTP and WebDAV client library with a C interface"
 arch=('x86_64')
@@ -13,7 +13,7 @@ depends=('krb5' 'expat' 'ca-certificates' 'zlib')
 makedepends=('xmlto' 'docbook-xsl')
 options=('libtool') # FS#16067
 source=(https://notroj.github.io/neon/$pkgname-$pkgver.tar.gz)
-sha512sums=('8dec5cbc823e38506725529c9e8fad95c93145d9e5d54131f8ceca6bbfe1b64f7f0eb1ce117072ea2f28edc67fa2f5a7f53bcc08ee644010fea76403ab6bbaad')
+sha512sums=('97a067fcea6156e2d5cf981e8d8fc9b0a709b8175bc8061a1f254bff7b11a27fdafc5e8425665523e917133084ea3a11e11de7c1210a8d2eb3f6b1cca26ea844')
 validpgpkeys=('190555472DCC589BEF01609C608A86DF9833CC49') # Joe Orton
 
 build() {

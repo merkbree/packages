@@ -1,18 +1,28 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgname=wpebackend-fdo
-pkgver=1.12.1
+pkgver=1.14.2
 pkgrel=1
 pkgdesc="Freedesktop.org backend for WPE WebKit"
 url="https://wpewebkit.org"
 arch=(x86_64)
 license=(custom)
-depends=(libwpe glib2 libegl wayland libepoxy)
-makedepends=(mesa wayland-protocols git meson)
-options=(debug)
-_commit=def08a5b3cbe56d1d88303102c995b6ad7d1c804  # tags/1.12.1^0
+depends=(
+  glib2
+  libegl
+  libepoxy
+  libwpe
+  wayland
+)
+makedepends=(
+  git
+  mesa
+  meson
+  wayland-protocols
+)
+_commit=f121a8e93736b099906b7848797f89c9b689892b  # tags/1.14.2^0
 source=("git+https://github.com/Igalia/WPEBackend-fdo#commit=$_commit")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 validpgpkeys=('5AA3BC334FD7E3369E7C77B291C559DBE4C9123B') # Adrián Pérez de Castro <aperez@igalia.com>
 
 pkgver() {
@@ -41,4 +51,4 @@ package() {
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 WPEBackend-fdo/COPYING
 }
 
-# vim:set sw=2 et:
+# vim:set sw=2 sts=-1 et:

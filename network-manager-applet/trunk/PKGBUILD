@@ -6,19 +6,35 @@
 # Contributor: Will Rea <sillywilly@gmail.com>
 
 pkgbase=network-manager-applet
-pkgname=(network-manager-applet nm-connection-editor)
-pkgver=1.28.0
-pkgrel=1
+pkgname=(
+  network-manager-applet
+  nm-connection-editor
+)
+pkgver=1.32.0
+pkgrel=2
 pkgdesc="Applet for managing network connections"
 url="https://gitlab.gnome.org/GNOME/network-manager-applet"
 arch=(x86_64)
-license=(GPL LGPL)
-makedepends=(libsecret libnotify libmm-glib gobject-introspection git gtk-doc meson libnma
-             libappindicator-gtk3 libgudev)
-options=(debug)
-_commit=c6738f174cebd39d39494e26d42ff9a59cca9f1b  # tags/1.28.0^0
+license=(
+  GPL
+  LGPL
+)
+depends=(
+  libappindicator-gtk3
+  libmm-glib
+  libnma
+  libsecret
+  networkmanager
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+)
+_commit=06645751f898ab49181e52beb4f34fb83efc6c5e  # tags/1.32.0^0
 source=("git+https://gitlab.gnome.org/GNOME/network-manager-applet.git#commit=$_commit")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 
 pkgver() {
   cd $pkgbase
@@ -27,10 +43,21 @@ pkgver() {
 
 prepare() {
   cd $pkgbase
+
+  # Drop libgudev makedep
+  git cherry-pick -n d536d046ccd97b3eba76d2425f571bc8b7ada383
+
+  # Fix crash when importing VPN profiles
+  # https://bugs.archlinux.org/task/78360
+  git cherry-pick -n 01281fae6b601598cd2006bc8f2d5be98810228d
 }
 
 build() {
-  arch-meson $pkgbase build -D selinux=false
+  local meson_options=(
+    -D selinux=false
+  )
+
+  arch-meson $pkgbase build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -49,12 +76,12 @@ _pick() {
 }
 
 package_network-manager-applet() {
-  depends=(nm-connection-editor libmm-glib libnotify libsecret networkmanager
-           libappindicator-gtk3)
+  depends+=(nm-connection-editor)
 
   meson install -C build --destdir "$pkgdir"
 
   cd "$pkgdir"
+
   _pick nmce usr/bin/nm-connection-editor
   _pick nmce usr/share/applications/nm-connection-editor.desktop
   _pick nmce usr/share/icons/hicolor/*/*/nm-device-wwan{,-symbolic}.*
@@ -71,3 +98,5 @@ package_nm-connection-editor() {
 
   mv nmce/* "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:

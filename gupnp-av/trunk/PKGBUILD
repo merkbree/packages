@@ -4,14 +4,13 @@
 
 pkgname=gupnp-av
 pkgver=0.14.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Library to ease handling and implementation of UPnP A/V profiles"
 url="https://wiki.gnome.org/Projects/GUPnP"
 arch=(x86_64)
 license=(LGPL)
 depends=(glib2 libxml2)
 makedepends=(gobject-introspection gtk-doc vala meson git)
-options=(debug)
 _commit=86f148ebb920a8113190fd3e6cae636c9fdd3ca7  # tags/gupnp-av-0.14.1^0
 source=("git+https://gitlab.gnome.org/GNOME/gupnp-av.git#commit=$_commit")
 sha256sums=('SKIP')
@@ -40,3 +39,5 @@ package() {
 
   meson install -C build --destdir "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:

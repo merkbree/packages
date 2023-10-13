@@ -2,25 +2,68 @@
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgbase=gtk3
-pkgname=(gtk3 gtk3-docs gtk3-demos)
-pkgver=3.24.34
+pkgname=(
+  gtk3
+  gtk3-demos
+  gtk3-docs
+)
+pkgver=3.24.37
 pkgrel=1
 epoch=1
 pkgdesc="GObject-based multi-platform GUI toolkit"
 url="https://www.gtk.org/"
 arch=(x86_64)
-depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2
-         dconf libxcomposite libxdamage pango shared-mime-info at-spi2-atk
-         wayland libxkbcommon adwaita-icon-theme json-glib librsvg
-         desktop-file-utils mesa cantarell-fonts libcolord rest libcups
-         fribidi iso-codes libcloudproviders tracker3 gtk-update-icon-cache)
-makedepends=(gobject-introspection gtk-doc git glib2-docs sassc meson
-             wayland-protocols)
 license=(LGPL)
-options=(debug)
-_commit=4e3a3f05533789e1a68c70c185e1755d386d6c47  # tags/3.24.34^0
-source=("git+https://gitlab.gnome.org/GNOME/gtk.git#commit=$_commit"
-        gtk-query-immodules-3.0.hook)
+depends=(
+  adwaita-icon-theme
+  atk
+  cairo
+  cantarell-fonts
+  dconf
+  desktop-file-utils
+  fontconfig
+  fribidi
+  gdk-pixbuf2
+  glib2
+  harfbuzz
+  iso-codes
+  libcloudproviders
+  libcolord
+  libcups
+  libegl
+  libepoxy
+  libgl
+  librsvg
+  libxcomposite
+  libx11
+  libxcursor
+  libxdamage
+  libxext
+  libxfixes
+  libxi
+  libxinerama
+  libxkbcommon
+  libxrandr
+  libxrender
+  pango
+  shared-mime-info
+  tracker3
+  wayland
+)
+makedepends=(
+  git
+  glib2-docs
+  gobject-introspection
+  gtk-doc
+  meson
+  sassc
+  wayland-protocols
+)
+_commit=013b629a2e5420cc01647f859226eb1a37ebe661  # tags/3.24.37^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/gtk.git#commit=$_commit"
+  gtk-query-immodules-3.0.hook
+)
 sha256sums=('SKIP'
             'a0319b6795410f06d38de1e8695a9bf9636ff2169f40701671580e60a108e229')
 
@@ -34,16 +77,17 @@ prepare() {
 }
 
 build() {
-  CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
   local meson_options=(
     -D broadway_backend=true
     -D cloudproviders=true
-    -D tracker3=true
     -D colord=yes
     -D gtk_doc=true
+    -D introspection=true
     -D man=true
+    -D tracker3=true
   )
 
+  CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
   arch-meson gtk build "${meson_options[@]}"
   meson compile -C build
 }
@@ -59,8 +103,14 @@ _pick() {
 }
 
 package_gtk3() {
+  depends+=(gtk-update-icon-cache)
   optdepends=('evince: Default print preview command')
-  provides=(gtk3-print-backends libgtk-3.so libgdk-3.so libgailutil-3.so)
+  provides=(
+    gtk3-print-backends
+    libgailutil-3.so
+    libgdk-3.so
+    libgtk-3.so
+  )
   conflicts=(gtk3-print-backends)
   replaces=("gtk3-print-backends<=3.22.26-1")
   install=gtk3.install
@@ -78,22 +128,17 @@ END
 
   cd "$pkgdir"
 
-  rm usr/bin/gtk-update-icon-cache
-  rm usr/share/man/man1/gtk-update-icon-cache.1
-
-  _pick docs usr/share/gtk-doc
-
   _pick demo usr/bin/gtk3-{demo,demo-application,icon-browser,widget-factory}
   _pick demo usr/share/applications/gtk3-{demo,icon-browser,widget-factory}.desktop
   _pick demo usr/share/glib-2.0/schemas/org.gtk.{Demo,exampleapp}.gschema.xml
   _pick demo usr/share/icons/hicolor/*/apps/gtk3-{demo,widget-factory}[-.]*
   _pick demo usr/share/man/man1/gtk3-{demo,demo-application,icon-browser,widget-factory}.1
-}
 
-package_gtk3-docs() {
-  pkgdesc+=" (documentation)"
-  depends=()
-  mv docs/* "$pkgdir"
+  _pick docs usr/share/gtk-doc
+
+  # Built by GTK 4, shared with GTK 3
+  rm usr/bin/gtk-update-icon-cache
+  rm usr/share/man/man1/gtk-update-icon-cache.1
 }
 
 package_gtk3-demos() {
@@ -102,4 +147,10 @@ package_gtk3-demos() {
   mv demo/* "$pkgdir"
 }
 
-# vim:set sw=2 et:
+package_gtk3-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+  mv docs/* "$pkgdir"
+}
+
+# vim:set sw=2 sts=-1 et:

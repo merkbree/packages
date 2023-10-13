@@ -1,17 +1,16 @@
 # Maintainer:
 
 pkgname=python-fastbencode
-pkgver=0.0.9
-pkgrel=1
+pkgver=0.2
+pkgrel=2
 pkgdesc='Implementation of bencode with optional fast C extensions'
 arch=(x86_64)
 url='https://github.com/breezy-team/fastbencode'
 license=(GPL2)
 depends=(python)
-makedepends=(python-build python-installer python-setuptools python-wheel)
-checkdepends=(python-pytest)
+makedepends=(python-build python-installer cython python-setuptools python-wheel)
 source=(https://pypi.io/packages/source/f/fastbencode/fastbencode-$pkgver.tar.gz)
-sha256sums=('a508632c645f2e3ffbb4984cb544035c8946d6fec8cfe0aec5e556340773ce9c')
+sha256sums=('578eb9c4700d6705d71fbc8d7d57bca2cd987eca2cec1d9e77b9e0702db1e56f')
 
 build() {
   cd fastbencode-$pkgver
@@ -20,7 +19,7 @@ build() {
 
 check() {
   cd fastbencode-$pkgver
-  python setup.py test
+  python -m unittest discover -vs fastbencode/tests
 }
 
 package() {

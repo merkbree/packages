@@ -3,7 +3,7 @@
 # Contributor: Tobias Powalowski <tpowa@archlinux.org>
 
 pkgname=fsarchiver
-pkgver=0.8.6
+pkgver=0.8.7
 pkgrel=1
 pkgdesc='Safe and flexible file-system backup and deployment tool'
 arch=('x86_64')
@@ -11,7 +11,7 @@ url='https://www.fsarchiver.org/'
 license=('GPL2')
 depends=('bzip2' 'e2fsprogs' 'lzo' 'xz' 'libgcrypt' 'zlib' 'lz4' 'zstd')
 source=(https://github.com/fdupoux/fsarchiver/releases/download/$pkgver/fsarchiver-$pkgver.tar.gz)
-md5sums=('705e2ca268249d6bed10a860379eb812')
+sha256sums=('f7cd059e70fc57e888db282c622ec050c0dcdbaacc65e3c1eb163cd9d92d810d')
 
 build() {
   cd $pkgname-$pkgver

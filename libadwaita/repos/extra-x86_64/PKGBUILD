@@ -2,7 +2,7 @@
 
 pkgbase=libadwaita
 pkgname=(libadwaita libadwaita-docs libadwaita-demos)
-pkgver=1.1.5
+pkgver=1.3.2
 pkgrel=1
 epoch=1
 pkgdesc="Building blocks for modern adaptive GNOME applications"
@@ -10,12 +10,18 @@ url="https://gnome.pages.gitlab.gnome.org/libadwaita/"
 arch=(x86_64)
 license=(LGPL)
 depends=(gtk4)
-makedepends=(git meson gi-docgen sassc gobject-introspection vala)
+makedepends=(
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+  sassc
+  vala
+)
 checkdepends=(weston)
-options=(debug)
-_commit=5f4cdf5553a64247fd263d4510844240549d0b61  # tags/1.1.5^0
+_commit=dfaf404704a6e4a15d9881fc39ec8a607cd47701  # tags/1.3.2^0
 source=("git+https://gitlab.gnome.org/GNOME/libadwaita.git#commit=$_commit")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 
 pkgver() {
   cd $pkgname
@@ -81,4 +87,4 @@ package_libadwaita-demos() {
   mv demo/* "$pkgdir"
 }
 
-# vim:set sw=2 et:
+# vim:set sw=2 sts=-1 et:

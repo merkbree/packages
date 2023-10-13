@@ -3,25 +3,26 @@
 pkgbase=avogadrolibs
 pkgname=(avogadrolibs avogadrolibs-qt5)
 pkgver=1.97.0
-pkgrel=1
+pkgrel=7
 pkgdesc='Libraries that provide 3D rendering, visualization, analysis and data processing useful in computational chemistry, molecular modeling, bioinformatics, materials science, and related areas'
 arch=(x86_64)
 url='https://www.openchemistry.org/'
 license=(custom)
-depends=(molequeue glew spglib hdf5 avogadro-molecules avogadro-crystals)
-makedepends=(cmake eigen boost python mmtf-cpp libmsym pybind11 vtk qt5-tools qt5-svg genxrdpattern tbb openmpi)
-optdepends=('avogadrolibs-qt5: For the VTK and Qt plugins')
-source=(https://github.com/OpenChemistry/avogadrolibs/archive/$pkgver/$pkgname-$pkgver.tar.gz)
-sha256sums=('46641504a1808c5ff6fb7d66be48d866848203899025fd386cc6e3dd5d9ec342')
+makedepends=(cmake eigen boost python glew spglib hdf5 mmtf-cpp libmsym pybind11 vtk qt5-tools qt5-svg genxrdpattern tbb openmpi)
+source=(https://github.com/OpenChemistry/avogadrolibs/archive/$pkgver/$pkgname-$pkgver.tar.gz
+        https://github.com/OpenChemistry/avogadrolibs/commit/0db79eb1.patch)
+sha256sums=('46641504a1808c5ff6fb7d66be48d866848203899025fd386cc6e3dd5d9ec342'
+            'd7e6f2ba9a123c52313df31763dc9cb043a41ca64bb0dc695fb8af77716ed70a')
 
 prepare() {
   mkdir crystals molecules # Dummy dirs to trick cmake, actually provided by avogadro-molecules and avogadro-crystals
+  patch -d $pkgname-$pkgver -p1 < 0db79eb1.patch # Fix build
 }
 
 build() {
   cmake -B build -S $pkgname-$pkgver \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_C_CLAFS="$CFLAGS -ffat-lto-objects" \
+    -DCMAKE_C_FLAGS="$CFLAGS -ffat-lto-objects" \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS -ffat-lto-objects" \
     -DENABLE_TRANSLATIONS=ON \
     -DUSE_HDF5=ON \
@@ -32,6 +33,9 @@ build() {
 }
 
 package_avogadrolibs() {
+  depends=(molequeue glew spglib hdf5 avogadro-molecules avogadro-crystals)
+  optdepends=('avogadrolibs-qt5: For the VTK and Qt plugins')
+
   DESTDIR="$pkgdir" cmake --install build
   rm -r "$pkgdir"/usr/lib/libAvogadroQt* \
         "$pkgdir"/usr/lib/libAvogadroMoleQueue* \
@@ -56,4 +60,6 @@ package_avogadrolibs-qt5() {
   DESTDIR="$pkgdir" cmake --install build/avogadro/qtopengl
   DESTDIR="$pkgdir" cmake --install build/avogadro/qtplugins
   DESTDIR="$pkgdir" cmake --install build/avogadro/vtk
+
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
 }

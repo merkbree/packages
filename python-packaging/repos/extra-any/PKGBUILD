@@ -1,29 +1,29 @@
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 
 pkgname=python-packaging
-pkgver=21.3
+pkgver=23.1
 pkgrel=1
 pkgdesc="Core utilities for Python packages"
 arch=('any')
 url="https://github.com/pypa/packaging"
 license=('Apache')
-depends=('python-pyparsing')
-makedepends=('python-setuptools')
+depends=('python')
+makedepends=('python-build' 'python-installer' 'python-flit-core')
 checkdepends=('python-pytest' 'python-pretend')
 source=("https://github.com/pypa/packaging/archive/$pkgver/$pkgname-$pkgver.tar.gz")
-sha512sums=('8960deacda26877b73d98a3b632e760e902a16ec7a04707f84044980e4d4fb33e4f584db115c9008066aa876079f28633bafe37fbd5ce9a23830b6b89eb4ae7a')
+sha512sums=('1e717a2c97371e177f6b73de8de0440384e7abf361771e68b1696bc8e67d9d0995d2aeb2037995a16ecd374f58317793e66574c9fc28691b4e6094ece69cb5f0')
 
 build() {
   cd packaging-$pkgver
-  python setup.py build
+  python -m build -nw
 }
 
 check() {
   cd packaging-$pkgver
-  python -m pytest
+  PYTHONPATH=src pytest
 }
 
 package() {
   cd packaging-$pkgver
-  python setup.py install --root="$pkgdir" --optimize=1
+  python -m installer --destdir="$pkgdir" dist/*.whl
 }

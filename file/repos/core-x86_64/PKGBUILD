@@ -3,19 +3,18 @@
 # Contributor: Andreas Radke <andyrtr@archlinux.org>
 
 pkgname=file
-pkgver=5.42
-pkgrel=2
+pkgver=5.44
+pkgrel=3
 pkgdesc='File type identification utility'
 arch=('x86_64')
 license=('custom')
-groups=('base-devel')
 url='https://www.darwinsys.com/file/'
-depends=('glibc' 'zlib' 'xz' 'bzip2' 'libseccomp' 'libseccomp.so')
+depends=('glibc' 'zlib' 'xz' 'bzip2' 'libseccomp' 'libseccomp.so' 'zstd' 'libzstd.so')
 provides=('libmagic.so')
-options=('!emptydirs' 'debug')
+options=('!emptydirs')
 source=("https://astron.com/pub/$pkgname/$pkgname-$pkgver.tar.gz"{,.asc})
 validpgpkeys=('BE04995BA8F90ED0C0C176C471112AB16CB33B3A') # Christos Zoulas
-sha256sums=('c076fb4d029c74073f15c43361ef572cfb868407d347190ba834af3b1639b0e4'
+sha256sums=('3751c7fba8dbc831cb8d7cc8aff21035459b8ce5155ef8b0880a27d028475f3b'
             'SKIP')
 
 prepare() {

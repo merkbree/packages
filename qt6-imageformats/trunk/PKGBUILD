@@ -3,7 +3,7 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=qt6-imageformats
-_qtver=6.3.2
+_qtver=6.5.0
 pkgver=${_qtver/-/}
 pkgrel=1
 arch=(x86_64)
@@ -13,13 +13,13 @@ pkgdesc='Plugins for additional image formats: TIFF, MNG, TGA, WBMP'
 depends=(qt6-base jasper libwebp libmng)
 makedepends=(cmake ninja)
 groups=(qt6)
-options=(debug)
 _pkgfn=${pkgname/6-/}-everywhere-src-$_qtver
 source=(https://download.qt.io/official_releases/qt/${pkgver%.*}/$_qtver/submodules/$_pkgfn.tar.xz)
-sha256sums=('1dcb8a4cae6c779c3db0b170f78705681a5b6786f0971ed07c618bd03685ce3a')
+sha256sums=('f9f810cd3ac7e60132c0da33f34fcfce42e3e764d6cad3020c2f3b1b42046f78')
 
 build() {
-  cmake -B build -S $_pkgfn -G Ninja
+  cmake -B build -S $_pkgfn -G Ninja \
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
   cmake --build build
 }
 

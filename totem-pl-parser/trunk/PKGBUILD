@@ -3,7 +3,7 @@
 
 pkgname=totem-pl-parser
 pkgver=3.26.6
-pkgrel=1
+pkgrel=2
 pkgdesc="Simple GObject-based library to parse and save a host of playlist formats"
 url="https://gitlab.gnome.org/GNOME/totem-pl-parser"
 license=(LGPL)
@@ -39,3 +39,5 @@ check() {
 package() {
   meson install -C build --destdir "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:

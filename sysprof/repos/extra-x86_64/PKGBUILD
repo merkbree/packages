@@ -7,18 +7,26 @@
 
 pkgbase=sysprof
 pkgname=(sysprof libsysprof-capture)
-pkgver=3.44.0
-pkgrel=2
+pkgver=3.48.0
+pkgrel=1
 pkgdesc="Kernel based performance profiler"
 url="https://wiki.gnome.org/Apps/Sysprof"
 license=(GPL)
 arch=(x86_64)
-depends=(gtk3 polkit libdazzle)
-makedepends=(yelp-tools git meson)
-options=(debug)
-_commit=7d44e2db75941e5eef0c67fae3c0ce0cbd176dc6  # tags/3.44.0^0
-source=("git+https://gitlab.gnome.org/GNOME/sysprof.git#commit=$_commit")
-sha256sums=('SKIP')
+depends=(
+  libadwaita
+  polkit
+)
+makedepends=(
+  git
+  meson
+  yelp-tools
+)
+_commit=94a6aff06a4cfb91d6ad396e1cb703c4613b143f  # tags/3.48.0^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/sysprof.git#commit=$_commit"
+)
+b2sums=('SKIP')
 
 pkgver() {
   cd sysprof
@@ -76,3 +84,5 @@ package_libsysprof-capture() {
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 \
     sysprof/src/libsysprof-capture/COPYING
 }
+
+# vim:set sw=2 sts=-1 et:

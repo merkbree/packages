@@ -65,7 +65,6 @@ usage () {
     echo "    --hooks-dir=           use this directory for HOOKS check"
     echo "    --advanced             show autodetected advanced HOOKS"
     echo "    --hooks                show HOOKS="
-    echo "    --dmraid               add dmraid to HOOKS="
     echo "    --keymap               add keymap to HOOKS="
     echo "    --nfs                  add net to HOOKS="
     exit 1
@@ -99,11 +98,18 @@ parameter() {
 
 kver() {
     # get kernel version from installed kernel
-    [[ "$(uname -m)" == "x86_64" ]] && VMLINUZ=/boot/vmlinuz-linux
+    [[ "$(uname -m)" == "x86_64" || "$(uname -m)" == "riscv64" ]] && VMLINUZ=/boot/vmlinuz-linux
     [[ "$(uname -m)" == "aarch64" ]] && VMLINUZ=/boot/Image
-    if [[ -f "${VMLINUZ}" ]]; then
-        offset=$(hexdump -s 526 -n 2 -e '"%0d"' "${VMLINUZ}")
-        read -r _HWKVER _ < <(dd if="${VMLINUZ}" bs=1 count=127 skip=$(( offset + 0x200 )) 2>/dev/null)
+    if [[ -f "${VMLINUZ}" && "$(uname -m)" == "x86_64" ]]; then
+        offset="$(od -An -j0x20E -dN2 "${VMLINUZ}")"
+        read -r _HWKVER _ < <(dd if="${VMLINUZ}" bs=1 count=127 skip=$((offset + 0x200)) 2>/dev/null)
+    fi
+    if [[ -f "${VMLINUZ}" ]]  &&  [[ "$(uname -m)" == "riscv64" || "$(uname -m)" == "aarch64" ]]; then
+        reader="cat"
+        # try if the image is gzip compressed
+        bytes="$(od -An -t x2 -N2 "${VMLINUZ}" | tr -dc '[:alnum:]')"
+        [[ $bytes == '8b1f' ]] && reader="zcat"
+        read -r _ _ _HWKVER _ < <($reader "${VMLINUZ}" | grep -m1 -aoE 'Linux version .(\.[-[:alnum:]]+)+')
     fi
     # fallback if no detectable kernel is installed
     [[ "${_HWKVER}" == "" ]] && _HWKVER="$(uname -r)"
@@ -116,9 +122,6 @@ if [ "$KERNEL_VERSION" = "" ]; then
     KERNEL_VERSION="${_HWKVER}"
 
 fi
-
-# dmraid switch
-[ "$(echo $* | grep '\-dmraid')" ] && DMRAID=1
 
 # keymap switch
 [ "$(echo $* | grep '\-keymap')" ] && KEYMAP=1
@@ -302,7 +305,7 @@ while [ -n "$*"  ]; do
             if [ "$HOOKS_DIR" = "" ]; then
                 HOOKS_DIR="/usr/lib/initcpio/install"
             fi
-            START_HOOKS="base udev keymap autodetect modconf block net dmraid keyboard $ADVANCED filesystems fsck"
+            START_HOOKS="base udev autodetect modconf kms consolefont keyboard keymap block filesystems fsck net $ADVANCED"
             # remove the ones that don't exist on the system
             for i in ${START_HOOKS}; do
                 if ! [ -e "${HOOKS_DIR}/$i" ]; then
@@ -311,9 +314,6 @@ while [ -n "$*"  ]; do
             done
             if ! [ "$KEYMAP" = "1" ]; then
                 START_HOOKS=$(echo $START_HOOKS | sed -e "s/keymap//g")
-            fi
-            if ! [ "$DMRAID" = "1" ]; then
-                START_HOOKS=$(echo $START_HOOKS | sed -e "s/dmraid//g")
             fi
             if ! [ "$NFS" = "1" ]; then
                 START_HOOKS=$(echo $START_HOOKS | sed -e "s/net//g")

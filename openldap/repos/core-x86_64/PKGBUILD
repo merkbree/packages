@@ -3,18 +3,18 @@
 
 pkgbase=openldap
 pkgname=('openldap' 'libldap')
-pkgver=2.6.3
-pkgrel=1
+pkgver=2.6.4
+pkgrel=2
 arch=('x86_64')
 url="https://www.openldap.org/"
 license=('custom')
-makedepends=('libtool' 'libsasl' 'e2fsprogs' 'util-linux' 'chrpath' 'unixodbc' 'libsodium' 'systemd')
+makedepends=('libtool' 'libsasl' 'util-linux' 'chrpath' 'unixodbc' 'libsodium' 'systemd')
 options=('!makeflags' 'emptydirs')
 source=(
   https://www.openldap.org/software/download/OpenLDAP/openldap-release/${pkgbase}-${pkgver}.tgz{,.asc}
   openldap.tmpfiles
   openldap.sysusers)
-sha256sums=('d2a2a1d71df3d77396b1c16ad7502e674df446e06072b0e5a4e941c3d06c0d46'
+sha256sums=('d51704e50178430c06cf3d8aa174da66badf559747a47d920bb54b2d4aa40991'
             'SKIP'
             '0be46138e53ff2fa6d4b4c06bfbdd2100426e0bd2ed29bf3419ade6b5974e9a0'
             'c6e3fa72138edfebb4ecb17f677e217c885ff9eef805b5c8ad1c09169bb0ff8e')
@@ -27,6 +27,8 @@ _extra_modules=(
   'autogroup'
   'lastbind'
   'passwd/sha2'
+  'allowed'
+  'noopsrch'
 )
 
 prepare() {
@@ -89,7 +91,7 @@ check() {
 
 package_libldap() {
   pkgdesc="Lightweight Directory Access Protocol (LDAP) client libraries"
-  depends=('libsasl' 'e2fsprogs')
+  depends=('libsasl')
   backup=('etc/openldap/ldap.conf')
 
   cd ${pkgbase}-${pkgver}
@@ -132,7 +134,7 @@ package_openldap() {
       DESTDIR="$pkgdir" install
 
     # passwd/sha2 has no man page, so skip it
-    if [ "$module" != "passwd/sha2" ]; then
+    if [ -f "contrib/slapd-modules/$module/slapo-$module.5" ]; then
       install -m644 -t "$pkgdir/usr/share/man/man5" \
         "contrib/slapd-modules/$module/slapo-$module.5"
     fi

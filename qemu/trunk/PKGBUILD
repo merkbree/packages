@@ -16,16 +16,16 @@ pkgname=(
   qemu-img
   qemu-pr-helper
   qemu-system-{aarch64,alpha,arm,avr,cris,hppa,loongarch64,m68k,microblaze,mips,nios2,or1k,ppc,riscv,rx,s390x,sh4,sparc,tricore,x86,xtensa}
+  qemu-system-{alpha,arm,hppa,microblaze,ppc,riscv,s390x,sparc,x86}-firmware
   qemu-tests
   qemu-tools
   qemu-ui-{curses,dbus,egl-headless,gtk,opengl,sdl,spice-{app,core}}
-  qemu-user{,-static}
+  qemu-user{,-static}{,-binfmt}
   qemu-vhost-user-gpu
-  qemu-virtiofsd
   qemu-{base,desktop,emulators-full,full}
 )
-pkgver=7.1.0
-pkgrel=5
+pkgver=8.0.0
+pkgrel=1
 pkgdesc="A generic and open source machine emulator and virtualizer"
 arch=(x86_64)
 url="https://www.qemu.org/"
@@ -36,7 +36,6 @@ license=(GPL2 LGPL2.1)
 # TODO: package openbios for qemu-system-{ppc,sparc}
 # TODO: package /usr/share/qemu/{efi,pxe}-* for qemu (ipxe)
 # TODO: package /usr/share/qemu/slof.bin for qemu-system-ppc (slof)
-# TODO: package /usr/share/qemu/sgabios.bin for qemu-system-x86 (sgabios)
 makedepends=(
   alsa-lib
   brltty
@@ -79,6 +78,7 @@ makedepends=(
   ndctl
   numactl
   pam
+  pcre2
   python
   python-sphinx
   python-sphinx_rtd_theme
@@ -95,7 +95,6 @@ makedepends=(
   zlib
   zstd
 )
-options=(debug)
 source=(
   https://download.qemu.org/qemu-$pkgver.tar.xz{,.sig}
   bridge.conf
@@ -104,14 +103,14 @@ source=(
   65-kvm.rules
   99-qemu-guest-agent.rules
 )
-sha512sums=('c60c5ff8ec99b7552e485768908920658fdd8035ff7a6fa370fb6881957dc8b7e5f18ff1a8f49bd6aa22909ede2a7c084986d8244f12074ccd33ebe40a0c411f'
+sha512sums=('1f31d1e653dec2d35f1b7a5468ee3f471553b48eca8c8afafffcf9243c6b2260e78a5b73da3fe567f9b85d4133573eebd397747b3aec501fb24076263eb07b27'
             'SKIP'
             '7b412ffa5dcda47b0a4ec9e2c5e5e1d9eaaaf0a087b7ea3ead3e706ba4c9cafb919beadd088a0299b6f7aab753b81a5eafb545b4842ee5f26646d16544dd02a7'
             '6e838773d63ae0ffdffe2b891bf611d8f5f3c67a9bc4cbbedf8363c150c2c9971c8e44d92270bc581af40eb0ece02192760bcdd6aee229fff55635f3a4825afa'
             '985c2c7a6b5217c87a15b45368089ee91b2f9027b070f9eafa448a18b27ae0d9edd964d52e134b9c1f4aeef4d6aae88afd3f454551ca898affef7f9d28b99b8f'
             'bdf05f99407491e27a03aaf845b7cc8acfa2e0e59968236f10ffc905e5e3d5e8569df496fd71c887da2b5b8d1902494520c7da2d3a8258f7fd93a881dd610c99'
             '93b905046fcea8a0a89513b9259c222494ab3b91319dde23baebcb40dc17376a56661b159b99785d6e816831974a0f3cbd7b2f7d89e5fc3c258f88f4492f3839')
-b2sums=('e05f91ce4993c7591a2df08b5fb017f8b8ec2141ab7bfd55d14730ea6b793ac1091de539992058392a5522d4e58beee92a87752707be58e3619b8213ef9f35bf'
+b2sums=('9b54aae10fe09691a26e68374723ded5fdda6409673b4de9461a25ee060cfd03968a16ddeadc21d48b9262e53aa6d4e5eb645376969f97c65807fad19607b04f'
         'SKIP'
         'b1eca364aa60f130ff5e649f5d004d3fcb75356d3421a4542efdfc410d39b40d9434d15e1dd7bbdbd315cb72b5290d3ea5f77f9c41961a5601cd28ef7bbe72e8'
         '2102e4a34e11e406e9606c97e026e7b92e887e296a7f77b9cede1b37119d0df33735f3588628167b2b8e32244c196c491bfab623e2caddac9014d445aa2a6d98'
@@ -125,9 +124,12 @@ _qemu_system_deps=(
   dtc
   fuse3
   gcc-libs
+  glibc
   glib2 libgio-2.0.so libglib-2.0.so libgmodule-2.0.so
   gnutls
+  keyutils
   libaio
+  libelf
   libbpf libbpf.so
   libjpeg-turbo libjpeg.so
   libpng
@@ -147,36 +149,17 @@ _qemu_system_deps=(
   zstd libzstd.so
 )
 
-_qemu_optdepends=(
-  'qemu-audio-alsa: for ALSA audio driver'
-  'qemu-audio-dbus: for D-Bus audio driver'
-  'qemu-audio-jack: for JACK audio driver'
-  'qemu-audio-oss: for OSS audio driver'
-  'qemu-audio-pa: for PulseAudio audio driver'
-  'qemu-audio-sdl: for SDL audio driver'
-  'qemu-audio-spice: for spice audio driver'
-  'qemu-block-curl: for curl block driver'
-  'qemu-block-dmg: for DMG block driver'
+_qemu_common_optdepends=(
+  'qemu-user-static: for static user mode emulation of QEMU targets'
+  'samba: for SMB/CIFS server support'
+)
+
+_qemu_desktop_optdepends=(
+  "${_qemu_common_optdepends[@]}"
   'qemu-block-gluster: for Gluster block driver'
   'qemu-block-iscsi: for iSCSI block driver'
-  'qemu-block-nfs: for NFS block driver'
-  'qemu-block-ssh: for SSH block driver'
   'qemu-chardev-baum: for Baum chardev driver'
-  'qemu-chardev-spice: for spice chardev driver'
   'qemu-docs: for documentation'
-  'qemu-hw-display-qxl: for QXL display device'
-  'qemu-hw-display-virtio-gpu-gl: for virtio-gpu-gl display device'
-  'qemu-hw-display-virtio-gpu: for virtio-gpu display device'
-  'qemu-hw-display-virtio-gpu-pci: for virtio-gpu-pci display device'
-  'qemu-hw-display-virtio-gpu-pci-gl: for virtio-gpu-pci-gl display device'
-  'qemu-hw-display-virtio-vga: for virtio-gpu-vga display device'
-  'qemu-hw-display-virtio-vga-gl: for virtio-gpu-vga-gl display device'
-  'qemu-hw-s390x-virtio-gpu-ccw: for s390x-virtio-gpu-ccw display device'
-  'qemu-hw-usb-host: for USB host device'
-  'qemu-hw-usb-redirect: for usbredir device'
-  'qemu-hw-usb-smartcard: for USB smartcard device'
-  'qemu-img: for manipulating disk images'
-  'qemu-pr-helper: for persistent reservation utility'
   'qemu-system-aarch64: for AARCH64 system emulator'
   'qemu-system-alpha: for Alpha system emulator'
   'qemu-system-arm: for ARM system emulator'
@@ -195,23 +178,28 @@ _qemu_optdepends=(
   'qemu-system-sh4: for SH4 system emulator'
   'qemu-system-sparc: for SPARC system emulator'
   'qemu-system-tricore: for tricore system emulator'
-  'qemu-system-x86: for x86 system emulator'
   'qemu-system-xtensa: for Xtensa system emulator'
   'qemu-tests: for QEMU tests'
-  'qemu-tools: for QEMU tools'
-  'qemu-ui-curses: for curses UI driver'
+  'qemu-user: for user mode emulation of QEMU targets'
+  'qemu-user-static: for static user mode emulation of QEMU targets'
+  'samba: for SMB/CIFS server support'
+)
+
+_qemu_base_optdepends=(
+  "${_qemu_desktop_optdepends[@]}"
+  'qemu-audio-alsa: for ALSA audio driver'
+  'qemu-audio-dbus: for D-Bus audio driver'
+  'qemu-audio-jack: for JACK audio driver'
+  'qemu-audio-oss: for OSS audio driver'
+  'qemu-audio-pa: for PulseAudio audio driver'
+  'qemu-audio-sdl: for SDL audio driver'
   'qemu-ui-dbus: for D-Bus UI driver'
   'qemu-ui-egl-headless: for EGL headless UI driver'
   'qemu-ui-gtk: for GTK UI driver'
   'qemu-ui-opengl: for OpenGL UI driver'
   'qemu-ui-sdl: for SDL UI driver'
-  'qemu-ui-spice-app: for spice app UI driver'
-  'qemu-ui-spice-core: for spice core UI driver'
   'qemu-user: for user mode emulation of QEMU targets'
-  'qemu-user-static: for static user mode emulation of QEMU targets'
   'qemu-vhost-user-gpu: for vhost-user-gpu display device'
-  'qemu-virtiofsd: for virtio-fs shared filesystem daemon'
-  'samba: for SMB/CIFS server support'
 )
 
 _pick() {
@@ -225,6 +213,7 @@ _pick() {
 }
 
 prepare() {
+
   # extract licenses for TCG
   sed -n '1,23p' $pkgbase-$pkgver/tcg/tcg-internal.h > tcg.LICENSE.MIT
   sed -n '1,23p' $pkgbase-$pkgver/tcg/arm/tcg-target.c.inc > tcg-arm.LICENSE.MIT
@@ -239,47 +228,64 @@ prepare() {
 }
 
 build() {
+  local common_configure_options=(
+    --prefix=/usr
+    --sysconfdir=/etc
+    --libexecdir=/usr/lib/qemu
+    --localstatedir=/var
+    --docdir=/usr/share/doc/qemu
+  )
+  local configure_options=(
+    "${common_configure_options[@]}"
+    --enable-modules
+    --enable-sdl
+    --enable-slirp
+    --enable-tpm
+    --smbd=/usr/bin/smbd
+    --with-coroutine=ucontext
+  )
+  local configure_static_options=(
+    "${common_configure_options[@]}"
+    --enable-attr
+    --enable-linux-user
+    --enable-tcg
+    --disable-bpf
+    --disable-bsd-user
+    --disable-capstone
+    --disable-docs
+    --disable-fdt
+    --disable-gcrypt
+    --disable-glusterfs
+    --disable-gnutls
+    --disable-gtk
+    --disable-install-blobs
+    --disable-kvm
+    --disable-libiscsi
+    --disable-libnfs
+    --disable-libssh
+    --disable-linux-io-uring
+    --disable-nettle
+    --disable-opengl
+    --disable-qom-cast-debug
+    --disable-sdl
+    --disable-system
+    --disable-tools
+    --disable-tpm
+    --disable-vde
+    --disable-vhost-crypto
+    --disable-vhost-kernel
+    --disable-vhost-net
+    --disable-vhost-user
+    --disable-vnc
+    --disable-werror
+    --disable-xen
+    --disable-zstd
+    --static
+  )
+
   (
     cd build-static
-    ../$pkgbase-$pkgver/configure \
-      --prefix=/usr \
-      --sysconfdir=/etc \
-      --libexecdir=/usr/lib/qemu \
-      --enable-attr \
-      --enable-linux-user \
-      --enable-tcg \
-      --disable-bpf \
-      --disable-bsd-user \
-      --disable-capstone \
-      --disable-docs \
-      --disable-fdt \
-      --disable-gcrypt \
-      --disable-glusterfs \
-      --disable-gnutls \
-      --disable-gtk \
-      --disable-install-blobs \
-      --disable-kvm \
-      --disable-libiscsi \
-      --disable-libnfs \
-      --disable-libssh \
-      --disable-linux-io-uring \
-      --disable-nettle \
-      --disable-opengl \
-      --disable-qom-cast-debug \
-      --disable-sdl \
-      --disable-system \
-      --disable-tools \
-      --disable-tpm \
-      --disable-vde \
-      --disable-vhost-crypto \
-      --disable-vhost-kernel \
-      --disable-vhost-net \
-      --disable-vhost-user \
-      --disable-vnc \
-      --disable-werror \
-      --disable-xen \
-      --disable-zstd \
-      --static
+    ../$pkgbase-$pkgver/configure "${configure_static_options[@]}"
     ninja
   )
 
@@ -289,26 +295,23 @@ build() {
 
   (
     cd build
-    ../$pkgbase-$pkgver/configure \
-      --prefix=/usr \
-      --sysconfdir=/etc \
-      --libexecdir=/usr/lib/qemu \
-      --localstatedir=/var \
-      --docdir=/usr/share/doc/qemu \
-      --enable-modules \
-      --enable-sdl \
-      --enable-slirp=system \
-      --enable-tpm \
-      --smbd=/usr/bin/smbd \
-      --with-coroutine=ucontext
+    ../$pkgbase-$pkgver/configure "${configure_options[@]}"
     ninja
   )
 
 }
 
 package_qemu-common() {
+  local binfmt_conf_options=(
+    --systemd ALL
+    --exportdir "$pkgdir/usr/lib/binfmt.d/"
+    --qemu-path "/usr/bin"
+    --persistent yes
+    --preserve-argv0 yes
+  )
+
   license+=(BSD MIT)
-  depends=(gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so hicolor-icon-theme libcap-ng libcap-ng.so)
+  depends=(gcc-libs glibc glib2 libglib-2.0.so libgmodule-2.0.so hicolor-icon-theme libcap-ng libcap-ng.so numactl libnuma.so)
   backup=(
     etc/$pkgbase/bridge.conf
     etc/sasl2/$pkgbase.conf
@@ -318,7 +321,7 @@ package_qemu-common() {
   # install static binaries
   meson install -C build-static --destdir "$pkgdir"
   install -vdm 755 "$pkgdir/usr/lib/binfmt.d/"
-  $pkgbase-$pkgver/scripts/qemu-binfmt-conf.sh --systemd ALL --exportdir "$pkgdir/usr/lib/binfmt.d/" --qemu-path "/usr/bin"
+  $pkgbase-$pkgver/scripts/qemu-binfmt-conf.sh "${binfmt_conf_options[@]}"
 
   # rename static binaries to prevent name conflicts
   for _src in "$pkgdir/usr/bin/qemu-"*; do
@@ -326,14 +329,17 @@ package_qemu-common() {
   done
   # modify and rename binfmt.d configs to prevent name conflicts
   for _conf in "$pkgdir/usr/lib/binfmt.d/"*; do
-    cat "$_conf" | tr -d '\n' | sed "s/:$/-static:F/" > "${_conf//.conf/-static.conf}"
+    _exe_name="$(basename "${_conf/.conf/}")"
+    _new_exe_name="${_exe_name}-static"
+    _new_conf_name="${_conf/.conf/-static.conf}"
+    sed -e "s|usr/bin/${_exe_name}|usr/bin/${_new_exe_name}|" "$_conf" > "${_new_conf_name}"
   done
 
   # install default binaries
   meson install -C build --destdir "$pkgdir"
 
   install -vdm 755 "$pkgdir/usr/lib/binfmt.d/"
-  $pkgbase-$pkgver/scripts/qemu-binfmt-conf.sh --systemd ALL --exportdir "$pkgdir/usr/lib/binfmt.d/" --qemu-path "/usr/bin"
+  $pkgbase-$pkgver/scripts/qemu-binfmt-conf.sh "${binfmt_conf_options[@]}"
 
   install -vDm 644 bridge.conf -t "$pkgdir/etc/$pkgbase/"
   install -vDm 644 $pkgbase-$pkgver/$pkgbase.sasl "$pkgdir/etc/sasl2/$pkgbase.conf"
@@ -352,14 +358,14 @@ package_qemu-common() {
   # remove files provided by seabios
   rm -fv "$pkgdir/usr/share/$pkgbase/"{bios,vgabios}*
 
-  # remove files provided by edk2-{armvirt,ovmf}
+  # remove files provided by edk2-{aarch64,arm,ovmf}
   rm -fv "$pkgdir/usr/share/$pkgbase/"edk2-*
   rm -frv "$pkgdir/usr/share/$pkgbase/firmware"
 
   (
     # create man page symlinks for all system emulators
     cd "$pkgdir/usr/share/man/man1"
-    for _name in qemu-system-{aarch64,alpha,arm,avr,cris,hppa,i386,m68k,microblaze{,el},mips{,64,64el,el},nios2,or1k,ppc{,64},riscv{32,64},rx,s390x,sh4{,eb},sparc{,64},tricore,x86_64,xtensa{,eb}}; do
+    for _name in qemu-system-{aarch64,alpha,arm,avr,cris,hppa,i386,loongarch64,m68k,microblaze{,el},mips{,64,64el,el},nios2,or1k,ppc{,64},riscv{32,64},rx,s390x,sh4{,eb},sparc{,64},tricore,x86_64,xtensa{,eb}}; do
       ln -sv $pkgbase.1.gz "$pkgdir/usr/share/man/man1/$_name.1.gz"
     done
   )
@@ -417,12 +423,14 @@ package_qemu-common() {
     _pick qemu-system-aarch64 usr/share/man/man1/qemu-system-aarch64.1*
 
     _pick qemu-system-alpha usr/bin/qemu-system-alpha
-    _pick qemu-system-alpha usr/share/qemu/palcode-clipper
     _pick qemu-system-alpha usr/share/man/man1/qemu-system-alpha.1*
 
+    _pick qemu-system-alpha-firmware usr/share/qemu/palcode-clipper
+
     _pick qemu-system-arm usr/bin/qemu-system-arm
-    _pick qemu-system-arm usr/share/qemu/npcm7xx_bootrom.bin
     _pick qemu-system-arm usr/share/man/man1/qemu-system-arm.1*
+
+    _pick qemu-system-arm-firmware usr/share/qemu/npcm7xx_bootrom.bin
 
     _pick qemu-system-avr usr/bin/qemu-system-avr
     _pick qemu-system-avr usr/share/man/man1/qemu-system-avr.1*
@@ -431,16 +439,20 @@ package_qemu-common() {
     _pick qemu-system-cris usr/share/man/man1/qemu-system-cris.1*
 
     _pick qemu-system-hppa usr/bin/qemu-system-hppa
-    _pick qemu-system-hppa usr/share/qemu/hppa-firmware.img
     _pick qemu-system-hppa usr/share/man/man1/qemu-system-hppa.1*
 
+    _pick qemu-system-hppa-firmware usr/share/qemu/hppa-firmware.img
+
     _pick qemu-system-loongarch64 usr/bin/qemu-system-loongarch64
+    _pick qemu-system-loongarch64 usr/share/man/man1/qemu-system-loongarch64.1*
+
     _pick qemu-system-m68k usr/bin/qemu-system-m68k
     _pick qemu-system-m68k usr/share/man/man1/qemu-system-m68k.1*
 
     _pick qemu-system-microblaze usr/bin/qemu-system-microblaze{,el}
-    _pick qemu-system-microblaze usr/share/qemu/petalogix-*.dtb
     _pick qemu-system-microblaze usr/share/man/man1/qemu-system-microblaze{,el}.1*
+
+    _pick qemu-system-microblaze-firmware usr/share/qemu/petalogix-*.dtb
 
     _pick qemu-system-mips usr/bin/qemu-system-mips{,64,64el,el}
     _pick qemu-system-mips usr/share/man/man1/qemu-system-mips{,64,64el,el}.1*
@@ -452,47 +464,50 @@ package_qemu-common() {
     _pick qemu-system-or1k usr/share/man/man1/qemu-system-or1k.1*
 
     _pick qemu-system-ppc usr/bin/qemu-system-ppc{,64}
-    _pick qemu-system-ppc usr/share/qemu/{bamboo,canyonlands}.dtb
-    # NOTE: needs to be replaced by openbios
-    _pick qemu-system-ppc usr/share/qemu/openbios-ppc
-    _pick qemu-system-ppc usr/share/qemu/qemu_vga.ndrv
-    _pick qemu-system-ppc usr/share/qemu/skiboot.lid
-    # NOTE: needs to be replaced by slof
-    _pick qemu-system-ppc usr/share/qemu/slof.bin
-    _pick qemu-system-ppc usr/share/qemu/u-boot.e500
-    _pick qemu-system-ppc usr/share/qemu/u-boot-sam460-20100605.bin
     _pick qemu-system-ppc usr/share/man/man1/qemu-system-ppc{,64}.1*
 
+    _pick qemu-system-ppc-firmware usr/share/qemu/{bamboo,canyonlands}.dtb
+    # NOTE: needs to be replaced by openbios
+    _pick qemu-system-ppc-firmware usr/share/qemu/openbios-ppc
+    _pick qemu-system-ppc-firmware usr/share/qemu/qemu_vga.ndrv
+    _pick qemu-system-ppc-firmware usr/share/qemu/skiboot.lid
+    # NOTE: needs to be replaced by slof
+    _pick qemu-system-ppc-firmware usr/share/qemu/slof.bin
+    _pick qemu-system-ppc-firmware usr/share/qemu/u-boot.e500
+    _pick qemu-system-ppc-firmware usr/share/qemu/u-boot-sam460-20100605.bin
+
     _pick qemu-system-riscv usr/bin/qemu-system-riscv{32,64}
-    _pick qemu-system-riscv usr/share/qemu/opensbi-riscv{32,64}*.bin
     _pick qemu-system-riscv usr/share/man/man1/qemu-system-riscv{32,64}.1*
+
+    _pick qemu-system-riscv-firmware usr/share/qemu/opensbi-riscv{32,64}*.bin
 
     _pick qemu-system-rx usr/bin/qemu-system-rx
     _pick qemu-system-rx usr/share/man/man1/qemu-system-rx.1*
 
     _pick qemu-system-s390x usr/bin/qemu-system-s390x
-    _pick qemu-system-s390x usr/share/qemu/s390-{ccw,netboot}.img
     _pick qemu-system-s390x usr/share/man/man1/qemu-system-s390x.1*
+
+    _pick qemu-system-s390x-firmware usr/share/qemu/s390-{ccw,netboot}.img
 
     _pick qemu-system-sh4 usr/bin/qemu-system-sh4{,eb}
     _pick qemu-system-sh4 usr/share/man/man1/qemu-system-sh4{,eb}.1*
 
     _pick qemu-system-sparc usr/bin/qemu-system-sparc{,64}
-    # NOTE: needs to be replaced by openbios
-    _pick qemu-system-sparc usr/share/qemu/openbios-sparc{32,64}
-    _pick qemu-system-sparc usr/share/qemu/QEMU,{cgthree,tcx}.bin
     _pick qemu-system-sparc usr/share/man/man1/qemu-system-sparc{,64}.1*
+
+    # NOTE: needs to be replaced by openbios
+    _pick qemu-system-sparc-firmware usr/share/qemu/openbios-sparc{32,64}
+    _pick qemu-system-sparc-firmware usr/share/qemu/QEMU,{cgthree,tcx}.bin
 
     _pick qemu-system-tricore usr/bin/qemu-system-tricore
     _pick qemu-system-tricore usr/share/man/man1/qemu-system-tricore.1*
 
     _pick qemu-system-x86 usr/bin/qemu-system-{i386,x86_64}
     _pick qemu-system-x86 usr/lib/qemu/accel-tcg-{i386,x86_64}.so
-    _pick qemu-system-x86 usr/share/qemu/{kvmvapic,linuxboot,multiboot{,_dma},pvh}.bin
-    _pick qemu-system-x86 usr/share/qemu/qboot.rom
-    # NOTE: needs to be replaced by sgabios
-    _pick qemu-system-x86 usr/share/qemu/sgabios.bin
     _pick qemu-system-x86 usr/share/man/man1/qemu-system-{i386,x86_64}.1*
+
+    _pick qemu-system-x86-firmware usr/share/qemu/{kvmvapic,linuxboot,multiboot{,_dma},pvh}.bin
+    _pick qemu-system-x86-firmware usr/share/qemu/qboot.rom
 
     _pick qemu-system-xtensa usr/bin/qemu-system-xtensa{,eb}
     _pick qemu-system-xtensa usr/share/man/man1/qemu-system-xtensa{,eb}.1*
@@ -512,17 +527,13 @@ package_qemu-common() {
     _pick qemu-ui-spice-core usr/lib/qemu/ui-spice-core.so
 
     _pick qemu-user-static usr/bin/qemu-*-static
-    _pick qemu-user-static usr/lib/binfmt.d/*-static.conf
+    _pick qemu-user-static-binfmt usr/lib/binfmt.d/*-static.conf
 
     _pick qemu-user usr/bin/qemu-{aarch64{,_be},alpha,arm{,eb},cris,hexagon,hppa,i386,loongarch64,m68k,microblaze{,el},mips{,64,64el,el,n32,n32el},nios2,or1k,ppc{,64,64le},riscv{32,64},s390x,sh4{,eb},sparc{,32plus,64},x86_64,xtensa{,eb}}
-    _pick qemu-user usr/lib/binfmt.d/*.conf
+    _pick qemu-user-binfmt usr/lib/binfmt.d/*.conf
 
     _pick qemu-vhost-user-gpu usr/lib/qemu/vhost-user-gpu
     _pick qemu-vhost-user-gpu usr/share/qemu/vhost-user/50-qemu-gpu.json
-
-    _pick qemu-virtiofsd usr/lib/qemu/virtiofsd
-    _pick qemu-virtiofsd usr/share/man/man1/virtiofsd.1*
-    _pick qemu-virtiofsd usr/share/qemu/vhost-user/50-qemu-virtiofsd.json
   )
 }
 
@@ -606,7 +617,7 @@ package_qemu-block-ssh() {
 
 package_qemu-chardev-baum() {
   pkgdesc="QEMU Baum chardev driver"
-  depends=(brltty libbrlapi.so glibc qemu-common=$pkgver-$pkgrel)
+  depends=(brltty libbrlapi.so gcc-libs glibc qemu-common=$pkgver-$pkgrel)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -623,7 +634,7 @@ package_qemu-docs() {
 
 package_qemu-guest-agent() {
   pkgdesc="QEMU Guest Agent"
-  depends=(gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc liburing liburing.so systemd-libs libudev.so)
+  depends=(gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc liburing liburing.so numactl libnuma.so sh systemd-libs libudev.so)
   backup=(
     etc/$pkgbase/$pkgbase-ga.conf
     etc/$pkgbase/fsfreeze-hook
@@ -687,19 +698,31 @@ package_qemu-hw-s390x-virtio-gpu-ccw() {
 
 package_qemu-system-aarch64() {
   pkgdesc="QEMU system emulator for AARCH64"
-  depends=("${_qemu_system_deps[@]}" edk2-armvirt systemd-libs libudev.so)
+  depends=("${_qemu_system_deps[@]}" edk2-aarch64 systemd-libs libudev.so)
   mv -v $pkgname/* "$pkgdir"
 }
 
 package_qemu-system-alpha() {
   pkgdesc="QEMU system emulator for Alpha"
-  depends=("${_qemu_system_deps[@]}" systemd-libs libudev.so)
+  depends=("${_qemu_system_deps[@]}" qemu-system-alpha-firmware=$pkgver-$pkgrel systemd-libs libudev.so)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-alpha-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for Alpha"
+  options=(!strip)
   mv -v $pkgname/* "$pkgdir"
 }
 
 package_qemu-system-arm() {
   pkgdesc="QEMU system emulator for ARM"
-  depends=("${_qemu_system_deps[@]}" systemd-libs libudev.so)
+  depends=("${_qemu_system_deps[@]}" edk2-arm qemu-system-arm-firmware=$pkgver-$pkgrel systemd-libs libudev.so)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-arm-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for ARM"
+  options=(!strip)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -717,13 +740,19 @@ package_qemu-system-cris() {
 
 package_qemu-system-hppa() {
   pkgdesc="QEMU system emulator for HPPA"
-  depends=("${_qemu_system_deps[@]}" systemd-libs libudev.so)
+  depends=("${_qemu_system_deps[@]}" qemu-system-hppa-firmware=$pkgver-$pkgrel systemd-libs libudev.so)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-hppa-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for HPPA"
+  options=(!strip)
   mv -v $pkgname/* "$pkgdir"
 }
 
 package_qemu-system-loongarch64() {
   pkgdesc="QEMU system emulator for LoongArch64"
-  depends=("${_qemu_system_deps[@]}")
+  depends=("${_qemu_system_deps[@]}" systemd-libs)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -735,7 +764,13 @@ package_qemu-system-m68k() {
 
 package_qemu-system-microblaze() {
   pkgdesc="QEMU system emulator for Microblaze"
-  depends=("${_qemu_system_deps[@]}")
+  depends=("${_qemu_system_deps[@]}" qemu-system-microblaze-firmware=$pkgver-$pkgrel)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-microblaze-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for Microblaze"
+  options=(!strip)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -753,21 +788,31 @@ package_qemu-system-nios2() {
 
 package_qemu-system-or1k() {
   pkgdesc="QEMU system emulator for OpenRisc32"
-  depends=("${_qemu_system_deps[@]}")
+  depends=("${_qemu_system_deps[@]}" systemd-libs)
   mv -v $pkgname/* "$pkgdir"
 }
 
 package_qemu-system-ppc() {
   pkgdesc="QEMU system emulator for PPC"
-  # NOTE: will require openbios
-  depends=("${_qemu_system_deps[@]}" systemd-libs libudev.so)
+  depends=("${_qemu_system_deps[@]}" qemu-system-ppc-firmware=$pkgver-$pkgrel systemd-libs libudev.so)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-ppc-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for PPC"
   options=(!strip)
   mv -v $pkgname/* "$pkgdir"
 }
 
 package_qemu-system-riscv() {
   pkgdesc="QEMU system emulator for RISC-V"
-  depends=("${_qemu_system_deps[@]}" systemd-libs libudev.so)
+  depends=("${_qemu_system_deps[@]}" qemu-system-riscv-firmware=$pkgver-$pkgrel systemd-libs libudev.so)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-riscv-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for RISC-V"
+  options=(!strip)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -779,7 +824,13 @@ package_qemu-system-rx() {
 
 package_qemu-system-s390x() {
   pkgdesc="QEMU system emulator for S390"
-  depends=("${_qemu_system_deps[@]}")
+  depends=("${_qemu_system_deps[@]}" qemu-system-s390x-firmware=$pkgver-$pkgrel)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-s390x-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for S390"
+  options=(!strip)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -791,8 +842,14 @@ package_qemu-system-sh4() {
 
 package_qemu-system-sparc() {
   pkgdesc="QEMU system emulator for SPARC"
+  depends=("${_qemu_system_deps[@]}" qemu-system-sparc-firmware=$pkgver-$pkgrel systemd-libs libudev.so)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-sparc-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for SPARC"
+  options=(!strip)
   # NOTE: will require openbios
-  depends=("${_qemu_system_deps[@]}" systemd-libs libudev.so)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -804,7 +861,13 @@ package_qemu-system-tricore() {
 
 package_qemu-system-x86() {
   pkgdesc="QEMU system emulator for x86"
-  depends=("${_qemu_system_deps[@]}" edk2-ovmf seabios systemd-libs libudev.so)
+  depends=("${_qemu_system_deps[@]}" edk2-ovmf qemu-system-x86-firmware=$pkgver-$pkgrel seabios systemd-libs libudev.so)
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-system-x86-firmware() {
+  pkgdesc="Firmware for QEMU system emulator for x86"
+  options=(!strip)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -834,13 +897,13 @@ package_qemu-hw-usb-smartcard() {
 
 package_qemu-img() {
   pkgdesc="QEMU tooling for manipulating disk images"
-  depends=(fuse3 gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc gnutls libaio liburing liburing.so pam libpam.so zlib zstd libzstd.so)
+  depends=(fuse3 gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc gnutls libaio liburing liburing.so numactl libnuma.so pam libpam.so zlib zstd libzstd.so)
   mv -v $pkgname/* "$pkgdir"
 }
 
 package_qemu-pr-helper() {
   pkgdesc="QEMU persistent reservation utility"
-  depends=(gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc gnutls libcap-ng libcap-ng.so liburing liburing.so multipath-tools pam libpam.so qemu-common=$pkgver-$pkgrel)
+  depends=(gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc gnutls libcap-ng libcap-ng.so liburing liburing.so multipath-tools numactl libnuma.so pam libpam.so qemu-common=$pkgver-$pkgrel systemd-libs)
   mv -v $pkgname/* "$pkgdir"
   install -vDm 644 $pkgbase-$pkgver/contrib/systemd/$pkgname.{service,socket} -t "$pkgdir/usr/lib/systemd/system/"
 }
@@ -853,7 +916,7 @@ package_qemu-tests() {
 
 package_qemu-tools() {
   pkgdesc="QEMU tools"
-  depends=(curl libcurl.so gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc libxkbcommon libxkbcommon.so python qemu-common=$pkgver-$pkgrel)
+  depends=(curl libcurl.so gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc libxkbcommon libxkbcommon.so numactl libnuma.so python qemu-common=$pkgver-$pkgrel)
   mv -v $pkgname/* "$pkgdir"
   install -vDm 644 $pkgbase-$pkgver/scripts/dump-guest-memory.py -t "$pkgdir/usr/share/$pkgbase/"
   install -vDm 755 $pkgbase-$pkgver/scripts/simpletrace.py -t "$pkgdir/usr/share/$pkgbase/"
@@ -884,7 +947,6 @@ package_qemu-ui-gtk() {
   pkgdesc="QEMU GTK UI driver"
   depends=(
     cairo
-    gcc-libs
     gdk-pixbuf2 libgdk_pixbuf-2.0.so
     glib2 libgobject-2.0.so libglib-2.0.so
     glibc
@@ -901,7 +963,7 @@ package_qemu-ui-gtk() {
 
 package_qemu-ui-opengl() {
   pkgdesc="QEMU OpenGL UI driver"
-  depends=(glibc libepoxy mesa pixman libpixman-1.so qemu-common=$pkgver-$pkgrel)
+  depends=(gcc-libs glibc libepoxy mesa pixman libpixman-1.so qemu-common=$pkgver-$pkgrel)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -925,25 +987,37 @@ package_qemu-ui-spice-core() {
 
 package_qemu-user() {
   pkgdesc="QEMU user mode emulation"
-  depends=(capstone gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc gnutls liburing liburing.so qemu-common=$pkgver-$pkgrel zlib)
+  depends=(capstone gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc gnutls libelf liburing liburing.so numactl libnuma.so qemu-common=$pkgver-$pkgrel zlib)
+  optdepends=('qemu-user-binfmt: for binary format rules')
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-user-binfmt() {
+  pkgdesc="Binary format rules for QEMU user mode emulation"
+  depends=(qemu-user=$pkgver-$pkgrel)
+  provides=(qemu-user-binfmt-provider)
+  conflicts=(qemu-user-binfmt-provider)
   mv -v $pkgname/* "$pkgdir"
 }
 
 package_qemu-user-static() {
   pkgdesc="QEMU static user mode emulation"
   depends=(glibc)
+  optdepends=('qemu-user-static-binfmt: for binary format rules')
+  mv -v $pkgname/* "$pkgdir"
+}
+
+package_qemu-user-static-binfmt() {
+  pkgdesc="Binary format rules for QEMU static user mode emulation"
+  depends=(qemu-user-static=$pkgver-$pkgrel)
+  provides=(qemu-user-binfmt-provider)
+  conflicts=(qemu-user-binfmt-provider)
   mv -v $pkgname/* "$pkgdir"
 }
 
 package_qemu-vhost-user-gpu() {
   pkgdesc="QEMU vhost-user-gpu display device"
-  depends=(gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc pixman libpixman-1.so mesa qemu-common=$pkgver-$pkgrel virglrenderer)
-  mv -v $pkgname/* "$pkgdir"
-}
-
-package_qemu-virtiofsd() {
-  pkgdesc="QEMU virtio-fs shared filesystem daemon"
-  depends=(gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc libcap-ng libcap-ng.so libseccomp libseccomp.so qemu-common=$pkgver-$pkgrel)
+  depends=(gcc-libs glib2 libglib-2.0.so libgmodule-2.0.so glibc pixman libepoxy libpixman-1.so mesa numactl libnuma.so qemu-common=$pkgver-$pkgrel virglrenderer)
   mv -v $pkgname/* "$pkgdir"
 }
 
@@ -963,9 +1037,9 @@ package_qemu-base() {
     qemu-system-x86=$pkgver-$pkgrel
     qemu-tools=$pkgver-$pkgrel
     qemu-ui-{curses,spice-{app,core}}=$pkgver-$pkgrel
-    qemu-virtiofsd=$pkgver-$pkgrel
+    virtiofsd
   )
-  optdepends=("${_qemu_optdepends[@]}")
+  optdepends=("${_qemu_base_optdepends[@]}")
   # TODO: remove conflicts/provides/replaces for qemu-headless after 2022-10-01
   conflicts=(qemu qemu-headless)
   provides=(qemu=$pkgver qemu-headless)
@@ -989,9 +1063,9 @@ package_qemu-desktop() {
     qemu-tools=$pkgver-$pkgrel
     qemu-ui-{curses,dbus,egl-headless,gtk,opengl,sdl,spice-{app,core}}=$pkgver-$pkgrel
     qemu-vhost-user-gpu=$pkgver-$pkgrel
-    qemu-virtiofsd=$pkgver-$pkgrel
+    virtiofsd
   )
-  optdepends=("${_qemu_optdepends[@]}")
+  optdepends=("${_qemu_desktop_optdepends[@]}")
   conflicts=(qemu)
   provides=(qemu=$pkgver)
   replaces=('qemu<7')
@@ -1028,9 +1102,9 @@ package_qemu-full() {
     qemu-ui-{curses,dbus,egl-headless,gtk,opengl,sdl,spice-{app,core}}=$pkgver-$pkgrel
     qemu-user=$pkgver-$pkgrel
     qemu-vhost-user-gpu=$pkgver-$pkgrel
-    qemu-virtiofsd=$pkgver-$pkgrel
+    virtiofsd
   )
-  optdepends=("${_qemu_optdepends[@]}")
+  optdepends=("${_qemu_common_optdepends[@]}")
   conflicts=(qemu)
   provides=(qemu=$pkgver)
 }

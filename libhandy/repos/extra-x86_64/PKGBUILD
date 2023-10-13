@@ -3,17 +3,26 @@
 
 pkgbase=libhandy
 pkgname=(libhandy libhandy-docs)
-pkgver=1.6.3
+pkgver=1.8.2
 pkgrel=1
 pkgdesc="Library full of GTK+ widgets for mobile phones"
 url="https://gitlab.gnome.org/GNOME/libhandy"
 arch=(x86_64)
 license=(LGPL)
-depends=(glib2 gtk3)
-makedepends=(git gobject-introspection meson vala glade gi-docgen)
+depends=(
+  glib2
+  gtk3
+)
+makedepends=(
+  gi-docgen
+  git
+  glade
+  gobject-introspection
+  meson
+  vala
+)
 checkdepends=(xorg-server-xvfb)
-options=(debug)
-_commit=2885c314c9c84037b6fe55ead6a232e60ebfc9c5  # tags/1.6.3^0
+_commit=48ae7ec0f7f9ee5f666da38b0e39e66874957166  # tags/1.8.2^0
 source=("git+https://gitlab.gnome.org/GNOME/libhandy.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -27,8 +36,7 @@ prepare() {
 }
 
 build() {
-  arch-meson libhandy build \
-    -D gtk_doc=true
+  arch-meson libhandy build -D gtk_doc=true
   meson compile -C build
 }
 
@@ -53,4 +61,4 @@ package_libhandy-docs() {
   mv doc/* "$pkgdir"
 }
 
-# vim:set sw=2 et:
+# vim:set sw=2 sts=-1 et:

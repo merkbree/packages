@@ -3,13 +3,12 @@
 # Contributor: Tom Newsom <Jeepster.gmx.co.uk>
 
 pkgname=imlib2
-pkgver=1.9.1
+pkgver=1.11.1
 pkgrel=1
 pkgdesc='Library that does image file loading and saving as well as rendering, manipulation, arbitrary polygon support'
 url='https://sourceforge.net/projects/enlightenment/'
 arch=('x86_64')
 license=('BSD')
-options=('debug')
 makedepends=(# Currently highway does provide a static library only, that libjxl links to.
              # This introduces a build dependency for now...
              'highway'
@@ -23,8 +22,8 @@ optdepends=('libheif: HEIF loader (for AVIF)'
             'libwebp: WEBP loader'
             'openjpeg2: J2K loader')
 source=("https://downloads.sourceforge.net/project/enlightenment/imlib2-src/${pkgver}/${pkgname}-${pkgver}.tar.xz")
-sha256sums=('4a224038bfffbe5d4d250c44e05f4ee5ae24dcfef8395b1677c715c58f764d43')
-sha512sums=('00eb8804a32e1403614e9f899f358dd9797f4bcfa7e9fdecd37992731019933e39834a60bd20be8fb69a35161ba1e784bd638b5ecb626d01a4f69c70c330e5f1')
+sha256sums=('f712b6bb9dcad46d8b8f4ad52610dcbbaebb4cc80b5fd12f93124d3a380fa6bf')
+sha512sums=('2d0dc569ab35822d5ac3cd07979a807462c1ad501ea15e4c757a15bbe254657c08acf6da8603ba2e9ab5b57a6b0c0ecf119eab80ffe59a55f29d325c839763ac')
 
 build() {
   cd "${pkgname}-${pkgver}"

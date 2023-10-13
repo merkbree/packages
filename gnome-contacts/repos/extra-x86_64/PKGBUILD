@@ -2,20 +2,33 @@
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gnome-contacts
-pkgver=42.0
+pkgver=44.0
 pkgrel=1
 pkgdesc="Contacts Manager for GNOME"
 url="https://wiki.gnome.org/Apps/Contacts"
 arch=(x86_64)
 license=(GPL2)
-depends=(gtk4 folks gnome-online-accounts libgee libadwaita libportal
-         evolution-data-server)
-makedepends=(vala gobject-introspection git meson appstream-glib)
+depends=(
+  evolution-data-server
+  folks
+  gnome-online-accounts
+  gtk4
+  libadwaita
+  libgee
+  libportal-gtk4
+  qrencode
+)
+makedepends=(
+  appstream-glib
+  git
+  gobject-introspection
+  meson
+  vala
+)
 groups=(gnome)
-options=(debug)
-_commit=06fd6bf78baa1717290af02160cc6db4d19ad075  # tags/42.0^0
+_commit=7de4264212aac05f8acec29ba54adac90ae8ed39  # tags/44.0^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-contacts.git#commit=$_commit")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 
 pkgver() {
   cd $pkgname
@@ -38,3 +51,5 @@ check() {
 package() {
   meson install -C build --destdir "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:

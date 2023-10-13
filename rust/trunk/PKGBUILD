@@ -5,36 +5,70 @@
 # Contributor: userwithuid <userwithuid@gmail.com>
 
 pkgbase=rust
-pkgname=(rust lib32-rust-libs rust-musl rust-wasm rust-src)
+pkgname=(
+  rust
+  lib32-rust-libs
+  rust-musl
+  rust-wasm
+  rust-src
+)
 epoch=1
-pkgver=1.63.0
-pkgrel=1
+pkgver=1.69.0
+pkgrel=3
 pkgdesc="Systems programming language focused on safety, speed and concurrency"
 url=https://www.rust-lang.org/
 arch=(x86_64)
-license=(MIT Apache)
-options=(!emptydirs !strip !lto)
-depends=(gcc-libs llvm-libs curl libssh2 gcc)
-makedepends=(rust llvm libffi lib32-gcc-libs perl python cmake musl ninja
-             wasi-libc lld)
-checkdepends=(procps-ng gdb)
+license=(
+  Apache
+  MIT
+)
+options=(
+  !debug
+  !emptydirs
+  !lto
+  !strip
+)
+depends=(
+  curl
+  gcc
+  gcc-libs
+  libssh2
+  llvm-libs
+)
+makedepends=(
+  cmake
+  lib32-gcc-libs
+  libffi
+  lld
+  llvm
+  musl
+  ninja
+  perl
+  python
+  rust
+  wasi-libc
+)
+checkdepends=(
+  gdb
+  procps-ng
+)
 source=(
   "https://static.rust-lang.org/dist/rustc-$pkgver-src.tar.gz"{,.asc}
   0001-cargo-Change-libexec-dir.patch
   0001-bootstrap-Change-libexec-dir.patch
   0002-compiler-Change-LLVM-targets.patch
   0003-compiler-Use-wasm-ld-for-wasm-targets.patch
-  remove-include-linux-fs.h.patch
 )
-sha256sums=('1f9580295642ef5da7e475a8da2397d65153d3f2cb92849dbd08ed0effca99d0'
-            'SKIP'
-            'c901a9bb036c29ca092f7dbc8b447efdd9aa1044a902a88f9d024cb22681dc19'
-            '7080a88e44234aa363ba6321f319c8d9621382dd9581748a43847dae005e55bd'
-            '5137df0a3399e279db4c5b83ae8e99d2c1977f62aec2f90521edb02f51597064'
-            '26bf232d144b81a303ed91f6a331ddf004c5d9fefd41a11e36b61812a34459aa'
-            '34ed866e313e4580130a50118a4410d36fa0159123982521b6ef049439fc32ad')
-validpgpkeys=(108F66205EAEB0AAA8DD5E1C85AB96E6FA1BE5FE  # Rust Language (Tag and Release Signing Key) <rust-key@rust-lang.org>
-              474E22316ABF4785A88C6E8EA2C794A986419D8A) # Tom Stellard <tstellar@redhat.com>
+b2sums=('1440ad3e7e52d1e31752c8a44f9e626b9c2b0388f7285ddbdf1d0f7802724e707daffe19c6ba4aec62c3dba0e60ec2426ebecf69268b1e20a0c89860964a64f3'
+        'SKIP'
+        'd1a029499dd221b24124b193f7d42e9cb766d4bb9c4faa61a4b60007550693c98f1d1ab6793dd16b9f5a229bc70f805d6cd5eca6e744b34c0fd2413701bc58b6'
+        '9752dc3b5fc2248c8bec4efbb3d927088d48d9416229d545a05180374549a0dda6e9d6d9a8d0a3b03437f2e3c54f9c153aab3281d46411f4c81559033b8fb04a'
+        'a92b1eb9bc4101e055f89d9810c99e6e6472b3bb27bb01f8ea8a4b35f7e25512858e1555c2807eb7e8175df22c2e7937753d6787013920f9c76587e71f8df2f4'
+        '9f3f911088a22101f8966dc16a1ecc65da5facaad5c169d9464e721aa452dd45968d359a5b35ae74ff23bd98d44c60cb04c0b8bc89e10fb99549c1670371c902')
+validpgpkeys=(
+  108F66205EAEB0AAA8DD5E1C85AB96E6FA1BE5FE  # Rust Language (Tag and Release Signing Key) <rust-key@rust-lang.org>
+  474E22316ABF4785A88C6E8EA2C794A986419D8A  # Tom Stellard <tstellar@redhat.com>
+)
 
 prepare() {
   cd rustc-$pkgver-src
@@ -49,9 +83,6 @@ prepare() {
 
   # Use our wasm-ld
   patch -Np1 -i ../0003-compiler-Use-wasm-ld-for-wasm-targets.patch
-
-  # https://github.com/llvm/llvm-project/issues/56421
-  patch -Np1 -d src/llvm-project < ../remove-include-linux-fs.h.patch
 
   cat >config.toml <<END
 changelog-seen = 2
@@ -73,7 +104,16 @@ rustc = "/usr/bin/rustc"
 rustfmt = "/usr/bin/rustfmt"
 locked-deps = true
 vendor = true
-tools = ["cargo", "rls", "clippy", "rustfmt", "analysis", "src", "rust-demangler"]
+tools = [
+  "cargo",
+  "clippy",
+  "rustdoc",
+  "rustfmt",
+  "rust-analyzer",
+  "analysis",
+  "src",
+  "rust-demangler",
+]
 sanitizers = true
 profiler = true
 
@@ -105,7 +145,17 @@ deny-warnings = false
 compression-formats = ["gz"]
 
 [target.x86_64-unknown-linux-gnu]
+cc = "/usr/bin/gcc"
+cxx = "/usr/bin/g++"
+ar = "/usr/bin/gcc-ar"
+ranlib = "/usr/bin/gcc-ranlib"
 llvm-config = "/usr/bin/llvm-config"
+
+[target.i686-unknown-linux-gnu]
+cc = "/usr/bin/gcc"
+cxx = "/usr/bin/g++"
+ar = "/usr/bin/gcc-ar"
+ranlib = "/usr/bin/gcc-ranlib"
 
 [target.x86_64-unknown-linux-musl]
 sanitizers = false
@@ -145,6 +195,9 @@ build() {
   rm usr/lib/rustlib/{components,install.log,rust-installer-version,uninstall.sh}
   rm usr/lib/rustlib/manifest-*
 
+  # built separately
+  rm usr/bin/rust-analyzer
+
   # rustbuild always installs copies of the shared libraries to /usr/lib,
   # overwrite them with symlinks to the per-architecture versions
   mkdir -p usr/lib32
@@ -164,18 +217,35 @@ build() {
 }
 
 package_rust() {
-  optdepends=('lldb: rust-lldb script'
-              'gdb: rust-gdb script')
-  provides=(cargo rustfmt)
-  conflicts=(cargo rustfmt 'rust-docs<1:1.56.1-3')
-  replaces=(cargo rustfmt cargo-tree 'rust-docs<1:1.56.1-3')
+  optdepends=(
+    'gdb: rust-gdb script'
+    'lldb: rust-lldb script'
+  )
+  provides=(
+    cargo
+    rustfmt
+  )
+  conflicts=(
+    cargo
+    'rust-docs<1:1.56.1-3'
+    rustfmt
+  )
+  replaces=(
+    cargo
+    cargo-tree
+    'rust-docs<1:1.56.1-3'
+    rustfmt
+  )
 
   cp -a dest-rust/* "$pkgdir"
 }
 
 package_lib32-rust-libs() {
   pkgdesc="32-bit target and libraries for Rust"
-  depends=(rust lib32-gcc-libs)
+  depends=(
+    lib32-gcc-libs
+    rust
+  )
   provides=(lib32-rust)
   conflicts=(lib32-rust)
   replaces=(lib32-rust)
@@ -198,7 +268,10 @@ package_rust-musl() {
 
 package_rust-wasm() {
   pkgdesc="WebAssembly targets for Rust"
-  depends=(rust lld)
+  depends=(
+    lld
+    rust
+  )
 
   cp -a dest-wasm/* "$pkgdir"
 

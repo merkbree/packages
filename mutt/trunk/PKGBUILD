@@ -3,26 +3,44 @@
 # Contributor: tobias [tobias [at] archlinux.org]
 
 pkgname=mutt
-pkgver=2.2.7
+pkgver=2.2.10
 pkgrel=1
 pkgdesc="Small but very powerful text-based mail client"
 arch=(x86_64)
 url="http://www.mutt.org/"
 license=(GPL2)
-depends=(glibc libgpg-error openssl libsasl mime-types sqlite zlib)
-makedepends=(docbook-xml docbook-xsl elinks gdbm gpgme krb5 libidn2 libxslt
-lynx ncurses)
+depends=(
+  glibc
+  libgpg-error
+  mime-types
+  sqlite
+  zlib
+)
+makedepends=(
+  docbook-xml
+  docbook-xsl
+  elinks
+  gdbm
+  gpgme
+  krb5
+  libidn2
+  libsasl
+  libxslt
+  lynx
+  ncurses
+  openssl
+)
 optdepends=(
   'perl: for smime_keys'
   'python: for experimental mutt_oath2.py'
   'smtp-forwarder: to send mail'
 )
-backup=(etc/Muttrc)
-options=(debug)
+backup=(etc/$pkgname/Muttrc)
+install=$pkgname.install
 source=(https://bitbucket.org/$pkgname/$pkgname/downloads/$pkgname-$pkgver.tar.gz{,.asc})
-sha512sums=('5bc88d3efe82db50c2756e7011831caf907adf794e4d693d1318d25deeabac6834989ddef074064252f0f1f0e7df30d6d7d895e0a1d7893696e1f5252955ba22'
+sha512sums=('6db0009163b31425dafe7b6e38374a623f1fd057daf57baaebe18be6d42e5a0ce7087a41bc5e2411f4fbe144497a43682c480754b51108952c7dd16b9294192f'
             'SKIP')
-b2sums=('3cc02ec5bc46f6a3f34c87c1454bdb0198be75a5669896b72ccd780b582cb1e7a4de466c41d25d1e74ab34e177bdca8c05574eddc6302e05acb8e3be6f53438e'
+b2sums=('d6892f49520b4fd73d7d0d04119b4f05828d76a4be4b55a8dbc585ef817d4455c9b9a93158d31e0699f011023de524355930d4acff3b9454982da0042c54db22'
         'SKIP')
 validpgpkeys=('8975A9B33AA37910385C5308ADEF768480316BDA') # Kevin J. McCarthy <kevin@8t8.us>
 
@@ -32,33 +50,46 @@ prepare() {
 }
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure \
-    --prefix=/usr \
-    --sysconfdir=/etc \
-    --enable-debug \
-    --enable-gpgme \
-    --enable-pop \
-    --enable-imap \
-    --enable-smtp \
-    --enable-hcache \
-    --enable-sidebar \
-    --enable-autocrypt \
-    --with-curses=/usr \
-    --with-gss=/usr \
-    --with-ssl=/usr \
-    --with-sqlite3 \
-    --with-sasl \
+  local configure_options=(
+    --prefix=/usr
+    --sysconfdir=/etc/$pkgname
+    --enable-autocrypt
+    --enable-compressed
+    --enable-debug
+    --enable-gpgme
+    --enable-hcache
+    --enable-imap
+    --enable-pop
+    --enable-sidebar
+    --enable-smtp
+    --with-curses=/usr
+    --with-gss=/usr
     --with-idn2
+    --with-sasl
+    --with-sqlite3
+    --with-ssl=/usr
+  )
+
+  cd $pkgname-$pkgver
+  ./configure "${configure_options[@]}"
   make
 }
 
 package() {
-  depends+=(libgdbm.so libgpgme.so libgssapi_krb5.so libidn2.so libncursesw.so)
+  depends+=(
+    gdbm libgdbm.so
+    gpgme libgpgme.so
+    krb5 libgssapi_krb5.so
+    libidn2 libidn2.so
+    libsasl libsasl2.so
+    ncurses libncursesw.so
+    openssl libssl.so
+  )
 
   make DESTDIR="$pkgdir" install -C $pkgname-$pkgver
-  install -vDm 644 $pkgname-$pkgver/contrib/gpg.rc "$pkgdir/etc/Muttrc.gpg.dist"
-
-  # /etc/mime.types is provided by mailcap
-  rm "$pkgdir/etc/mime.types"{,.dist}
+  # we backup /etc/mutt/Muttrc and don't need another copy
+  rm -v "$pkgdir/etc/$pkgname/Muttrc.dist"
+  # a more comprehensive list of mime types is provided by mailcap in /etc/mime.types
+  rm -v "$pkgdir/etc/$pkgname/mime.types"{,.dist}
+  ln -sv ../mime.types "$pkgdir/etc/$pkgname/mime.types"
 }

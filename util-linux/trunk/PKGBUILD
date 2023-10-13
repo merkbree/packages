@@ -4,16 +4,16 @@
 
 pkgbase=util-linux
 pkgname=(util-linux util-linux-libs)
-_pkgmajor=2.38
-_realver=${_pkgmajor}.1
+_pkgmajor=2.39
+_realver=${_pkgmajor}
 pkgver=${_realver/-/}
-pkgrel=1
+pkgrel=0
 pkgdesc='Miscellaneous system utilities for Linux'
 url='https://github.com/karelzak/util-linux'
 arch=('x86_64')
 makedepends=('asciidoctor' 'libcap-ng' 'libxcrypt' 'python' 'systemd')
 license=('GPL2')
-options=('debug' 'strip')
+options=('strip')
 validpgpkeys=('B0C64D14301CC6EFAEDF60E4E4B71D5EEC39C284')  # Karel Zak
 source=("https://www.kernel.org/pub/linux/utils/util-linux/v${_pkgmajor}/${pkgbase}-${_realver}.tar."{xz,sign}
         pam-{login,common,runuser,su}
@@ -21,7 +21,7 @@ source=("https://www.kernel.org/pub/linux/utils/util-linux/v${_pkgmajor}/${pkgba
         '60-rfkill.rules'
         'rfkill-unblock_.service'
         'rfkill-block_.service')
-sha256sums=('60492a19b44e6cf9a3ddff68325b333b8b52b6c59ce3ebd6a0ecaa4c5117e84f'
+sha256sums=('32b30a336cda903182ed61feb3e9b908b762a5e66fe14e43efb88d37162075cb'
             'SKIP'
             '99cd77f21ee44a0c5e57b0f3670f711a00496f198fc5704d7e44f5d817c81a0f'
             '57e057758944f4557762c6def939410c04ca5803cbdd2bfa2153ce47ffe7a4af'
@@ -60,8 +60,7 @@ package_util-linux() {
   depends=('pam' 'shadow' 'coreutils' 'systemd-libs' 'libsystemd.so'
            'libudev.so' 'libcap-ng' 'libxcrypt' 'libcrypt.so' 'util-linux-libs'
            'libmagic.so' 'libncursesw.so')
-  optdepends=('python: python bindings to libmount'
-              'words: default dictionary for look')
+  optdepends=('words: default dictionary for look')
   backup=(etc/pam.d/chfn
           etc/pam.d/chsh
           etc/pam.d/login
@@ -70,46 +69,61 @@ package_util-linux() {
           etc/pam.d/su
           etc/pam.d/su-l)
 
-  cd "${pkgbase}-${_realver}"
+  _python_stdlib="$(python -c 'import sysconfig; print(sysconfig.get_paths()["stdlib"])')"
 
-  make DESTDIR="${pkgdir}" usrsbin_execdir=/usr/bin install
+  make -C "${pkgbase}-${_realver}" DESTDIR="${pkgdir}" usrsbin_execdir=/usr/bin install
+
+  # remove static libraries
+  rm "${pkgdir}"/usr/lib/lib*.a*
 
   # setuid chfn and chsh
   chmod 4755 "${pkgdir}"/usr/bin/{newgrp,ch{sh,fn}}
 
   # install PAM files for login-utils
-  install -Dm0644 "${srcdir}/pam-common" "${pkgdir}/etc/pam.d/chfn"
-  install -m0644 "${srcdir}/pam-common" "${pkgdir}/etc/pam.d/chsh"
-  install -m0644 "${srcdir}/pam-login" "${pkgdir}/etc/pam.d/login"
-  install -m0644 "${srcdir}/pam-runuser" "${pkgdir}/etc/pam.d/runuser"
-  install -m0644 "${srcdir}/pam-runuser" "${pkgdir}/etc/pam.d/runuser-l"
-  install -m0644 "${srcdir}/pam-su" "${pkgdir}/etc/pam.d/su"
-  install -m0644 "${srcdir}/pam-su" "${pkgdir}/etc/pam.d/su-l"
+  install -Dm0644 pam-common "${pkgdir}/etc/pam.d/chfn"
+  install -m0644 pam-common "${pkgdir}/etc/pam.d/chsh"
+  install -m0644 pam-login "${pkgdir}/etc/pam.d/login"
+  install -m0644 pam-runuser "${pkgdir}/etc/pam.d/runuser"
+  install -m0644 pam-runuser "${pkgdir}/etc/pam.d/runuser-l"
+  install -m0644 pam-su "${pkgdir}/etc/pam.d/su"
+  install -m0644 pam-su "${pkgdir}/etc/pam.d/su-l"
 
   # TODO(dreisner): offer this upstream?
   sed -i '/ListenStream/ aRuntimeDirectory=uuidd' "${pkgdir}/usr/lib/systemd/system/uuidd.socket"
 
-  ### runtime libs are shipped as part of util-linux-libs
-  rm "${pkgdir}"/usr/lib/lib*.{a,so}*
+  # runtime libs are shipped as part of util-linux-libs
+  install -d -m0755 util-linux-libs/lib/
+  mv "$pkgdir"/usr/lib/lib*.so* util-linux-libs/lib/
+  mv "$pkgdir"/usr/lib/pkgconfig util-linux-libs/lib/pkgconfig
+  mv "$pkgdir"/usr/include util-linux-libs/include
+  mv "$pkgdir"/"${_python_stdlib}"/site-packages util-linux-libs/site-packages
+  rmdir "$pkgdir"/"${_python_stdlib}"
+  mv "$pkgdir"/usr/share/man/man3 util-linux-libs/man3
 
-  ### install systemd-sysusers
-  install -Dm0644 "${srcdir}/util-linux.sysusers" \
+  # install systemd-sysusers
+  install -Dm0644 util-linux.sysusers \
     "${pkgdir}/usr/lib/sysusers.d/util-linux.conf"
 
-  install -Dm0644 "${srcdir}/60-rfkill.rules" \
+  install -Dm0644 60-rfkill.rules \
     "${pkgdir}/usr/lib/udev/rules.d/60-rfkill.rules"
 
-  install -Dm0644 "${srcdir}/rfkill-unblock_.service" \
+  install -Dm0644 rfkill-unblock_.service \
     "${pkgdir}/usr/lib/systemd/system/rfkill-unblock@.service"
-  install -Dm0644 "${srcdir}/rfkill-block_.service" \
+  install -Dm0644 rfkill-block_.service \
     "${pkgdir}/usr/lib/systemd/system/rfkill-block@.service"
 }
 
 package_util-linux-libs() {
   pkgdesc="util-linux runtime libraries"
+  depends=('glibc')
   provides=('libutil-linux' 'libblkid.so' 'libfdisk.so' 'libmount.so' 'libsmartcols.so' 'libuuid.so')
   conflicts=('libutil-linux')
   replaces=('libutil-linux')
+  optdepends=('python: python bindings to libmount')
 
-  make -C "${pkgbase}-${_realver}" DESTDIR="${pkgdir}" install-usrlib_execLTLIBRARIES
+  install -d -m0755 "$pkgdir"/{"${_python_stdlib}",usr/share/man/}
+  mv util-linux-libs/lib/* "$pkgdir"/usr/lib/
+  mv util-linux-libs/include "$pkgdir"/usr/include
+  mv util-linux-libs/site-packages "$pkgdir"/"${_python_stdlib}"/site-packages
+  mv util-linux-libs/man3 "$pkgdir"/usr/share/man/man3
 }

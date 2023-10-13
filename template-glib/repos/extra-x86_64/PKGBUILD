@@ -1,7 +1,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgname=template-glib
-pkgver=3.34.1
+pkgver=3.36.1
 pkgrel=1
 pkgdesc="A templating library for GLib"
 url="https://gitlab.gnome.org/GNOME/template-glib"
@@ -10,8 +10,7 @@ license=(LGPL)
 depends=(glib2 gobject-introspection-runtime)
 makedepends=(git meson vala gobject-introspection gtk-doc)
 provides=(libtemplate_glib-1.0.so)
-options=(debug)
-_commit=5d2b2e9c9fc26e687cb2b0720eaae620d66e54a3  # tags/3.34.1^0
+_commit=f7c21273599381494bc8d9b0633b93e14586471a  # tags/3.36.1^0
 source=("git+https://gitlab.gnome.org/GNOME/template-glib.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -25,7 +24,7 @@ prepare() {
 }
 
 build() {
-  arch-meson $pkgname build -D enable_gtk_doc=true
+  arch-meson $pkgname build -D gtk_doc=true
   meson compile -C build
 }
 
@@ -36,3 +35,5 @@ check() {
 package() {
   meson install -C build --destdir "$pkgdir"
 }
+
+# vim:set sw=2 sts=-1 et:
